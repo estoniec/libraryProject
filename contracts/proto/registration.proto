@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package reg_service.registration;
+
+option go_package = "./gen/go/registration;pb_registration";
+
+service RegService {
+  rpc Registration(RegRequest) returns (RegResponse) {}
+  rpc CheckUser(CheckRequest) returns (CheckResponse) {}
+}
+
+// Reg
+
+message RegRequest {
+  string nameAndSurname = 1;
+  string classAndParallel = 2;
+  string phone = 3;
+  string ID = 4;
+}
+
+message RegResponse {
+  string error = 1;
+}
+
+// Check
+
+message CheckRequest {
+  int64 ID = 1;
+}
+
+message CheckResponse {
+  bool checked = 1;
+}
