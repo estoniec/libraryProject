@@ -20,6 +20,7 @@ message RegRequest {
 
 message RegResponse {
   string error = 1;
+  int64 status = 2;
 }
 
 // Check
