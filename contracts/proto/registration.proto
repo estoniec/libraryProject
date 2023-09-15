@@ -12,10 +12,10 @@ service RegService {
 // Reg
 
 message RegRequest {
-  string nameAndSurname = 1;
-  string classAndParallel = 2;
+  string username = 1;
+  string class = 2;
   string phone = 3;
-  string ID = 4;
+  int64 ID = 4;
 }
 
 message RegResponse {
