@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package books_service.books;
+
+option go_package = "./gen/go/books;pb_books";
+
+service BooksService {
+  rpc FindByISBN(FindByISBNRequest) returns (FindByISBNResponse) {}
+}
+
+// Reg
+
+message FindByISBNRequest {
+  string ISBN = 1;
+}
+
+message FindByISBNResponse {
+  string error = 1;
+  int64 status = 2;
+  bool exists = 3;
+}
