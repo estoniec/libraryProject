@@ -20,12 +20,6 @@ type CheckOutput struct {
 	Checked bool
 }
 
-func NewCheckInput(id int64) CheckInput {
-	return CheckInput{
-		ID: id,
-	}
-}
-
 func NewCheckOutput(checked bool) CheckOutput {
 	return CheckOutput{
 		Checked: checked,

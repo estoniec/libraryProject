@@ -1,18 +1,18 @@
 package app
 
 import (
+	"books-srvc/internal/config"
+	v1 "books-srvc/internal/controller/grpc/v1"
+	"books-srvc/internal/domain/books/dao"
+	"books-srvc/internal/domain/books/service"
+	psql "books-srvc/pkg/postgresql"
 	"context"
 	"fmt"
-	pb "github.com/estoniec/libraryProject/contracts/gen/go/registration"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"log/slog"
 	"net"
-	"registration-svc/internal/config"
-	v1 "registration-svc/internal/controller/grpc/v1"
-	"registration-svc/internal/domain/reg/dao"
-	"registration-svc/internal/domain/reg/service"
-	psql "registration-svc/pkg/postgresql"
 	"time"
 )
 
@@ -36,9 +36,9 @@ func NewApp(ctx context.Context, cfg *config.Config) App {
 	if err != nil {
 		return App{}
 	}
-	storage := dao.NewRegistrationStorage(pgClient)
+	storage := dao.NewBookStorage(pgClient)
 	svc := service.NewService(storage)
-	server := v1.NewServer(svc, pb.UnimplementedRegServiceServer{})
+	server := v1.NewServer(svc, pb.UnimplementedBooksServiceServer{})
 	return App{
 		config: cfg,
 		server: server,
@@ -66,7 +66,7 @@ func (a *App) startGRPC() error {
 
 	grpcServer := grpc.NewServer()
 
-	pb.RegisterRegServiceServer(grpcServer, a.server)
+	pb.RegisterBooksServiceServer(grpcServer, a.server)
 
 	return grpcServer.Serve(lis)
 }

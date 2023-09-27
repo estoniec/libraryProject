@@ -2,14 +2,15 @@ package v1
 
 import (
 	"context"
+	"fmt"
 	dto2 "gateway/internal/domain/books/dto"
 	"gateway/pkg/adapters/handling"
 	"github.com/mymmrac/telego"
-	"log"
 	"log/slog"
 )
 
 type BooksService interface {
+	FindByISBN(ctx context.Context, input dto2.FindByISBNInput) (dto2.FindByISBNOutput, error)
 }
 
 type BooksKeyboard interface {
@@ -25,7 +26,7 @@ type BooksHandler struct {
 	keyboard         BooksKeyboard
 }
 
-func NewBooksHandler(builder Builder, router Router, question Question, callbackQuestion CallbackQuestion, service RegService, keyboard BooksKeyboard) *BooksHandler {
+func NewBooksHandler(builder Builder, router Router, question Question, callbackQuestion CallbackQuestion, service BooksService, keyboard BooksKeyboard) *BooksHandler {
 	return &BooksHandler{
 		builder:          builder,
 		router:           router,
@@ -72,11 +73,13 @@ func (h *BooksHandler) AvailableBooks(ctx context.Context, msg telego.Update) {
 func (h *BooksHandler) FindByISBN(ctx context.Context, msg telego.Update) {
 	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
 	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		slog.Error(err.Error())
 		return
 	}
 	_, err = h.builder.NewMessage(msg, "Введите ISBN книги:", nil)
 	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		slog.Error(err.Error())
 		return
 	}
@@ -88,5 +91,17 @@ func (h *BooksHandler) FindByISBN(ctx context.Context, msg telego.Update) {
 		return
 	}
 	dto := dto2.NewISBNInput(isbn.Text)
-	log.Println(dto)
+	book, err := h.service.FindByISBN(ctx, dto)
+	if err != nil || book.Status != 200 {
+		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
+			h.builder.NewMessage(msg, "Книги с таким ISBN не существует.", h.keyboard.FindBook())
+			slog.Error(err.Error())
+			return
+		}
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	h.builder.NewMessage(msg, fmt.Sprintf("Книга найдена, вот информация о ней:\n\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nКоличество в библиотеке (шт): %d.", book.Book.ISBN, book.Book.Author, book.Book.Name, book.Book.Count), h.keyboard.FindBook())
+	return
 }

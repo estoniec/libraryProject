@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"project11/registration-svc/internal/domain/reg/dto"
-	"project11/registration-svc/internal/domain/reg/model"
+	"registration-svc/internal/domain/reg/dto"
+	"registration-svc/internal/domain/reg/model"
 )
 
 type Repository interface {

@@ -1,4 +1,4 @@
-package dto
+package reg_dto
 
 type RegInput struct {
 	Phone    string

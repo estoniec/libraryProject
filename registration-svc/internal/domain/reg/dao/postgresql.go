@@ -4,10 +4,10 @@ import (
 	"context"
 	sq "github.com/Masterminds/squirrel"
 	"log/slog"
-	"project11/registration-svc/internal/dal/postgres"
-	"project11/registration-svc/internal/domain/reg/dto"
-	"project11/registration-svc/internal/domain/reg/model"
-	psql "project11/registration-svc/pkg/postgresql"
+	"registration-svc/internal/dal/postgres"
+	"registration-svc/internal/domain/reg/dto"
+	"registration-svc/internal/domain/reg/model"
+	psql "registration-svc/pkg/postgresql"
 )
 
 type RegistrationDAO struct {

@@ -1,9 +1,9 @@
-package service
+package reg_service
 
 import (
 	"context"
-	"gateway/internal/domain/registration/dto"
-	pb "github.com/estoniec/automaticLibrary/contracts/gen/go/registration"
+	dto "gateway/internal/domain/registration/dto"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/registration"
 )
 
 type Service struct {

@@ -7,9 +7,10 @@ import (
 )
 
 type Config struct {
-	Port      string `yaml:"port" mapstructure:"PORT"`
-	RegSvcUrl string `yaml:"reg_svc_url" mapstructure:"REG_SVC_URL"`
-	BotToken  string `yaml:"bot_token" mapstructure:"BOT_TOKEN"`
+	Port        string `yaml:"port" mapstructure:"PORT"`
+	RegSvcUrl   string `yaml:"reg_svc_url" mapstructure:"REG_SVC_URL"`
+	BooksSvcUrl string `yaml:"books_svc_url" mapstructure:"BOOKS_SVC_URL"`
+	BotToken    string `yaml:"bot_token" mapstructure:"BOT_TOKEN"`
 }
 
 var instance *Config

@@ -1,9 +1,9 @@
 package main
 
 import (
+	"books-srvc/internal/app"
+	"books-srvc/internal/config"
 	"context"
-	"registration-svc/internal/app"
-	"registration-svc/internal/config"
 )
 
 func main() {

@@ -2,9 +2,9 @@ package v1
 
 import (
 	"context"
-	pb "github.com/estoniec/automaticLibrary/contracts/gen/go/registration"
-	"project11/registration-svc/internal/domain/reg/dto"
-	"project11/registration-svc/internal/domain/reg/model"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/registration"
+	"registration-svc/internal/domain/reg/dto"
+	"registration-svc/internal/domain/reg/model"
 )
 
 type Service interface {

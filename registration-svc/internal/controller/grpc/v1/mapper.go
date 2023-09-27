@@ -1,14 +1,10 @@
 package v1
 
 import (
-	pb "github.com/estoniec/automaticLibrary/contracts/gen/go/registration"
-	"project11/registration-svc/internal/domain/reg/dto"
-	"project11/registration-svc/internal/domain/reg/model"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/registration"
+	"registration-svc/internal/domain/reg/dto"
+	"registration-svc/internal/domain/reg/model"
 )
-
-type CheckInput struct {
-	ID int64
-}
 
 func NewRegInput(req *pb.RegRequest) model.User {
 	return model.CreateUser(req.GetID(), req.GetPhone(), req.GetUsername(), req.GetClass())
@@ -21,8 +17,8 @@ func NewRegOutput(output dto.RegOutput) *pb.RegResponse {
 	}
 }
 
-func NewCheckInput(req *pb.CheckRequest) CheckInput {
-	return CheckInput{
+func NewCheckInput(req *pb.CheckRequest) dto.CheckInput {
+	return dto.CheckInput{
 		ID: req.ID,
 	}
 }
