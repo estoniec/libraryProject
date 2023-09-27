@@ -9,7 +9,7 @@ import (
 	"gateway/pkg/adapters/builder"
 	"gateway/pkg/adapters/question"
 	"gateway/pkg/adapters/router"
-	pb "github.com/estoniec/automaticLibrary/contracts/gen/go/registration"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/registration"
 	"github.com/mymmrac/telego"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"

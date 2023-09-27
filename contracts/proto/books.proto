@@ -17,5 +17,6 @@ message FindByISBNRequest {
 message FindByISBNResponse {
   string error = 1;
   int64 status = 2;
-  bool exists = 3;
+  string isbn = 3;
+  int64 count = 4;
 }
