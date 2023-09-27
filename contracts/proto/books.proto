@@ -19,4 +19,6 @@ message FindByISBNResponse {
   int64 status = 2;
   string isbn = 3;
   int64 count = 4;
+  string name = 5;
+  string author = 6;
 }
