@@ -21,4 +21,5 @@ message FindByISBNResponse {
   int64 count = 4;
   string name = 5;
   string author = 6;
+  int64 id = 7;
 }
