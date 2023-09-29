@@ -47,6 +47,8 @@ func (h *BooksHandler) Register() {
 	av.WithCommand("/available")
 	findByISBN := regGroup.NewHandler(h.FindByISBN)
 	findByISBN.WithCommand("/findbyisbn")
+	findByAuthor := regGroup.NewHandler(h.FindByAuthor)
+	findByAuthor.WithCommand("/findbyauthor")
 	h.AddGroup(regGroup)
 }
 
@@ -56,7 +58,7 @@ func (h *BooksHandler) AvailableBooks(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	_, err = h.builder.NewMessage(msg, "Выберите тип поиска:", h.keyboard.FindBook())
+	_, err = h.builder.NewMessage(msg, "Сначала нужно найти книгу. Выберите тип поиска:", h.keyboard.FindBook())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -102,6 +104,42 @@ func (h *BooksHandler) FindByISBN(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	h.builder.NewMessage(msg, fmt.Sprintf("Книга найдена, вот информация о ней:\n\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nКоличество в библиотеке (шт): %d.", book.Book.ISBN, book.Book.Author, book.Book.Name, book.Book.Count), h.keyboard.FindBook())
+	h.builder.NewMessage(msg, fmt.Sprintf("Книга найдена, вот информация о ней:\n\nID: %d,\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nКоличество в библиотеке (шт): %d.", book.Book.ID, book.Book.ISBN, book.Book.Author, book.Book.Name, book.Book.Count), h.keyboard.FindBook())
+	return
+}
+
+func (h *BooksHandler) FindByAuthor(ctx context.Context, msg telego.Update) {
+	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	_, err = h.builder.NewMessage(msg, "Введите автора книги (например, \"А. А. Блок\"):", nil)
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	answer, c := h.question.NewQuestion(msg)
+	defer c()
+	isbn, ok := <-answer
+	if !ok || isbn.Text == "" {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		return
+	}
+	dto := dto2.NewISBNInput(isbn.Text)
+	book, err := h.service.FindByISBN(ctx, dto)
+	if err != nil || book.Status != 200 {
+		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
+			h.builder.NewMessage(msg, "Книг от такого автора не существует.", h.keyboard.FindBook())
+			slog.Error(err.Error())
+			return
+		}
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	h.builder.NewMessage(msg, fmt.Sprintf("Книга найдена, вот информация о ней:\n\nID: %d, ISBN: %s,\nАвтор: %s,\nНазвание: %s,\nКоличество в библиотеке (шт): %d.", book.Book.ID, book.Book.ISBN, book.Book.Author, book.Book.Name, book.Book.Count), h.keyboard.FindBook())
 	return
 }

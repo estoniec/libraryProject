@@ -8,6 +8,14 @@ service BooksService {
   rpc FindByISBN(FindByISBNRequest) returns (FindByISBNResponse) {}
 }
 
+message Book {
+  string isbn = 1;
+  int64 count = 2;
+  string name = 3;
+  string author = 4;
+  int64 id = 5;
+}
+
 // Reg
 
 message FindByISBNRequest {
@@ -17,9 +25,11 @@ message FindByISBNRequest {
 message FindByISBNResponse {
   string error = 1;
   int64 status = 2;
-  string isbn = 3;
-  int64 count = 4;
-  string name = 5;
-  string author = 6;
-  int64 id = 7;
+  Book book = 3;
+}
+
+message FindByAuthorRequest {
+  string error = 1;
+  int64 status = 2;
+  repeated Book books = 3;
 }

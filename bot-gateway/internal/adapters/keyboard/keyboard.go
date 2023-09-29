@@ -23,13 +23,10 @@ func (k *KeyboardManager) Repeat() *telego.InlineKeyboardMarkup {
 func (k *KeyboardManager) Menu() *telego.InlineKeyboardMarkup {
 	keyboard := tu.InlineKeyboard(
 		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton("Взять книгу").WithCallbackData("/get"),
+			tu.InlineKeyboardButton("Взять книгу").WithCallbackData("/available"),
 		),
 		tu.InlineKeyboardRow(
 			tu.InlineKeyboardButton("Сколько я взял книг?").WithCallbackData("/rented"),
-		),
-		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton("Какие книги есть в наличии?").WithCallbackData("/available"),
 		),
 	)
 	return keyboard
