@@ -19,7 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	BooksService_FindByISBN_FullMethodName = "/books_service.books.BooksService/FindByISBN"
+	BooksService_FindByISBN_FullMethodName          = "/books_service.books.BooksService/FindByISBN"
+	BooksService_FindByAuthor_FullMethodName        = "/books_service.books.BooksService/FindByAuthor"
+	BooksService_FindByName_FullMethodName          = "/books_service.books.BooksService/FindByName"
+	BooksService_FindByNameAndAuthor_FullMethodName = "/books_service.books.BooksService/FindByNameAndAuthor"
+	BooksService_FindAll_FullMethodName             = "/books_service.books.BooksService/FindAll"
 )
 
 // BooksServiceClient is the client API for BooksService service.
@@ -27,6 +31,10 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BooksServiceClient interface {
 	FindByISBN(ctx context.Context, in *FindByISBNRequest, opts ...grpc.CallOption) (*FindByISBNResponse, error)
+	FindByAuthor(ctx context.Context, in *FindByAuthorRequest, opts ...grpc.CallOption) (*FindByAuthorResponse, error)
+	FindByName(ctx context.Context, in *FindByNameRequest, opts ...grpc.CallOption) (*FindByNameResponse, error)
+	FindByNameAndAuthor(ctx context.Context, in *FindByNameAndAuthorRequest, opts ...grpc.CallOption) (*FindByNameAndAuthorResponse, error)
+	FindAll(ctx context.Context, in *FindAllRequest, opts ...grpc.CallOption) (*FindAllResponse, error)
 }
 
 type booksServiceClient struct {
@@ -46,11 +54,51 @@ func (c *booksServiceClient) FindByISBN(ctx context.Context, in *FindByISBNReque
 	return out, nil
 }
 
+func (c *booksServiceClient) FindByAuthor(ctx context.Context, in *FindByAuthorRequest, opts ...grpc.CallOption) (*FindByAuthorResponse, error) {
+	out := new(FindByAuthorResponse)
+	err := c.cc.Invoke(ctx, BooksService_FindByAuthor_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *booksServiceClient) FindByName(ctx context.Context, in *FindByNameRequest, opts ...grpc.CallOption) (*FindByNameResponse, error) {
+	out := new(FindByNameResponse)
+	err := c.cc.Invoke(ctx, BooksService_FindByName_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *booksServiceClient) FindByNameAndAuthor(ctx context.Context, in *FindByNameAndAuthorRequest, opts ...grpc.CallOption) (*FindByNameAndAuthorResponse, error) {
+	out := new(FindByNameAndAuthorResponse)
+	err := c.cc.Invoke(ctx, BooksService_FindByNameAndAuthor_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *booksServiceClient) FindAll(ctx context.Context, in *FindAllRequest, opts ...grpc.CallOption) (*FindAllResponse, error) {
+	out := new(FindAllResponse)
+	err := c.cc.Invoke(ctx, BooksService_FindAll_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BooksServiceServer is the server API for BooksService service.
 // All implementations must embed UnimplementedBooksServiceServer
 // for forward compatibility
 type BooksServiceServer interface {
 	FindByISBN(context.Context, *FindByISBNRequest) (*FindByISBNResponse, error)
+	FindByAuthor(context.Context, *FindByAuthorRequest) (*FindByAuthorResponse, error)
+	FindByName(context.Context, *FindByNameRequest) (*FindByNameResponse, error)
+	FindByNameAndAuthor(context.Context, *FindByNameAndAuthorRequest) (*FindByNameAndAuthorResponse, error)
+	FindAll(context.Context, *FindAllRequest) (*FindAllResponse, error)
 	mustEmbedUnimplementedBooksServiceServer()
 }
 
@@ -60,6 +108,18 @@ type UnimplementedBooksServiceServer struct {
 
 func (UnimplementedBooksServiceServer) FindByISBN(context.Context, *FindByISBNRequest) (*FindByISBNResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindByISBN not implemented")
+}
+func (UnimplementedBooksServiceServer) FindByAuthor(context.Context, *FindByAuthorRequest) (*FindByAuthorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindByAuthor not implemented")
+}
+func (UnimplementedBooksServiceServer) FindByName(context.Context, *FindByNameRequest) (*FindByNameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindByName not implemented")
+}
+func (UnimplementedBooksServiceServer) FindByNameAndAuthor(context.Context, *FindByNameAndAuthorRequest) (*FindByNameAndAuthorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindByNameAndAuthor not implemented")
+}
+func (UnimplementedBooksServiceServer) FindAll(context.Context, *FindAllRequest) (*FindAllResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindAll not implemented")
 }
 func (UnimplementedBooksServiceServer) mustEmbedUnimplementedBooksServiceServer() {}
 
@@ -92,6 +152,78 @@ func _BooksService_FindByISBN_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BooksService_FindByAuthor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindByAuthorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksServiceServer).FindByAuthor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksService_FindByAuthor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksServiceServer).FindByAuthor(ctx, req.(*FindByAuthorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BooksService_FindByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindByNameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksServiceServer).FindByName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksService_FindByName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksServiceServer).FindByName(ctx, req.(*FindByNameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BooksService_FindByNameAndAuthor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindByNameAndAuthorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksServiceServer).FindByNameAndAuthor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksService_FindByNameAndAuthor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksServiceServer).FindByNameAndAuthor(ctx, req.(*FindByNameAndAuthorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BooksService_FindAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindAllRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksServiceServer).FindAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksService_FindAll_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksServiceServer).FindAll(ctx, req.(*FindAllRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BooksService_ServiceDesc is the grpc.ServiceDesc for BooksService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +234,22 @@ var BooksService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindByISBN",
 			Handler:    _BooksService_FindByISBN_Handler,
+		},
+		{
+			MethodName: "FindByAuthor",
+			Handler:    _BooksService_FindByAuthor_Handler,
+		},
+		{
+			MethodName: "FindByName",
+			Handler:    _BooksService_FindByName_Handler,
+		},
+		{
+			MethodName: "FindByNameAndAuthor",
+			Handler:    _BooksService_FindByNameAndAuthor_Handler,
+		},
+		{
+			MethodName: "FindAll",
+			Handler:    _BooksService_FindAll_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
