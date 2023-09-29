@@ -1,0 +1,7 @@
+grpc_port: :50051
+database:
+  psql_username: postgres
+  psql_password: root
+  psql_host: localhost
+  psql_port: 5432
+  psql_database: project11
