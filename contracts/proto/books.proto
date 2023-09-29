@@ -6,17 +6,21 @@ option go_package = "./gen/go/books;pb_books";
 
 service BooksService {
   rpc FindByISBN(FindByISBNRequest) returns (FindByISBNResponse) {}
+  rpc FindByAuthor(FindByAuthorRequest) returns (FindByAuthorResponse) {}
+  rpc FindByName(FindByNameRequest) returns (FindByNameResponse) {}
+  rpc FindByNameAndAuthor(FindByNameAndAuthorRequest) returns (FindByNameAndAuthorResponse) {}
+  rpc FindAll(FindAllRequest) returns (FindAllResponse) {}
 }
 
 message Book {
-  string isbn = 1;
+  string ISBN = 1;
   int64 count = 2;
   string name = 3;
   string author = 4;
-  int64 id = 5;
+  int64 ID = 5;
 }
 
-// Reg
+// ISBN
 
 message FindByISBNRequest {
   string ISBN = 1;
@@ -28,8 +32,51 @@ message FindByISBNResponse {
   Book book = 3;
 }
 
+// AUTHOR
+
 message FindByAuthorRequest {
+  string author = 1;
+}
+
+message FindByAuthorResponse {
   string error = 1;
   int64 status = 2;
   repeated Book books = 3;
 }
+
+// NAME
+
+message FindByNameRequest {
+  string name = 1;
+}
+
+message FindByNameResponse {
+  string error = 1;
+  int64 status = 2;
+  repeated Book books = 3;
+}
+
+// AUTHOR & NAME
+
+message FindByNameAndAuthorRequest {
+  string name = 1;
+  string author = 2;
+}
+
+message FindByNameAndAuthorResponse {
+  string error = 1;
+  int64 status = 2;
+  Book books = 3;
+}
+
+// ALL
+
+message FindAllRequest {
+}
+
+message FindAllResponse {
+  string error = 1;
+  int64 status = 2;
+  repeated Book books = 3;
+}
+
