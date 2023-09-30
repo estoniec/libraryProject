@@ -1,5 +1,7 @@
 package model
 
+import pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
+
 type Book struct {
 	ID     int
 	ISBN   string
@@ -8,17 +10,27 @@ type Book struct {
 	Author string
 }
 
-func NewBook(
-	id int,
-	isbn string,
-	count int,
-	name string,
-	author string) Book {
+func NewBook(book *pb.Book) Book {
 	return Book{
-		ID:     id,
-		ISBN:   isbn,
-		Count:  count,
-		Name:   name,
-		Author: author,
+		ID:     int(book.GetID()),
+		ISBN:   book.GetISBN(),
+		Count:  int(book.GetCount()),
+		Name:   book.GetName(),
+		Author: book.GetAuthor(),
 	}
+}
+
+func NewBooks(books []*pb.Book) []Book {
+	var res []Book
+	for _, book := range books {
+		b := Book{
+			ID:     int(book.GetID()),
+			ISBN:   book.GetISBN(),
+			Author: book.GetAuthor(),
+			Name:   book.GetName(),
+			Count:  int(book.GetCount()),
+		}
+		res = append(res, b)
+	}
+	return res
 }

@@ -19,3 +19,31 @@ func (s *Server) FindByISBN(ctx context.Context, req *pb.FindByISBNRequest) (*pb
 
 	return response, nil
 }
+
+func (s *Server) FindByAuthor(ctx context.Context, req *pb.FindByAuthorRequest) (*pb.FindByAuthorResponse, error) {
+	dto := NewFindByAuthorInput(req)
+
+	res, err := s.service.FindByAuthor(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewFindByAuthorOutput(res)
+
+	return response, nil
+}
+
+func (s *Server) FindByName(ctx context.Context, req *pb.FindByNameRequest) (*pb.FindByNameResponse, error) {
+	dto := NewFindByNameInput(req)
+
+	res, err := s.service.FindByName(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewFindByNameOutput(res)
+
+	return response, nil
+}

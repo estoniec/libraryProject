@@ -8,6 +8,8 @@ import (
 
 type Service interface {
 	FindByISBN(ctx context.Context, dto dto.FindByISBNInput) (dto.FindByISBNOutput, error)
+	FindByAuthor(ctx context.Context, dto dto.FindByAuthorInput) (dto.FindByAuthorOutput, error)
+	FindByName(ctx context.Context, dto dto.FindByNameInput) (dto.FindByNameOutput, error)
 }
 
 type Server struct {
