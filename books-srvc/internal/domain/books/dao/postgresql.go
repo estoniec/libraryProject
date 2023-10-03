@@ -58,7 +58,7 @@ func (repo *RegistrationDAO) FindByAuthor(ctx context.Context, dto dto.FindByAut
 		postgres.BooksTable,
 	).Where(
 		sq.Eq{"author": dto.Author},
-	).Limit(10).Offset(uint64(dto.Offset)).ToSql()
+	).Limit(9).Offset(uint64(dto.Offset)).ToSql()
 	if err != nil {
 		slog.Error(err.Error())
 		return []model.Book{}, err
@@ -71,7 +71,6 @@ func (repo *RegistrationDAO) FindByAuthor(ctx context.Context, dto dto.FindByAut
 		}
 		return []model.Book{}, err
 	}
-
 	for rows.Next() {
 		var book model.Book
 		err := rows.Scan(&book.ID, &book.ISBN, &book.Count, &book.Name, &book.Author)
@@ -80,7 +79,9 @@ func (repo *RegistrationDAO) FindByAuthor(ctx context.Context, dto dto.FindByAut
 		}
 		books = append(books, book)
 	}
-
+	if len(books) == 0 {
+		return books, fmt.Errorf("book is not found")
+	}
 	return books, nil
 }
 
@@ -93,7 +94,7 @@ func (repo *RegistrationDAO) FindByName(ctx context.Context, dto dto.FindByNameI
 		postgres.BooksTable,
 	).Where(
 		sq.Eq{"name": dto.Name},
-	).Limit(10).Offset(uint64(dto.Offset)).ToSql()
+	).Limit(9).Offset(uint64(dto.Offset)).ToSql()
 	if err != nil {
 		slog.Error(err.Error())
 		return []model.Book{}, err
@@ -115,6 +116,8 @@ func (repo *RegistrationDAO) FindByName(ctx context.Context, dto dto.FindByNameI
 		}
 		books = append(books, book)
 	}
-
+	if len(books) == 0 {
+		return books, fmt.Errorf("book is not found")
+	}
 	return books, nil
 }

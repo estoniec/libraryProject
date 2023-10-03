@@ -8,18 +8,13 @@ import (
 )
 
 type KeyboardManager struct {
-	Fetches map[int64]int
 }
 
 func NewKeyboardManager() *KeyboardManager {
-	return &KeyboardManager{
-		Fetches: make(map[int64]int),
-	}
+	return &KeyboardManager{}
 }
 
 func (k *KeyboardManager) Repeat() *telego.InlineKeyboardMarkup {
-	// TODO переделать роутер под это
-
 	keyboard := tu.InlineKeyboard(
 		tu.InlineKeyboardRow(
 			tu.InlineKeyboardButton("Попробовать снова").WithCallbackData(addCommand("/start")),
@@ -59,18 +54,12 @@ func (k *KeyboardManager) FindBook() *telego.InlineKeyboardMarkup {
 	return keyboard
 }
 
-func (k *KeyboardManager) FindBy(fromID int64, findType string, something string, id ...string) *telego.InlineKeyboardMarkup {
-	offsetNext := 0
-	offsetPred := 0
-	if _, ok := k.Fetches[fromID]; !ok {
-		k.Fetches[fromID] = 0
-	} else {
-		k.Fetches[fromID] += 10
-		offsetNext = k.Fetches[fromID]
-		offsetPred = k.Fetches[fromID] - 10
-	}
-	jsonNext, _ := json.Marshal(builder.NewPayload().SetCommand("/nextAuthor").AddPayload("offset", offsetNext).AddPayload(findType, something))
-	jsonPred, _ := json.Marshal(builder.NewPayload().SetCommand("/predAuthor").AddPayload("offset", offsetPred).AddPayload(findType, something))
+func (k *KeyboardManager) FindBy(findType string, offsetNext int, offsetPred int, something string, id ...string) *telego.InlineKeyboardMarkup {
+	var searched []string
+	searched = append(searched, findType)
+	searched = append(searched, something)
+	jsonNext, _ := json.Marshal(builder.NewPayload().SetCommand("/next").AddPayload("searched", searched).AddPayload("offset", offsetNext))
+	jsonPred, _ := json.Marshal(builder.NewPayload().SetCommand("/pred").AddPayload("searched", searched).AddPayload("offset", offsetPred))
 	var row []telego.InlineKeyboardButton
 	var rows [][]telego.InlineKeyboardButton
 	for i := 0; i < len(id); i++ {
@@ -83,11 +72,44 @@ func (k *KeyboardManager) FindBy(fromID int64, findType string, something string
 	}
 	keyboard := tu.InlineKeyboard(
 		rows[0],
-		rows[1],
-		rows[2],
+	)
+
+	if len(rows) > 1 {
+		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, rows[1])
+	}
+
+	if len(rows) > 2 {
+		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, rows[2])
+	}
+
+	keyboard.InlineKeyboard = append(keyboard.InlineKeyboard,
 		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton("Следующая страница").WithCallbackData(string(jsonNext)),
-			tu.InlineKeyboardButton("Предыдущая страница").WithCallbackData(string(jsonPred)),
+			tu.InlineKeyboardButton("<<").WithCallbackData(string(jsonPred)),
+			tu.InlineKeyboardButton(">>").WithCallbackData(string(jsonNext)),
+		),
+		tu.InlineKeyboardRow(
+			tu.InlineKeyboardButton("Отменить").WithCallbackData(addCommand("/menu")),
+		),
+	)
+	return keyboard
+}
+
+func (k *KeyboardManager) Find(id string) *telego.InlineKeyboardMarkup {
+	keyboard := tu.InlineKeyboard(
+		tu.InlineKeyboardRow(
+			tu.InlineKeyboardButton(id).WithCallbackData(addPayloadForRentButtons(id)),
+		),
+		tu.InlineKeyboardRow(
+			tu.InlineKeyboardButton("Отменить").WithCallbackData(addCommand("/menu")),
+		),
+	)
+	return keyboard
+}
+
+func (k *KeyboardManager) Cancel() *telego.InlineKeyboardMarkup {
+	keyboard := tu.InlineKeyboard(
+		tu.InlineKeyboardRow(
+			tu.InlineKeyboardButton("Отменить").WithCallbackData(addCommand("/menu")),
 		),
 	)
 	return keyboard
