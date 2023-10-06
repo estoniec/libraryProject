@@ -57,3 +57,30 @@ func (s *Service) FindByName(ctx context.Context, input dto.FindByNameInput) (dt
 	response := dto.NewNameOutput(res.GetError(), res.GetStatus(), books)
 	return response, nil
 }
+
+func (s *Service) FindByNameAndAuthor(ctx context.Context, input dto.FindByNameAndAuthorInput) (dto.FindByNameAndAuthorOutput, error) {
+	res, err := s.client.FindByNameAndAuthor(ctx, &pb.FindByNameAndAuthorRequest{
+		Author: input.Author,
+		Name:   input.Name,
+	})
+	books := model.NewBook(res.GetBooks())
+	if err != nil {
+		response := dto.NameAndAuthorOutput(err.Error(), 404, books)
+		return response, err
+	}
+	response := dto.NameAndAuthorOutput(res.GetError(), res.GetStatus(), books)
+	return response, nil
+}
+
+func (s *Service) FindAll(ctx context.Context, input dto.FindAllInput) (dto.FindAllOutput, error) {
+	res, err := s.client.FindAll(ctx, &pb.FindAllRequest{
+		Offset: input.Offset,
+	})
+	books := model.NewBooks(res.GetBooks())
+	if err != nil {
+		response := dto.NewAllOutput(err.Error(), 404, books)
+		return response, err
+	}
+	response := dto.NewAllOutput(res.GetError(), res.GetStatus(), books)
+	return response, nil
+}

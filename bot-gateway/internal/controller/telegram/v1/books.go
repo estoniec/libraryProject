@@ -7,7 +7,6 @@ import (
 	"gateway/pkg/adapters/handling"
 	"github.com/buger/jsonparser"
 	"github.com/mymmrac/telego"
-	"log"
 	"log/slog"
 	"strconv"
 	"strings"
@@ -17,6 +16,8 @@ type BooksService interface {
 	FindByISBN(ctx context.Context, input dto2.FindByISBNInput) (dto2.FindByISBNOutput, error)
 	FindByAuthor(ctx context.Context, input dto2.FindByAuthorInput) (dto2.FindByAuthorOutput, error)
 	FindByName(ctx context.Context, input dto2.FindByNameInput) (dto2.FindByNameOutput, error)
+	FindByNameAndAuthor(ctx context.Context, input dto2.FindByNameAndAuthorInput) (dto2.FindByNameAndAuthorOutput, error)
+	FindAll(ctx context.Context, input dto2.FindAllInput) (dto2.FindAllOutput, error)
 }
 
 type BooksKeyboard interface {
@@ -33,7 +34,6 @@ type BooksHandler struct {
 	callbackQuestion CallbackQuestion
 	service          BooksService
 	keyboard         BooksKeyboard
-	Fetches          map[int64]int64
 }
 
 func NewBooksHandler(builder Builder, router Router, question Question, callbackQuestion CallbackQuestion, service BooksService, keyboard BooksKeyboard) *BooksHandler {
@@ -44,7 +44,6 @@ func NewBooksHandler(builder Builder, router Router, question Question, callback
 		callbackQuestion: callbackQuestion,
 		service:          service,
 		keyboard:         keyboard,
-		Fetches:          make(map[int64]int64),
 	}
 }
 
@@ -62,6 +61,10 @@ func (h *BooksHandler) Register() {
 	findByAuthor.WithCommand("/findbyauthor")
 	findByName := regGroup.NewHandler(h.FindByName)
 	findByName.WithCommand("/findbyname")
+	findByNameAndAuthor := regGroup.NewHandler(h.FindByNameAndAuthor)
+	findByNameAndAuthor.WithCommand("/findbynameandauthor")
+	findAll := regGroup.NewHandler(h.FindAll)
+	findAll.WithCommand("/findall")
 	nextBtn := regGroup.NewHandler(h.Next)
 	nextBtn.WithCommand("/next")
 	predBtn := regGroup.NewHandler(h.Pred)
@@ -72,10 +75,6 @@ func (h *BooksHandler) Register() {
 }
 
 func (h *BooksHandler) Menu(ctx context.Context, msg telego.Update) {
-	if _, ok := h.Fetches[msg.CallbackQuery.From.ID]; ok {
-		delete(h.Fetches, msg.CallbackQuery.From.ID)
-		h.Fetches[msg.CallbackQuery.From.ID] = 0
-	}
 	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
 	if err != nil {
 		slog.Error(err.Error())
@@ -135,12 +134,11 @@ func (h *BooksHandler) FindByISBN(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	h.builder.NewMessage(msg, fmt.Sprintf("Книга найдена, вот информация о ней:\n\nID: %d,\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nКоличество в библиотеке (шт): %d.", book.Book.ID, book.Book.ISBN, book.Book.Author, book.Book.Name, book.Book.Count), h.keyboard.Find(strconv.Itoa(book.Book.ID)))
+	h.builder.NewMessage(msg, fmt.Sprintf("Книга найдена, вот информация о ней:\n\nID: %d,\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nКоличество в библиотеке (шт): %d.\n\nЧтобы арендовать эту книгу, нажмите на кнопку с её ID.", book.Book.ID, book.Book.ISBN, book.Book.Author, book.Book.Name, book.Book.Count), h.keyboard.Find(strconv.Itoa(book.Book.ID)))
 	return
 }
 
 func (h *BooksHandler) FindByAuthor(ctx context.Context, msg telego.Update) {
-	log.Print(1)
 	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
 	if err != nil {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
@@ -160,13 +158,7 @@ func (h *BooksHandler) FindByAuthor(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		return
 	}
-	if _, ok := h.Fetches[msg.CallbackQuery.From.ID]; ok {
-		delete(h.Fetches, msg.CallbackQuery.From.ID)
-		h.Fetches[msg.CallbackQuery.From.ID] = 0
-	} else {
-		h.Fetches[msg.CallbackQuery.From.ID] = 0
-	}
-	dto := dto2.NewAuthorInput(author.Text, h.Fetches[msg.CallbackQuery.From.ID])
+	dto := dto2.NewAuthorInput(author.Text, 0)
 	books, err := h.service.FindByAuthor(ctx, dto)
 	if err != nil || books.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -183,7 +175,7 @@ func (h *BooksHandler) FindByAuthor(ctx context.Context, msg telego.Update) {
 		ids = append(ids, strconv.Itoa(book.ID))
 		findBooks = append(findBooks, fmt.Sprintf("ID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.ID, book.ISBN, book.Author, book.Name, book.Count))
 	}
-	h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy("author", int(h.Fetches[msg.CallbackQuery.From.ID])+9, int(h.Fetches[msg.CallbackQuery.From.ID]), author.Text, ids...))
+	h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy("author", 9, 0, author.Text, ids...))
 	return
 }
 
@@ -207,13 +199,7 @@ func (h *BooksHandler) FindByName(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		return
 	}
-	if _, ok := h.Fetches[msg.CallbackQuery.From.ID]; ok {
-		delete(h.Fetches, msg.CallbackQuery.From.ID)
-		h.Fetches[msg.CallbackQuery.From.ID] = 0
-	} else {
-		h.Fetches[msg.CallbackQuery.From.ID] = 0
-	}
-	dto := dto2.NewNameInput(name.Text, h.Fetches[msg.CallbackQuery.From.ID])
+	dto := dto2.NewNameInput(name.Text, 0)
 	books, err := h.service.FindByName(ctx, dto)
 	if err != nil || books.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -230,7 +216,81 @@ func (h *BooksHandler) FindByName(ctx context.Context, msg telego.Update) {
 		ids = append(ids, strconv.Itoa(book.ID))
 		findBooks = append(findBooks, fmt.Sprintf("ID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.ID, book.ISBN, book.Author, book.Name, book.Count))
 	}
-	h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy("name", int(h.Fetches[msg.CallbackQuery.From.ID])+9, int(h.Fetches[msg.CallbackQuery.From.ID]), name.Text, ids...))
+	h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy("name", 9, 0, name.Text, ids...))
+	return
+}
+
+func (h *BooksHandler) FindByNameAndAuthor(ctx context.Context, msg telego.Update) {
+	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	_, err = h.builder.NewMessage(msg, "Введите автора книги (например, \"А. А. Блок\"):", nil)
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	answer, c := h.question.NewQuestion(msg)
+	defer c()
+	author, ok := <-answer
+	if !ok || author.Text == "" {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		return
+	}
+	_, err = h.builder.NewMessage(msg, "Введите название книги (например, \"Россия\"):", nil)
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	name, ok := <-answer
+	if !ok || name.Text == "" {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		return
+	}
+	dto := dto2.NewNameAndAuthorInput(author.Text, name.Text)
+	book, err := h.service.FindByNameAndAuthor(ctx, dto)
+	if err != nil || book.Status != 200 {
+		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
+			h.builder.NewMessage(msg, "Такой книги не в библиотеке существует.", h.keyboard.FindBook())
+			return
+		}
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	h.builder.NewMessage(msg, fmt.Sprintf("Книга найдена, вот информация о ней:\n\nID: %d,\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nКоличество в библиотеке (шт): %d.\n\nЧтобы арендовать эту книгу, нажмите на кнопку с её ID.", book.Book.ID, book.Book.ISBN, book.Book.Author, book.Book.Name, book.Book.Count), h.keyboard.Find(strconv.Itoa(book.Book.ID)))
+	return
+}
+
+func (h *BooksHandler) FindAll(ctx context.Context, msg telego.Update) {
+	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	dto := dto2.NewAllInput(0)
+	books, err := h.service.FindAll(ctx, dto)
+	if err != nil || books.Status != 200 {
+		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
+			h.builder.NewMessage(msg, "В библиотеке нет книг.", h.keyboard.FindBook())
+			return
+		}
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	var findBooks []string
+	var ids []string
+	for _, book := range books.Book {
+		ids = append(ids, strconv.Itoa(book.ID))
+		findBooks = append(findBooks, fmt.Sprintf("ID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.ID, book.ISBN, book.Author, book.Name, book.Count))
+	}
+	h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy("all", 9, 0, "", ids...))
 	return
 }
 
@@ -319,7 +379,6 @@ func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 
 	switch findType {
 	case "author":
-		h.Fetches[msg.CallbackQuery.From.ID] = offset
 		dto := dto2.NewAuthorInput(searched, offset)
 		books, err := h.service.FindByAuthor(ctx, dto)
 		if err != nil || books.Status != 200 {
@@ -339,10 +398,9 @@ func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 		}
 		var predOffset int64
 		predOffset = offset - 9
-		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(findType, int(h.Fetches[msg.CallbackQuery.From.ID])+9, int(predOffset), searched, ids...))
+		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(findType, int(offset+9), int(predOffset), searched, ids...))
 		return
 	case "name":
-		h.Fetches[msg.CallbackQuery.From.ID] = offset
 		dto := dto2.NewNameInput(searched, offset)
 		books, err := h.service.FindByName(ctx, dto)
 		if err != nil || books.Status != 200 {
@@ -362,9 +420,32 @@ func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 		}
 		var predOffset int64
 		predOffset = offset - 9
-		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(findType, int(h.Fetches[msg.CallbackQuery.From.ID])+9, int(predOffset), searched, ids...))
+		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(findType, int(offset+9), int(predOffset), searched, ids...))
+		return
+	case "all":
+		dto := dto2.NewAllInput(offset)
+		books, err := h.service.FindAll(ctx, dto)
+		if err != nil || books.Status != 200 {
+			if err.Error() == "rpc error: code = Unknown desc = book is not found" {
+				h.builder.NewMessage(msg, "Больше книг в библиотеке нет.", h.keyboard.FindBook())
+				return
+			}
+			h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+			slog.Error(err.Error())
+			return
+		}
+		var findBooks []string
+		var ids []string
+		for _, book := range books.Book {
+			ids = append(ids, strconv.Itoa(book.ID))
+			findBooks = append(findBooks, fmt.Sprintf("ID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.ID, book.ISBN, book.Author, book.Name, book.Count))
+		}
+		var predOffset int64
+		predOffset = offset - 9
+		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(findType, int(offset+9), int(predOffset), searched, ids...))
 		return
 	}
+
 }
 
 func (h *BooksHandler) Pred(ctx context.Context, msg telego.Update) {
@@ -409,7 +490,6 @@ func (h *BooksHandler) Pred(ctx context.Context, msg telego.Update) {
 
 	switch findType {
 	case "author":
-		h.Fetches[msg.CallbackQuery.From.ID] = offset
 		dto := dto2.NewAuthorInput(searched, offset)
 		books, err := h.service.FindByAuthor(ctx, dto)
 		if err != nil || books.Status != 200 {
@@ -433,11 +513,10 @@ func (h *BooksHandler) Pred(ctx context.Context, msg telego.Update) {
 		} else {
 			predOffset = 0
 		}
-		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(findType, int(h.Fetches[msg.CallbackQuery.From.ID])+9, int(predOffset), searched, ids...))
+		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(findType, int(offset+9), int(predOffset), searched, ids...))
 		return
 	case "name":
-		h.Fetches[msg.CallbackQuery.From.ID] = offset
-		dto := dto2.NewNameInput(searched, h.Fetches[msg.CallbackQuery.From.ID])
+		dto := dto2.NewNameInput(searched, offset)
 		books, err := h.service.FindByName(ctx, dto)
 		if err != nil || books.Status != 200 {
 			if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -460,7 +539,33 @@ func (h *BooksHandler) Pred(ctx context.Context, msg telego.Update) {
 		} else {
 			predOffset = 0
 		}
-		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(findType, int(h.Fetches[msg.CallbackQuery.From.ID])+9, int(predOffset), searched, ids...))
+		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(findType, int(offset+9), int(predOffset), searched, ids...))
+		return
+	case "all":
+		dto := dto2.NewAllInput(offset)
+		books, err := h.service.FindAll(ctx, dto)
+		if err != nil || books.Status != 200 {
+			if err.Error() == "rpc error: code = Unknown desc = book is not found" {
+				h.builder.NewMessage(msg, "Больше книг в библиотеке нет.", h.keyboard.FindBook())
+				return
+			}
+			h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+			slog.Error(err.Error())
+			return
+		}
+		var findBooks []string
+		var ids []string
+		for _, book := range books.Book {
+			ids = append(ids, strconv.Itoa(book.ID))
+			findBooks = append(findBooks, fmt.Sprintf("ID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.ID, book.ISBN, book.Author, book.Name, book.Count))
+		}
+		var predOffset int64
+		if offset > 0 {
+			predOffset = offset - 9
+		} else {
+			predOffset = 0
+		}
+		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(findType, int(offset+9), int(predOffset), searched, ids...))
 		return
 	}
 }

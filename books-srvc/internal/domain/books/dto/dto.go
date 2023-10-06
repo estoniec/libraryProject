@@ -34,6 +34,27 @@ type FindByNameOutput struct {
 	Book   []model.Book
 }
 
+type FindByNameAndAuthorInput struct {
+	Name   string
+	Author string
+}
+
+type FindByNameAndAuthorOutput struct {
+	Error  string
+	Status int64
+	Book   model.Book
+}
+
+type FindAllInput struct {
+	Offset int
+}
+
+type FindAllOutput struct {
+	Error  string
+	Status int64
+	Book   []model.Book
+}
+
 func NewFindByISBNOutput(error string,
 	status int64,
 	book model.Book) FindByISBNOutput {
@@ -58,6 +79,26 @@ func NewFindByNameOutput(error string,
 	status int64,
 	book []model.Book) FindByNameOutput {
 	return FindByNameOutput{
+		Error:  error,
+		Status: status,
+		Book:   book,
+	}
+}
+
+func NewFindByNameAndAuthorOutput(error string,
+	status int64,
+	book model.Book) FindByNameAndAuthorOutput {
+	return FindByNameAndAuthorOutput{
+		Error:  error,
+		Status: status,
+		Book:   book,
+	}
+}
+
+func NewFindAllOutput(error string,
+	status int64,
+	book []model.Book) FindAllOutput {
+	return FindAllOutput{
 		Error:  error,
 		Status: status,
 		Book:   book,

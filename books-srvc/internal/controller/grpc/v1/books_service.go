@@ -47,3 +47,31 @@ func (s *Server) FindByName(ctx context.Context, req *pb.FindByNameRequest) (*pb
 
 	return response, nil
 }
+
+func (s *Server) FindByNameAndAuthor(ctx context.Context, req *pb.FindByNameAndAuthorRequest) (*pb.FindByNameAndAuthorResponse, error) {
+	dto := NewFindByNameAndAuthorInput(req)
+
+	res, err := s.service.FindByNameAndAuthor(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewFindByNameAndAuthorOutput(res)
+
+	return response, nil
+}
+
+func (s *Server) FindAll(ctx context.Context, req *pb.FindAllRequest) (*pb.FindAllResponse, error) {
+	dto := NewFindAllInput(req)
+
+	res, err := s.service.FindAll(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewFindAllOutput(res)
+
+	return response, nil
+}

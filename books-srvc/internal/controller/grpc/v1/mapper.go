@@ -85,3 +85,54 @@ func NewFindByNameOutput(output dto.FindByNameOutput) *pb.FindByNameResponse {
 		Books:  books,
 	}
 }
+
+func NewFindByNameAndAuthorInput(req *pb.FindByNameAndAuthorRequest) dto.FindByNameAndAuthorInput {
+	return dto.FindByNameAndAuthorInput{
+		Name:   req.GetName(),
+		Author: req.GetAuthor(),
+	}
+}
+
+func NewFindByNameAndAuthorOutput(output dto.FindByNameAndAuthorOutput) *pb.FindByNameAndAuthorResponse {
+	book := &pb.Book{
+		ID:     int64(output.Book.ID),
+		ISBN:   output.Book.ISBN,
+		Name:   output.Book.Name,
+		Author: output.Book.Author,
+		Count:  int64(output.Book.Count),
+	}
+	return &pb.FindByNameAndAuthorResponse{
+		Status: output.Status,
+		Error:  output.Error,
+		Books:  book,
+	}
+}
+
+func NewFindAllInput(req *pb.FindAllRequest) dto.FindAllInput {
+	return dto.FindAllInput{
+		Offset: int(req.GetOffset()),
+	}
+}
+
+func NewFindAllOutput(output dto.FindAllOutput) *pb.FindAllResponse {
+	var books []*pb.Book
+	if len(output.Book) == 0 {
+		books = nil
+	} else {
+		books = make([]*pb.Book, len(output.Book))
+		for i, book := range output.Book {
+			books[i] = &pb.Book{
+				ID:     int64(book.ID),
+				ISBN:   book.ISBN,
+				Name:   book.Name,
+				Author: book.Author,
+				Count:  int64(book.Count),
+			}
+		}
+	}
+	return &pb.FindAllResponse{
+		Status: output.Status,
+		Error:  output.Error,
+		Books:  books,
+	}
+}

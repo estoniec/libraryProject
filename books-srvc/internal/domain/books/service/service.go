@@ -10,6 +10,8 @@ type Repository interface {
 	FindByISBN(ctx context.Context, dto dto.FindByISBNInput) (model.Book, error)
 	FindByAuthor(ctx context.Context, dto dto.FindByAuthorInput) ([]model.Book, error)
 	FindByName(ctx context.Context, dto dto.FindByNameInput) ([]model.Book, error)
+	FindByNameAndAuthor(ctx context.Context, dto dto.FindByNameAndAuthorInput) (model.Book, error)
+	FindAll(ctx context.Context, dto dto.FindAllInput) ([]model.Book, error)
 }
 
 type Service struct {
@@ -44,4 +46,20 @@ func (s *Service) FindByName(ctx context.Context, input dto.FindByNameInput) (dt
 		return dto.NewFindByNameOutput(err.Error(), 404, book), err
 	}
 	return dto.NewFindByNameOutput("", 200, book), nil
+}
+
+func (s *Service) FindByNameAndAuthor(ctx context.Context, input dto.FindByNameAndAuthorInput) (dto.FindByNameAndAuthorOutput, error) {
+	book, err := s.repository.FindByNameAndAuthor(ctx, input)
+	if err != nil {
+		return dto.NewFindByNameAndAuthorOutput(err.Error(), 404, book), err
+	}
+	return dto.NewFindByNameAndAuthorOutput("", 200, book), nil
+}
+
+func (s *Service) FindAll(ctx context.Context, input dto.FindAllInput) (dto.FindAllOutput, error) {
+	books, err := s.repository.FindAll(ctx, input)
+	if err != nil {
+		return dto.NewFindAllOutput(err.Error(), 404, books), err
+	}
+	return dto.NewFindAllOutput("", 200, books), nil
 }

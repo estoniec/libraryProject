@@ -45,7 +45,7 @@ func (k *KeyboardManager) FindBook() *telego.InlineKeyboardMarkup {
 			tu.InlineKeyboardButton("Поиск по названию").WithCallbackData(addCommand("/findbyname")),
 		),
 		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton("Поиск по автору и названию").WithCallbackData(addCommand("/findbyauthorandname")),
+			tu.InlineKeyboardButton("Поиск по автору и названию").WithCallbackData(addCommand("/findbynameandauthor")),
 		),
 		tu.InlineKeyboardRow(
 			tu.InlineKeyboardButton("Поиск всех книг").WithCallbackData(addCommand("/findall")),
