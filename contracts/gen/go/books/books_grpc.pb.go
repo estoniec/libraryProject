@@ -24,6 +24,9 @@ const (
 	BooksService_FindByName_FullMethodName          = "/books_service.books.BooksService/FindByName"
 	BooksService_FindByNameAndAuthor_FullMethodName = "/books_service.books.BooksService/FindByNameAndAuthor"
 	BooksService_FindAll_FullMethodName             = "/books_service.books.BooksService/FindAll"
+	BooksService_CreateBook_FullMethodName          = "/books_service.books.BooksService/CreateBook"
+	BooksService_DeleteBook_FullMethodName          = "/books_service.books.BooksService/DeleteBook"
+	BooksService_EditCountBook_FullMethodName       = "/books_service.books.BooksService/EditCountBook"
 )
 
 // BooksServiceClient is the client API for BooksService service.
@@ -35,6 +38,9 @@ type BooksServiceClient interface {
 	FindByName(ctx context.Context, in *FindByNameRequest, opts ...grpc.CallOption) (*FindByNameResponse, error)
 	FindByNameAndAuthor(ctx context.Context, in *FindByNameAndAuthorRequest, opts ...grpc.CallOption) (*FindByNameAndAuthorResponse, error)
 	FindAll(ctx context.Context, in *FindAllRequest, opts ...grpc.CallOption) (*FindAllResponse, error)
+	CreateBook(ctx context.Context, in *CreateBookRequest, opts ...grpc.CallOption) (*CreateBookResponse, error)
+	DeleteBook(ctx context.Context, in *DeleteBookRequest, opts ...grpc.CallOption) (*DeleteBookResponse, error)
+	EditCountBook(ctx context.Context, in *EditCountBookRequest, opts ...grpc.CallOption) (*EditCountBookResponse, error)
 }
 
 type booksServiceClient struct {
@@ -90,6 +96,33 @@ func (c *booksServiceClient) FindAll(ctx context.Context, in *FindAllRequest, op
 	return out, nil
 }
 
+func (c *booksServiceClient) CreateBook(ctx context.Context, in *CreateBookRequest, opts ...grpc.CallOption) (*CreateBookResponse, error) {
+	out := new(CreateBookResponse)
+	err := c.cc.Invoke(ctx, BooksService_CreateBook_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *booksServiceClient) DeleteBook(ctx context.Context, in *DeleteBookRequest, opts ...grpc.CallOption) (*DeleteBookResponse, error) {
+	out := new(DeleteBookResponse)
+	err := c.cc.Invoke(ctx, BooksService_DeleteBook_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *booksServiceClient) EditCountBook(ctx context.Context, in *EditCountBookRequest, opts ...grpc.CallOption) (*EditCountBookResponse, error) {
+	out := new(EditCountBookResponse)
+	err := c.cc.Invoke(ctx, BooksService_EditCountBook_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BooksServiceServer is the server API for BooksService service.
 // All implementations must embed UnimplementedBooksServiceServer
 // for forward compatibility
@@ -99,6 +132,9 @@ type BooksServiceServer interface {
 	FindByName(context.Context, *FindByNameRequest) (*FindByNameResponse, error)
 	FindByNameAndAuthor(context.Context, *FindByNameAndAuthorRequest) (*FindByNameAndAuthorResponse, error)
 	FindAll(context.Context, *FindAllRequest) (*FindAllResponse, error)
+	CreateBook(context.Context, *CreateBookRequest) (*CreateBookResponse, error)
+	DeleteBook(context.Context, *DeleteBookRequest) (*DeleteBookResponse, error)
+	EditCountBook(context.Context, *EditCountBookRequest) (*EditCountBookResponse, error)
 	mustEmbedUnimplementedBooksServiceServer()
 }
 
@@ -120,6 +156,15 @@ func (UnimplementedBooksServiceServer) FindByNameAndAuthor(context.Context, *Fin
 }
 func (UnimplementedBooksServiceServer) FindAll(context.Context, *FindAllRequest) (*FindAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAll not implemented")
+}
+func (UnimplementedBooksServiceServer) CreateBook(context.Context, *CreateBookRequest) (*CreateBookResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBook not implemented")
+}
+func (UnimplementedBooksServiceServer) DeleteBook(context.Context, *DeleteBookRequest) (*DeleteBookResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBook not implemented")
+}
+func (UnimplementedBooksServiceServer) EditCountBook(context.Context, *EditCountBookRequest) (*EditCountBookResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditCountBook not implemented")
 }
 func (UnimplementedBooksServiceServer) mustEmbedUnimplementedBooksServiceServer() {}
 
@@ -224,6 +269,60 @@ func _BooksService_FindAll_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BooksService_CreateBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBookRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksServiceServer).CreateBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksService_CreateBook_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksServiceServer).CreateBook(ctx, req.(*CreateBookRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BooksService_DeleteBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBookRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksServiceServer).DeleteBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksService_DeleteBook_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksServiceServer).DeleteBook(ctx, req.(*DeleteBookRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BooksService_EditCountBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditCountBookRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksServiceServer).EditCountBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksService_EditCountBook_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksServiceServer).EditCountBook(ctx, req.(*EditCountBookRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BooksService_ServiceDesc is the grpc.ServiceDesc for BooksService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -250,6 +349,18 @@ var BooksService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindAll",
 			Handler:    _BooksService_FindAll_Handler,
+		},
+		{
+			MethodName: "CreateBook",
+			Handler:    _BooksService_CreateBook_Handler,
+		},
+		{
+			MethodName: "DeleteBook",
+			Handler:    _BooksService_DeleteBook_Handler,
+		},
+		{
+			MethodName: "EditCountBook",
+			Handler:    _BooksService_EditCountBook_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

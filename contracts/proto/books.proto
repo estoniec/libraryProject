@@ -10,6 +10,9 @@ service BooksService {
   rpc FindByName(FindByNameRequest) returns (FindByNameResponse) {}
   rpc FindByNameAndAuthor(FindByNameAndAuthorRequest) returns (FindByNameAndAuthorResponse) {}
   rpc FindAll(FindAllRequest) returns (FindAllResponse) {}
+  rpc CreateBook(CreateBookRequest) returns (CreateBookResponse) {}
+  rpc DeleteBook(DeleteBookRequest) returns (DeleteBookResponse) {}
+  rpc EditCountBook(EditCountBookRequest) returns (EditCountBookResponse) {}
 }
 
 message Book {
@@ -83,3 +86,36 @@ message FindAllResponse {
   repeated Book books = 3;
 }
 
+// CREATE
+
+message CreateBookRequest {
+  Book book = 1;
+}
+
+message CreateBookResponse {
+  string error = 1;
+  int64 status = 2;
+  Book books = 3;
+}
+
+// DELETE
+
+message DeleteBookRequest {
+  int64 ID = 1;
+}
+
+message DeleteBookResponse {
+  string error = 1;
+  int64 status = 2;
+}
+
+// EDIT COUNT
+
+message EditCountBookRequest {
+  int64 ID = 1;
+}
+
+message EditCountBookResponse {
+  string error = 1;
+  int64 status = 2;
+}

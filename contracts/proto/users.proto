@@ -1,12 +1,13 @@
 syntax = "proto3";
 
-package reg_service.registration;
+package user_service.users;
 
-option go_package = "./gen/go/registration;pb_registration";
+option go_package = "./gen/go/users;pb_users";
 
 service RegService {
   rpc Registration(RegRequest) returns (RegResponse) {}
   rpc CheckUser(CheckRequest) returns (CheckResponse) {}
+  rpc CheckRole(CheckRoleRequest) returns (CheckRoleResponse) {}
 }
 
 // Reg
@@ -31,4 +32,16 @@ message CheckRequest {
 
 message CheckResponse {
   bool checked = 1;
+}
+
+// CHECK ROLE
+
+message CheckRoleRequest {
+  int64 ID = 1;
+}
+
+message CheckRoleResponse {
+  int64 role = 1;
+  string error = 2;
+  int64 status = 3;
 }

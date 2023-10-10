@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.24.0
-// source: proto/registration.proto
+// source: proto/users.proto
 
-package pb_registration
+package pb_users
 
 import (
 	context "context"
@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RegService_Registration_FullMethodName = "/reg_service.registration.RegService/Registration"
-	RegService_CheckUser_FullMethodName    = "/reg_service.registration.RegService/CheckUser"
+	RegService_Registration_FullMethodName = "/user_service.users.RegService/Registration"
+	RegService_CheckUser_FullMethodName    = "/user_service.users.RegService/CheckUser"
+	RegService_CheckRole_FullMethodName    = "/user_service.users.RegService/CheckRole"
 )
 
 // RegServiceClient is the client API for RegService service.
@@ -29,6 +30,7 @@ const (
 type RegServiceClient interface {
 	Registration(ctx context.Context, in *RegRequest, opts ...grpc.CallOption) (*RegResponse, error)
 	CheckUser(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error)
+	CheckRole(ctx context.Context, in *CheckRoleRequest, opts ...grpc.CallOption) (*CheckRoleResponse, error)
 }
 
 type regServiceClient struct {
@@ -57,12 +59,22 @@ func (c *regServiceClient) CheckUser(ctx context.Context, in *CheckRequest, opts
 	return out, nil
 }
 
+func (c *regServiceClient) CheckRole(ctx context.Context, in *CheckRoleRequest, opts ...grpc.CallOption) (*CheckRoleResponse, error) {
+	out := new(CheckRoleResponse)
+	err := c.cc.Invoke(ctx, RegService_CheckRole_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RegServiceServer is the server API for RegService service.
 // All implementations must embed UnimplementedRegServiceServer
 // for forward compatibility
 type RegServiceServer interface {
 	Registration(context.Context, *RegRequest) (*RegResponse, error)
 	CheckUser(context.Context, *CheckRequest) (*CheckResponse, error)
+	CheckRole(context.Context, *CheckRoleRequest) (*CheckRoleResponse, error)
 	mustEmbedUnimplementedRegServiceServer()
 }
 
@@ -75,6 +87,9 @@ func (UnimplementedRegServiceServer) Registration(context.Context, *RegRequest) 
 }
 func (UnimplementedRegServiceServer) CheckUser(context.Context, *CheckRequest) (*CheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUser not implemented")
+}
+func (UnimplementedRegServiceServer) CheckRole(context.Context, *CheckRoleRequest) (*CheckRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckRole not implemented")
 }
 func (UnimplementedRegServiceServer) mustEmbedUnimplementedRegServiceServer() {}
 
@@ -125,11 +140,29 @@ func _RegService_CheckUser_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RegService_CheckRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegServiceServer).CheckRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RegService_CheckRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegServiceServer).CheckRole(ctx, req.(*CheckRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RegService_ServiceDesc is the grpc.ServiceDesc for RegService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var RegService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "reg_service.registration.RegService",
+	ServiceName: "user_service.users.RegService",
 	HandlerType: (*RegServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -140,7 +173,11 @@ var RegService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "CheckUser",
 			Handler:    _RegService_CheckUser_Handler,
 		},
+		{
+			MethodName: "CheckRole",
+			Handler:    _RegService_CheckRole_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/registration.proto",
+	Metadata: "proto/users.proto",
 }
