@@ -164,6 +164,6 @@ func NewFindByOutput(output dto.FindByOutput) *pb.FindByResponse {
 	return &pb.FindByResponse{
 		Status: output.Status,
 		Error:  output.Error,
-		Books:  books,
+		Book:   books,
 	}
 }
