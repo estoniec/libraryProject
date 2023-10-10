@@ -2,7 +2,7 @@ package v1
 
 import (
 	"context"
-	dto2 "gateway/internal/domain/registration/dto"
+	dto2 "gateway/internal/domain/users/dto"
 	"gateway/pkg/adapters/handling"
 	"gateway/pkg/utils"
 	"github.com/mymmrac/telego"

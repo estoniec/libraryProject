@@ -2,8 +2,8 @@ package reg_service
 
 import (
 	"context"
-	dto "gateway/internal/domain/registration/dto"
-	pb "github.com/estoniec/libraryProject/contracts/gen/go/registration"
+	dto "gateway/internal/domain/users/dto"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/users"
 )
 
 type Service struct {

@@ -2,7 +2,7 @@ package v1
 
 import (
 	"context"
-	pb "github.com/estoniec/libraryProject/contracts/gen/go/registration"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/users"
 	"log/slog"
 )
 

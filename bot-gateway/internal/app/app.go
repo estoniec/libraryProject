@@ -6,7 +6,7 @@ import (
 	"gateway/internal/config"
 	v1 "gateway/internal/controller/telegram/v1"
 	books_service "gateway/internal/domain/books/service"
-	service2 "gateway/internal/domain/registration/service"
+	service2 "gateway/internal/domain/users/service"
 	"gateway/pkg/adapters/builder"
 	"gateway/pkg/adapters/question"
 	"gateway/pkg/adapters/router"
