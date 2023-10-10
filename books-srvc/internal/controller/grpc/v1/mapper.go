@@ -141,7 +141,7 @@ func NewFindAllOutput(output dto.FindAllOutput) *pb.FindAllResponse {
 func NewFindByInput(req *pb.FindByRequest) dto.FindByInput {
 	return dto.FindByInput{
 		Offset: int(req.GetOffset()),
-		Book:   model.NewFindBook(req.GetISBN(), req.GetName(), req.GetAuthor()),
+		Book:   model.NewFindBook(req.GetFind().GetISBN(), req.GetFind().GetName(), req.GetFind().GetAuthor()),
 	}
 }
 
