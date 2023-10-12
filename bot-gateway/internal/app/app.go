@@ -6,12 +6,14 @@ import (
 	"gateway/internal/config"
 	v1 "gateway/internal/controller/telegram/v1"
 	books_service "gateway/internal/domain/books/service"
+	"gateway/internal/domain/books/usecase"
 	service2 "gateway/internal/domain/users/service"
 	"gateway/pkg/adapters/builder"
 	"gateway/pkg/adapters/question"
 	"gateway/pkg/adapters/router"
 	bookPb "github.com/estoniec/libraryProject/contracts/gen/go/books"
-	regPb "github.com/estoniec/libraryProject/contracts/gen/go/registration"
+	regPb "github.com/estoniec/libraryProject/contracts/gen/go/users"
+	"github.com/go-redis/redis"
 	"github.com/mymmrac/telego"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -60,7 +62,15 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 	router := router.NewRouter(bot)
 	handler := v1.NewHandler(builder, router, questionManager, callbackQuestionManager)
 	regHandler := v1.NewRegHandler(builder, router, questionManager, callbackQuestionManager, regService, keyboardManager)
-	booksHandler := v1.NewBooksHandler(builder, router, questionManager, callbackQuestionManager, bookService, keyboardManager)
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+
+	booksUsecase := books_usecase.NewUsecase(bookCc, bookService)
+	booksHandler := v1.NewBooksHandler(builder, router, questionManager, callbackQuestionManager, booksUsecase, keyboardManager, client)
 	return &App{
 		config:       c,
 		bot:          bot,

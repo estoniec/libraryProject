@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	pb "github.com/estoniec/libraryProject/contracts/gen/go/registration"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/users"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"log/slog"

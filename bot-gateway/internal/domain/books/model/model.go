@@ -10,15 +10,15 @@ type Book struct {
 	Author string
 }
 
-func NewBook(book *pb.Book) Book {
-	return Book{
-		ID:     int(book.GetID()),
-		ISBN:   book.GetISBN(),
-		Count:  int(book.GetCount()),
-		Name:   book.GetName(),
-		Author: book.GetAuthor(),
-	}
-}
+//func NewBook(book *pb.Book) Book {
+//	return Book{
+//		ID:     int(book.GetID()),
+//		ISBN:   book.GetISBN(),
+//		Count:  int(book.GetCount()),
+//		Name:   book.GetName(),
+//		Author: book.GetAuthor(),
+//	}
+//}
 
 func NewBooks(books []*pb.Book) []Book {
 	var res []Book
@@ -33,4 +33,15 @@ func NewBooks(books []*pb.Book) []Book {
 		res = append(res, b)
 	}
 	return res
+}
+
+func NewFindBook(
+	isbn string,
+	name string,
+	author string) *pb.FindBook {
+	return &pb.FindBook{
+		ISBN:   isbn,
+		Name:   name,
+		Author: author,
+	}
 }

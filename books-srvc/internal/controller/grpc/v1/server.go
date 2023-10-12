@@ -7,11 +7,6 @@ import (
 )
 
 type Service interface {
-	FindByISBN(ctx context.Context, dto dto.FindByISBNInput) (dto.FindByISBNOutput, error)
-	FindByAuthor(ctx context.Context, dto dto.FindByAuthorInput) (dto.FindByAuthorOutput, error)
-	FindByName(ctx context.Context, dto dto.FindByNameInput) (dto.FindByNameOutput, error)
-	FindByNameAndAuthor(ctx context.Context, dto dto.FindByNameAndAuthorInput) (dto.FindByNameAndAuthorOutput, error)
-	FindAll(ctx context.Context, dto dto.FindAllInput) (dto.FindAllOutput, error)
 	FindBy(ctx context.Context, input dto.FindByInput) (dto.FindByOutput, error)
 }
 

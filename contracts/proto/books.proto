@@ -6,11 +6,6 @@ option go_package = "./gen/go/books;pb_books";
 
 service BooksService {
   rpc FindBy(FindByRequest) returns (FindByResponse) {}
-  rpc FindByISBN(FindByISBNRequest) returns (FindByISBNResponse) {}
-  rpc FindByAuthor(FindByAuthorRequest) returns (FindByAuthorResponse) {}
-  rpc FindByName(FindByNameRequest) returns (FindByNameResponse) {}
-  rpc FindByNameAndAuthor(FindByNameAndAuthorRequest) returns (FindByNameAndAuthorResponse) {}
-  rpc FindAll(FindAllRequest) returns (FindAllResponse) {}
   rpc CreateBook(CreateBookRequest) returns (CreateBookResponse) {}
   rpc DeleteBook(DeleteBookRequest) returns (DeleteBookResponse) {}
   rpc EditCountBook(EditCountBookRequest) returns (EditCountBookResponse) {}
@@ -41,69 +36,6 @@ message FindByResponse {
   string error = 1;
   int64 status = 2;
   repeated Book book = 3;
-}
-
-// ISBN
-
-message FindByISBNRequest {
-  string ISBN = 1;
-}
-
-message FindByISBNResponse {
-  string error = 1;
-  int64 status = 2;
-  Book book = 3;
-}
-
-// AUTHOR
-
-message FindByAuthorRequest {
-  string author = 1;
-  int64 offset = 2;
-}
-
-message FindByAuthorResponse {
-  string error = 1;
-  int64 status = 2;
-  repeated Book books = 3;
-}
-
-// NAME
-
-message FindByNameRequest {
-  string name = 1;
-  int64 offset = 2;
-}
-
-message FindByNameResponse {
-  string error = 1;
-  int64 status = 2;
-  repeated Book books = 3;
-}
-
-// AUTHOR & NAME
-
-message FindByNameAndAuthorRequest {
-  string name = 1;
-  string author = 2;
-}
-
-message FindByNameAndAuthorResponse {
-  string error = 1;
-  int64 status = 2;
-  Book books = 3;
-}
-
-// ALL
-
-message FindAllRequest {
-  int64 offset = 1;
-}
-
-message FindAllResponse {
-  string error = 1;
-  int64 status = 2;
-  repeated Book books = 3;
 }
 
 // CREATE

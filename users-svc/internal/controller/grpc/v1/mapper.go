@@ -1,7 +1,7 @@
 package v1
 
 import (
-	pb "github.com/estoniec/libraryProject/contracts/gen/go/registration"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/users"
 	"registration-svc/internal/domain/reg/dto"
 	"registration-svc/internal/domain/reg/model"
 )

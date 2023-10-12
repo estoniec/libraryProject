@@ -24,165 +24,17 @@ func NewBookStorage(client psql.Client) *RegistrationDAO {
 	}
 }
 
-func (repo *RegistrationDAO) FindByISBN(ctx context.Context, dto dto.FindByISBNInput) (model.Book, error) {
-	var book model.Book
-	sql, args, err := repo.qb.
-		Select(
-			"*",
-		).From(
-		postgres.BooksTable,
-	).Where(
-		sq.Eq{"isbn": dto.ISBN},
-	).ToSql()
-	if err != nil {
-		slog.Error(err.Error())
-		return model.Book{}, err
-	}
-	if err = repo.client.QueryRow(ctx, sql, args...).Scan(&book.ID, &book.ISBN, &book.Count, &book.Name, &book.Author); err != nil {
-		slog.Error(err.Error())
-		if err == pgx.ErrNoRows {
-			return model.Book{}, fmt.Errorf("book is not found")
-		}
-		return model.Book{}, err
-	}
-
-	return book, nil
-}
-
-func (repo *RegistrationDAO) FindByAuthor(ctx context.Context, dto dto.FindByAuthorInput) ([]model.Book, error) {
-	var books []model.Book
-	sql, args, err := repo.qb.
-		Select(
-			"*",
-		).From(
-		postgres.BooksTable,
-	).Where(
-		sq.Eq{"author": dto.Author},
-	).Limit(9).Offset(uint64(dto.Offset)).ToSql()
-	if err != nil {
-		slog.Error(err.Error())
-		return []model.Book{}, err
-	}
-	rows, err := repo.client.Query(ctx, sql, args...)
-	if err != nil {
-		slog.Error(err.Error())
-		if err == pgx.ErrNoRows {
-			return []model.Book{}, fmt.Errorf("book is not found")
-		}
-		return []model.Book{}, err
-	}
-	for rows.Next() {
-		var book model.Book
-		err := rows.Scan(&book.ID, &book.ISBN, &book.Count, &book.Name, &book.Author)
-		if err != nil {
-			return nil, err
-		}
-		books = append(books, book)
-	}
-	if len(books) == 0 {
-		return books, fmt.Errorf("book is not found")
-	}
-	return books, nil
-}
-
-func (repo *RegistrationDAO) FindByName(ctx context.Context, dto dto.FindByNameInput) ([]model.Book, error) {
-	var books []model.Book
-	sql, args, err := repo.qb.
-		Select(
-			"*",
-		).From(
-		postgres.BooksTable,
-	).Where(
-		sq.Eq{"name": dto.Name},
-	).Limit(9).Offset(uint64(dto.Offset)).ToSql()
-	if err != nil {
-		slog.Error(err.Error())
-		return []model.Book{}, err
-	}
-	rows, err := repo.client.Query(ctx, sql, args...)
-	if err != nil {
-		slog.Error(err.Error())
-		if err == pgx.ErrNoRows {
-			return []model.Book{}, fmt.Errorf("book is not found")
-		}
-		return []model.Book{}, err
-	}
-
-	for rows.Next() {
-		var book model.Book
-		err := rows.Scan(&book.ID, &book.ISBN, &book.Count, &book.Name, &book.Author)
-		if err != nil {
-			return nil, err
-		}
-		books = append(books, book)
-	}
-	if len(books) == 0 {
-		return books, fmt.Errorf("book is not found")
-	}
-	return books, nil
-}
-
-func (repo *RegistrationDAO) FindByNameAndAuthor(ctx context.Context, dto dto.FindByNameAndAuthorInput) (model.Book, error) {
-	var book model.Book
-	sql, args, err := repo.qb.
-		Select(
-			"*",
-		).From(
-		postgres.BooksTable,
-	).Where(
-		sq.Eq{"author": dto.Author, "name": dto.Name},
-	).ToSql()
-	if err != nil {
-		slog.Error(err.Error())
-		return model.Book{}, err
-	}
-	if err = repo.client.QueryRow(ctx, sql, args...).Scan(&book.ID, &book.ISBN, &book.Count, &book.Name, &book.Author); err != nil {
-		slog.Error(err.Error())
-		if err == pgx.ErrNoRows {
-			return model.Book{}, fmt.Errorf("book is not found")
-		}
-		return model.Book{}, err
-	}
-
-	return book, nil
-}
-
-func (repo *RegistrationDAO) FindAll(ctx context.Context, dto dto.FindAllInput) ([]model.Book, error) {
-	var books []model.Book
-	sql, args, err := repo.qb.
-		Select(
-			"*",
-		).From(
-		postgres.BooksTable,
-	).Limit(9).Offset(uint64(dto.Offset)).ToSql()
-	if err != nil {
-		slog.Error(err.Error())
-		return []model.Book{}, err
-	}
-	rows, err := repo.client.Query(ctx, sql, args...)
-	if err != nil {
-		slog.Error(err.Error())
-		if err == pgx.ErrNoRows {
-			return []model.Book{}, fmt.Errorf("book is not found")
-		}
-		return []model.Book{}, err
-	}
-
-	for rows.Next() {
-		var book model.Book
-		err := rows.Scan(&book.ID, &book.ISBN, &book.Count, &book.Name, &book.Author)
-		if err != nil {
-			return nil, err
-		}
-		books = append(books, book)
-	}
-	if len(books) == 0 {
-		return books, fmt.Errorf("book is not found")
-	}
-	return books, nil
-}
-
 func (repo *RegistrationDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([]model.Book, error) {
+	where := sq.And{}
+	if dto.Book.ISBN != "" {
+		where = append(where, sq.Eq{"isbn": dto.Book.ISBN})
+	}
+	if dto.Book.Name != "" {
+		where = append(where, sq.Eq{"name": dto.Book.Name})
+	}
+	if dto.Book.Author != "" {
+		where = append(where, sq.Eq{"author": dto.Book.Author})
+	}
 	var books []model.Book
 	sql, args, err := repo.qb.
 		Select(
@@ -190,11 +42,7 @@ func (repo *RegistrationDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([
 		).From(
 		postgres.BooksTable,
 	).Where(
-		sq.Or{
-			sq.Eq{"name": dto.Book.Name, "author": dto.Book.Author},
-			sq.Eq{"name": dto.Book.Name},
-			sq.Eq{"author": dto.Book.Author},
-		},
+		where,
 	).Limit(9).Offset(uint64(dto.Offset)).ToSql()
 	if err != nil {
 		slog.Error(err.Error())
