@@ -62,14 +62,12 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 	router := router.NewRouter(bot)
 	handler := v1.NewHandler(builder, router, questionManager, callbackQuestionManager)
 	regHandler := v1.NewRegHandler(builder, router, questionManager, callbackQuestionManager, regService, keyboardManager)
-
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
 		DB:       0,
 	})
-
-	booksUsecase := books_usecase.NewUsecase(bookCc, bookService)
+	booksUsecase := books_usecase.NewUsecase(bookClient, bookService)
 	booksHandler := v1.NewBooksHandler(builder, router, questionManager, callbackQuestionManager, booksUsecase, keyboardManager, client)
 	return &App{
 		config:       c,

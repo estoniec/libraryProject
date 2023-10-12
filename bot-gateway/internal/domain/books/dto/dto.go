@@ -1,14 +1,8 @@
-package dto
+package books_dto
 
 import (
 	"gateway/internal/domain/books/model"
-	pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
 )
-
-type FindByInput struct {
-	Offset int
-	Book   *pb.FindBook
-}
 
 type FindByOutput struct {
 	Error  string
@@ -16,11 +10,13 @@ type FindByOutput struct {
 	Book   []model.Book
 }
 
-func NewByInput(offset int64, book *pb.FindBook) FindByInput {
-	return FindByInput{
-		Offset: int(offset),
-		Book:   book,
-	}
+type CreateSearchOutput struct {
+	Error string
+}
+
+type CreateSearchDTO struct {
+	ID       string
+	Searched []string
 }
 
 func NewByOutput(error string, status int64, books []model.Book) FindByOutput {
@@ -28,5 +24,18 @@ func NewByOutput(error string, status int64, books []model.Book) FindByOutput {
 		Error:  error,
 		Status: status,
 		Book:   books,
+	}
+}
+
+func NewCreateOutput(error string) CreateSearchOutput {
+	return CreateSearchOutput{
+		Error: error,
+	}
+}
+
+func NewCreateDTO(ID string, searched []string) CreateSearchDTO {
+	return CreateSearchDTO{
+		ID:       ID,
+		Searched: searched,
 	}
 }
