@@ -6,6 +6,7 @@ import (
 	"gateway/internal/config"
 	v1 "gateway/internal/controller/telegram/v1"
 	books_service "gateway/internal/domain/books/service"
+	books_storage "gateway/internal/domain/books/storage"
 	"gateway/internal/domain/books/usecase"
 	service2 "gateway/internal/domain/users/service"
 	"gateway/pkg/adapters/builder"
@@ -43,11 +44,19 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 		slog.Error("Could not connect:", err)
 	}
 
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+
 	regClient := regPb.NewRegServiceClient(regCc)
 	bookClient := bookPb.NewBooksServiceClient(bookCc)
 
+	bookRepository := books_storage.NewBooksStorage(client)
+
 	regService := service2.NewService(regClient)
-	bookService := books_service.NewService(bookClient)
+	bookService := books_service.NewService(bookClient, bookRepository)
 
 	bot, err := telego.NewBot(c.BotToken)
 	if err != nil {
@@ -62,13 +71,8 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 	router := router.NewRouter(bot)
 	handler := v1.NewHandler(builder, router, questionManager, callbackQuestionManager)
 	regHandler := v1.NewRegHandler(builder, router, questionManager, callbackQuestionManager, regService, keyboardManager)
-	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
-	})
 	booksUsecase := books_usecase.NewUsecase(bookClient, bookService)
-	booksHandler := v1.NewBooksHandler(builder, router, questionManager, callbackQuestionManager, booksUsecase, keyboardManager, client)
+	booksHandler := v1.NewBooksHandler(builder, router, questionManager, callbackQuestionManager, booksUsecase, keyboardManager)
 	return &App{
 		config:       c,
 		bot:          bot,

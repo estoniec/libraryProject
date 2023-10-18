@@ -8,6 +8,7 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, dto books_dto.CreateSearchDTO) error
+	Find(ctx context.Context, dto books_dto.FindSearchDTO) (books_dto.FindSearchOutput, error)
 }
 
 type Service struct {
@@ -24,4 +25,8 @@ func NewService(client pb.BooksServiceClient, repository Repository) *Service {
 
 func (s *Service) Create(ctx context.Context, dto books_dto.CreateSearchDTO) error {
 	return s.repository.Create(ctx, dto)
+}
+
+func (s *Service) Find(ctx context.Context, dto books_dto.FindSearchDTO) (books_dto.FindSearchOutput, error) {
+	return s.repository.Find(ctx, dto)
 }

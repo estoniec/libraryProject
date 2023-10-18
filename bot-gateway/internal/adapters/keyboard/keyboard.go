@@ -54,7 +54,7 @@ func (k *KeyboardManager) FindBook() *telego.InlineKeyboardMarkup {
 	return keyboard
 }
 
-func (k *KeyboardManager) FindBy(offsetNext int, offsetPred int, getID string, id ...string) *telego.InlineKeyboardMarkup {
+func (k *KeyboardManager) FindBy(offsetNext int, offsetPred int, getID int64, id ...string) *telego.InlineKeyboardMarkup {
 	jsonNext, _ := json.Marshal(builder.NewPayload().SetCommand("/next").AddPayload("get", getID).AddPayload("offset", offsetNext))
 	jsonPred, _ := json.Marshal(builder.NewPayload().SetCommand("/pred").AddPayload("get", getID).AddPayload("offset", offsetPred))
 	var row []telego.InlineKeyboardButton

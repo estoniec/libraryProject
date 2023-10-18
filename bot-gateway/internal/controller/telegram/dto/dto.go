@@ -29,3 +29,13 @@ func NewCreateInput(ID int64, findType string, something string) CreateSearchInp
 		Something: something,
 	}
 }
+
+type FindSearchInput struct {
+	ID int64
+}
+
+func NewFindInput(ID int64) FindSearchInput {
+	return FindSearchInput{
+		ID: ID,
+	}
+}

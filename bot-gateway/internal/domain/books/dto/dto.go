@@ -15,8 +15,18 @@ type CreateSearchOutput struct {
 }
 
 type CreateSearchDTO struct {
-	ID       string
-	Searched []string
+	ID       string   `json:"id"`
+	Searched []string `json:"searched"`
+}
+
+type FindSearchOutput struct {
+	Error    string
+	ID       string   `json:"id"`
+	Searched []string `json:"searched"`
+}
+
+type FindSearchDTO struct {
+	ID string
 }
 
 func NewByOutput(error string, status int64, books []model.Book) FindByOutput {
@@ -37,5 +47,18 @@ func NewCreateDTO(ID string, searched []string) CreateSearchDTO {
 	return CreateSearchDTO{
 		ID:       ID,
 		Searched: searched,
+	}
+}
+
+func NewFindOutput(error string, searched []string) FindSearchOutput {
+	return FindSearchOutput{
+		Error:    error,
+		Searched: searched,
+	}
+}
+
+func NewFindDTO(ID string) FindSearchDTO {
+	return FindSearchDTO{
+		ID: ID,
 	}
 }
