@@ -8,6 +8,7 @@ import (
 
 type Repository interface {
 	FindBy(ctx context.Context, dto dto.FindByInput) ([]model.Book, error)
+	Create(ctx context.Context, dto dto.CreateBookInput) (model.Book, error)
 }
 
 type Service struct {
@@ -26,4 +27,12 @@ func (s *Service) FindBy(ctx context.Context, input dto.FindByInput) (dto.FindBy
 		return dto.NewFindByOutput(err.Error(), 404, books), err
 	}
 	return dto.NewFindByOutput("", 200, books), nil
+}
+
+func (s *Service) CreateBook(ctx context.Context, input dto.CreateBookInput) (dto.CreateBookOutput, error) {
+	books, err := s.repository.Create(ctx, input)
+	if err != nil {
+		return dto.NewCreateBookOutput(err.Error(), 404, books), err
+	}
+	return dto.NewCreateBookOutput("", 200, books), nil
 }

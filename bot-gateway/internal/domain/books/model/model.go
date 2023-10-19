@@ -10,15 +10,18 @@ type Book struct {
 	Author string
 }
 
-//func NewBook(book *pb.Book) Book {
-//	return Book{
-//		ID:     int(book.GetID()),
-//		ISBN:   book.GetISBN(),
-//		Count:  int(book.GetCount()),
-//		Name:   book.GetName(),
-//		Author: book.GetAuthor(),
-//	}
-//}
+func NewBook(
+	isbn string,
+	count int,
+	name string,
+	author string) Book {
+	return Book{
+		ISBN:   isbn,
+		Count:  count,
+		Name:   name,
+		Author: author,
+	}
+}
 
 func NewBooks(books []*pb.Book) []Book {
 	var res []Book

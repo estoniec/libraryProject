@@ -8,7 +8,7 @@ import (
 	books_service "gateway/internal/domain/books/service"
 	books_storage "gateway/internal/domain/books/storage"
 	"gateway/internal/domain/books/usecase"
-	service2 "gateway/internal/domain/users/service"
+	"gateway/internal/domain/users/usecase"
 	"gateway/pkg/adapters/builder"
 	"gateway/pkg/adapters/question"
 	"gateway/pkg/adapters/router"
@@ -29,6 +29,7 @@ type App struct {
 	handler      *v1.Handler
 	regHandler   *v1.RegHandler
 	booksHandler *v1.BooksHandler
+	adminHandler *v1.AdminHandler
 }
 
 func NewApp(ctx context.Context, c *config.Config) *App {
@@ -55,7 +56,7 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 
 	bookRepository := books_storage.NewBooksStorage(client)
 
-	regService := service2.NewService(regClient)
+	regUsecase := users_usecase.NewUsecase(regClient)
 	bookService := books_service.NewService(bookClient, bookRepository)
 
 	bot, err := telego.NewBot(c.BotToken)
@@ -70,15 +71,17 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 	callbackQuestionManager := question.NewCallbackManager(ctx)
 	router := router.NewRouter(bot)
 	handler := v1.NewHandler(builder, router, questionManager, callbackQuestionManager)
-	regHandler := v1.NewRegHandler(builder, router, questionManager, callbackQuestionManager, regService, keyboardManager)
+	regHandler := v1.NewRegHandler(builder, router, questionManager, callbackQuestionManager, regUsecase, keyboardManager)
 	booksUsecase := books_usecase.NewUsecase(bookClient, bookService)
 	booksHandler := v1.NewBooksHandler(builder, router, questionManager, callbackQuestionManager, booksUsecase, keyboardManager)
+	adminHandler := v1.NewAdminHandler(builder, router, questionManager, callbackQuestionManager, regUsecase, booksUsecase, keyboardManager)
 	return &App{
 		config:       c,
 		bot:          bot,
 		handler:      handler,
 		regHandler:   regHandler,
 		booksHandler: booksHandler,
+		adminHandler: adminHandler,
 	}
 }
 
@@ -102,6 +105,7 @@ func (a *App) start(ctx context.Context) error {
 
 	a.regHandler.Register()
 	a.booksHandler.Register()
+	a.adminHandler.Register()
 	a.handler.HandleUpdates(ctx, updates)
 
 	slog.Info("bot has started")

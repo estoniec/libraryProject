@@ -79,3 +79,25 @@ func (repo *RegistrationDAO) FindUser(ctx context.Context, req dto.CheckInput) (
 
 	return dto.NewCheckOutput(exists), nil
 }
+
+func (repo *RegistrationDAO) FindUserByRole(ctx context.Context, req dto.CheckRoleInput) (dto.CheckRoleOutput, error) {
+	var role int
+	sql, args, err := repo.qb.
+		Select(
+			"status",
+		).From(
+		postgres.UserTable,
+	).Where(
+		sq.Eq{"id": req.ID},
+	).ToSql()
+	if err != nil {
+		slog.Error(err.Error())
+		return dto.NewCheckRoleOutput(0, err.Error(), 404), err
+	}
+	if err = repo.client.QueryRow(ctx, sql, args...).Scan(&role); err != nil {
+		slog.Error(err.Error())
+		return dto.NewCheckRoleOutput(0, err.Error(), 404), err
+	}
+
+	return dto.NewCheckRoleOutput(role, "", 200), nil
+}

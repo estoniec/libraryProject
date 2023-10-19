@@ -63,10 +63,46 @@ func (repo *RegistrationDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([
 		if err != nil {
 			return nil, err
 		}
-		books = append(books, book)
+		if book.Count > 0 {
+			books = append(books, book)
+		} else {
+			continue
+		}
 	}
 	if len(books) == 0 {
 		return books, fmt.Errorf("book is not found")
 	}
 	return books, nil
+}
+
+func (repo *RegistrationDAO) Create(ctx context.Context, dto dto.CreateBookInput) (model.Book, error) {
+	var book model.Book
+	sql, args, err := repo.qb.
+		Insert(
+			postgres.BooksTable,
+		).Columns(
+		"isbn",
+		"count",
+		"name",
+		"author",
+	).Values(
+		dto.Book.ISBN,
+		dto.Book.Count,
+		dto.Book.Name,
+		dto.Book.Author,
+	).Suffix("RETURNING *").ToSql()
+	if err != nil {
+		slog.Error(err.Error())
+		return model.Book{}, err
+	}
+	err = repo.client.QueryRow(ctx, sql, args...).Scan(&book.ID, &book.ISBN, &book.Count, &book.Name, &book.Author)
+	if err != nil {
+		slog.Error(err.Error())
+		if err == pgx.ErrNoRows {
+			return model.Book{}, fmt.Errorf("book is not found")
+		}
+		return model.Book{}, err
+	}
+
+	return book, nil
 }

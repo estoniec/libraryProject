@@ -64,3 +64,16 @@ func (u *Usecase) FindSearch(ctx context.Context, input dto.FindSearchInput) (bo
 	}
 	return books_dto.NewFindOutput("", res.Searched), nil
 }
+
+func (u *Usecase) AddBook(ctx context.Context, input dto.AddBookInput) (books_dto.AddBookOutput, error) {
+	dto := books_dto.NewAddBookDTO(input.Book)
+	res, err := u.client.CreateBook(ctx, &pb.CreateBookRequest{
+		Book: dto.Book,
+	})
+	if err != nil {
+		response := books_dto.NewAddBookOutput(err.Error(), 404, input.Book)
+		return response, err
+	}
+	response := books_dto.NewAddBookOutput(res.GetError(), res.GetStatus(), input.Book)
+	return response, nil
+}

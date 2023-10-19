@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	books_dto "gateway/internal/domain/books/dto"
 	"github.com/go-redis/redis"
+	"log/slog"
 )
 
 type Storage struct {
@@ -20,12 +21,12 @@ func NewBooksStorage(redis *redis.Client) *Storage {
 func (r *Storage) Create(ctx context.Context, dto books_dto.CreateSearchDTO) error {
 	jsonData, err := json.Marshal(dto)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
 	}
 
 	err = r.redis.SAdd(dto.ID, jsonData).Err()
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
 	}
 	return nil
 }

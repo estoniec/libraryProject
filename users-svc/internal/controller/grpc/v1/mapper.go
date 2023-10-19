@@ -28,3 +28,17 @@ func NewCheckOutput(output dto.CheckOutput) *pb.CheckResponse {
 		Checked: output.Checked,
 	}
 }
+
+func NewCheckRoleInput(req *pb.CheckRoleRequest) dto.CheckRoleInput {
+	return dto.CheckRoleInput{
+		ID: req.ID,
+	}
+}
+
+func NewCheckRoleOutput(output dto.CheckRoleOutput) *pb.CheckRoleResponse {
+	return &pb.CheckRoleResponse{
+		Role:   int64(output.Role),
+		Error:  output.Error,
+		Status: output.Status,
+	}
+}

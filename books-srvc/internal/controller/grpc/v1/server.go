@@ -8,6 +8,7 @@ import (
 
 type Service interface {
 	FindBy(ctx context.Context, input dto.FindByInput) (dto.FindByOutput, error)
+	CreateBook(ctx context.Context, input dto.CreateBookInput) (dto.CreateBookOutput, error)
 }
 
 type Server struct {

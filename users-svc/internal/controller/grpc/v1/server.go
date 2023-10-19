@@ -10,6 +10,7 @@ import (
 type Service interface {
 	RegUser(ctx context.Context, model model.User) (dto.RegOutput, error)
 	CheckUser(ctx context.Context, input dto.CheckInput) (dto.CheckOutput, error)
+	CheckRole(ctx context.Context, input dto.CheckRoleInput) (dto.CheckRoleOutput, error)
 }
 
 type Server struct {

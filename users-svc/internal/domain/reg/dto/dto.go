@@ -25,3 +25,21 @@ func NewCheckOutput(checked bool) CheckOutput {
 		Checked: checked,
 	}
 }
+
+type CheckRoleInput struct {
+	ID int64
+}
+
+type CheckRoleOutput struct {
+	Role   int
+	Error  string
+	Status int64
+}
+
+func NewCheckRoleOutput(role int, error string, status int64) CheckRoleOutput {
+	return CheckRoleOutput{
+		Role:   role,
+		Error:  error,
+		Status: status,
+	}
+}

@@ -6,27 +6,27 @@ import (
 	pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
 )
 
-type Repository interface {
+type Storage interface {
 	Create(ctx context.Context, dto books_dto.CreateSearchDTO) error
 	Find(ctx context.Context, dto books_dto.FindSearchDTO) (books_dto.FindSearchOutput, error)
 }
 
 type Service struct {
-	client     pb.BooksServiceClient
-	repository Repository
+	client  pb.BooksServiceClient
+	storage Storage
 }
 
-func NewService(client pb.BooksServiceClient, repository Repository) *Service {
+func NewService(client pb.BooksServiceClient, storage Storage) *Service {
 	return &Service{
-		client:     client,
-		repository: repository,
+		client:  client,
+		storage: storage,
 	}
 }
 
 func (s *Service) Create(ctx context.Context, dto books_dto.CreateSearchDTO) error {
-	return s.repository.Create(ctx, dto)
+	return s.storage.Create(ctx, dto)
 }
 
 func (s *Service) Find(ctx context.Context, dto books_dto.FindSearchDTO) (books_dto.FindSearchOutput, error) {
-	return s.repository.Find(ctx, dto)
+	return s.storage.Find(ctx, dto)
 }

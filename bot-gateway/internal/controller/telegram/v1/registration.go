@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"gateway/internal/controller/telegram/dto"
 	dto2 "gateway/internal/domain/users/dto"
 	"gateway/pkg/adapters/handling"
 	"gateway/pkg/utils"
@@ -9,9 +10,10 @@ import (
 	"log/slog"
 )
 
-type RegService interface {
-	Registration(context context.Context, input dto2.RegInput) (dto2.RegOutput, error)
-	CheckUser(ctx context.Context, input dto2.CheckInput) (dto2.CheckOutput, error)
+type RegUsecase interface {
+	Registration(context context.Context, input dto.RegInput) (dto2.RegOutput, error)
+	CheckUser(ctx context.Context, input dto.CheckInput) (dto2.CheckOutput, error)
+	CheckRole(ctx context.Context, input dto.CheckRoleInput) (dto2.CheckRoleOutput, error)
 }
 
 type RegKeyboard interface {
@@ -24,17 +26,17 @@ type RegHandler struct {
 	router           Router
 	question         Question
 	callbackQuestion CallbackQuestion
-	service          RegService
+	usecase          RegUsecase
 	keyboard         RegKeyboard
 }
 
-func NewRegHandler(builder Builder, router Router, question Question, callbackQuestion CallbackQuestion, service RegService, keyboard RegKeyboard) *RegHandler {
+func NewRegHandler(builder Builder, router Router, question Question, callbackQuestion CallbackQuestion, usecase RegUsecase, keyboard RegKeyboard) *RegHandler {
 	return &RegHandler{
 		builder:          builder,
 		router:           router,
 		question:         question,
 		callbackQuestion: callbackQuestion,
-		service:          service,
+		usecase:          usecase,
 		keyboard:         keyboard,
 	}
 }
@@ -51,16 +53,16 @@ func (h *RegHandler) Register() {
 }
 
 func (h *RegHandler) Registration(ctx context.Context, msg telego.Update) {
-	var checkDTO dto2.CheckInput
+	var checkDTO dto.CheckInput
 
 	if msg.CallbackQuery != nil {
 		h.builder.NewCallbackMessage(msg.CallbackQuery, "")
-		checkDTO = dto2.NewCheckInput(msg.CallbackQuery.From.ID)
+		checkDTO = dto.NewCheckInput(msg.CallbackQuery.From.ID)
 	} else {
-		checkDTO = dto2.NewCheckInput(msg.Message.From.ID)
+		checkDTO = dto.NewCheckInput(msg.Message.From.ID)
 	}
 
-	if checkedUser, err := h.service.CheckUser(ctx, checkDTO); checkedUser.Checked {
+	if checkedUser, err := h.usecase.CheckUser(ctx, checkDTO); checkedUser.Checked {
 		if err != nil {
 			slog.Error(err.Error())
 			return
@@ -107,8 +109,8 @@ func (h *RegHandler) Registration(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести класс и параллель заново.", h.keyboard.Repeat())
 		return
 	}
-	dto := dto2.NewRegInput(telephone.Text, username.Text, class.Text, msg.Message.From.ID)
-	res, err := h.service.Registration(ctx, dto)
+	dto := dto.NewRegInput(telephone.Text, username.Text, class.Text, msg.Message.From.ID)
+	res, err := h.usecase.Registration(ctx, dto)
 	if err != nil || res.Error != "" {
 		slog.Error(err.Error(), res.Error)
 		h.builder.NewMessage(msg, "Возникла ошибка, повторите попытку позже.", h.keyboard.Repeat())

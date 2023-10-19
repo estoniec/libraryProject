@@ -9,6 +9,7 @@ import (
 type Repository interface {
 	CreateUser(ctx context.Context, req model.User) error
 	FindUser(ctx context.Context, req dto.CheckInput) (dto.CheckOutput, error)
+	FindUserByRole(ctx context.Context, req dto.CheckRoleInput) (dto.CheckRoleOutput, error)
 }
 
 type Service struct {
@@ -32,7 +33,15 @@ func (s *Service) RegUser(ctx context.Context, model model.User) (dto.RegOutput,
 func (s *Service) CheckUser(ctx context.Context, input dto.CheckInput) (dto.CheckOutput, error) {
 	checked, err := s.repository.FindUser(ctx, input)
 	if err != nil {
-		return dto.NewCheckOutput(false), err
+		return checked, err
 	}
-	return dto.NewCheckOutput(checked.Checked), nil
+	return checked, nil
+}
+
+func (s *Service) CheckRole(ctx context.Context, input dto.CheckRoleInput) (dto.CheckRoleOutput, error) {
+	role, err := s.repository.FindUserByRole(ctx, input)
+	if err != nil {
+		return role, err
+	}
+	return role, nil
 }

@@ -2,6 +2,7 @@ package books_dto
 
 import (
 	"gateway/internal/domain/books/model"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
 )
 
 type FindByOutput struct {
@@ -27,6 +28,16 @@ type FindSearchOutput struct {
 
 type FindSearchDTO struct {
 	ID string
+}
+
+type AddBookOutput struct {
+	Error  string
+	Status int64
+	Book   model.Book
+}
+
+type AddBookDTO struct {
+	Book *pb.Book
 }
 
 func NewByOutput(error string, status int64, books []model.Book) FindByOutput {
@@ -60,5 +71,24 @@ func NewFindOutput(error string, searched []string) FindSearchOutput {
 func NewFindDTO(ID string) FindSearchDTO {
 	return FindSearchDTO{
 		ID: ID,
+	}
+}
+
+func NewAddBookOutput(error string, status int64, book model.Book) AddBookOutput {
+	return AddBookOutput{
+		Error:  error,
+		Status: status,
+		Book:   book,
+	}
+}
+
+func NewAddBookDTO(book model.Book) AddBookDTO {
+	return AddBookDTO{
+		Book: &pb.Book{
+			ISBN:   book.ISBN,
+			Count:  int64(book.Count),
+			Name:   book.Name,
+			Author: book.Author,
+		},
 	}
 }

@@ -35,3 +35,23 @@ func NewFindByOutput(output dto.FindByOutput) *pb.FindByResponse {
 		Book:   books,
 	}
 }
+
+func NewCreateInput(req *pb.CreateBookRequest) dto.CreateBookInput {
+	return dto.CreateBookInput{
+		Book: model.NewBook(int(req.GetBook().GetCount()), req.GetBook().GetISBN(), req.GetBook().GetName(), req.GetBook().GetAuthor()),
+	}
+}
+
+func NewCreateOutput(output dto.CreateBookOutput) *pb.CreateBookResponse {
+	return &pb.CreateBookResponse{
+		Status: output.Status,
+		Error:  output.Error,
+		Books: &pb.Book{
+			ID:     int64(output.Book.ID),
+			ISBN:   output.Book.ISBN,
+			Name:   output.Book.Name,
+			Author: output.Book.Author,
+			Count:  int64(output.Book.Count),
+		},
+	}
+}

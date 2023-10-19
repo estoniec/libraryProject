@@ -19,6 +19,7 @@ type BooksUsecase interface {
 	FindBy(ctx context.Context, input dto.FindByInput) (books_dto.FindByOutput, error)
 	CreateSearch(ctx context.Context, input dto.CreateSearchInput) (books_dto.CreateSearchOutput, error)
 	FindSearch(ctx context.Context, input dto.FindSearchInput) (books_dto.FindSearchOutput, error)
+	AddBook(ctx context.Context, input dto.AddBookInput) (books_dto.AddBookOutput, error)
 }
 
 type BooksKeyboard interface {
@@ -125,9 +126,9 @@ func (h *BooksHandler) FindByISBN(ctx context.Context, msg telego.Update) {
 	}
 	dto := dto.NewByInput(0, model.NewFindBook(isbn.Text, "", ""))
 	book, err := h.usecase.FindBy(ctx, dto)
-	if err != nil || book.Status != 200 {
+	if err != nil || book.Status == 404 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
-			h.builder.NewMessage(msg, "Такой книги не в библиотеке существует.", h.keyboard.FindBook())
+			h.builder.NewMessage(msg, "Такой книги в библиотеке не существует.", h.keyboard.FindBook())
 			return
 		}
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
@@ -168,7 +169,7 @@ func (h *BooksHandler) FindByAuthor(ctx context.Context, msg telego.Update) {
 	book, err := h.usecase.FindBy(ctx, bookDTO)
 	if err != nil || book.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
-			h.builder.NewMessage(msg, "Такой книги не в библиотеке существует.", h.keyboard.FindBook())
+			h.builder.NewMessage(msg, "Такой книги в библиотеке не существует.", h.keyboard.FindBook())
 			return
 		}
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
@@ -217,7 +218,7 @@ func (h *BooksHandler) FindByName(ctx context.Context, msg telego.Update) {
 	book, err := h.usecase.FindBy(ctx, dtoBy)
 	if err != nil || book.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
-			h.builder.NewMessage(msg, "Такой книги не в библиотеке существует.", h.keyboard.FindBook())
+			h.builder.NewMessage(msg, "Такой книги в библиотеке не существует.", h.keyboard.FindBook())
 			return
 		}
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
@@ -277,7 +278,7 @@ func (h *BooksHandler) FindByNameAndAuthor(ctx context.Context, msg telego.Updat
 	book, err := h.usecase.FindBy(ctx, dto)
 	if err != nil || book.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
-			h.builder.NewMessage(msg, "Такой книги не в библиотеке существует.", h.keyboard.FindBook())
+			h.builder.NewMessage(msg, "Такой книги в библиотеке не существует.", h.keyboard.FindBook())
 			return
 		}
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
@@ -305,7 +306,7 @@ func (h *BooksHandler) FindAll(ctx context.Context, msg telego.Update) {
 	book, err := h.usecase.FindBy(ctx, dtoBy)
 	if err != nil || book.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
-			h.builder.NewMessage(msg, "Такой книги не в библиотеке существует.", h.keyboard.FindBook())
+			h.builder.NewMessage(msg, "Такой книги в библиотеке не существует.", h.keyboard.FindBook())
 			return
 		}
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
@@ -439,7 +440,7 @@ func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 		books, err := h.usecase.FindBy(ctx, dtoBy)
 		if err != nil || books.Status != 200 {
 			if err.Error() == "rpc error: code = Unknown desc = book is not found" {
-				h.builder.NewMessage(msg, "Больше книг от этого автора не существует.", h.keyboard.FindBook())
+				h.builder.NewMessage(msg, "Больше книг с таким названием не существует.", h.keyboard.FindBook())
 				return
 			}
 			h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
@@ -469,7 +470,7 @@ func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 		books, err := h.usecase.FindBy(ctx, dtoBy)
 		if err != nil || books.Status != 200 {
 			if err.Error() == "rpc error: code = Unknown desc = book is not found" {
-				h.builder.NewMessage(msg, "Больше книг от этого автора не существует.", h.keyboard.FindBook())
+				h.builder.NewMessage(msg, "Больше книг в библиотеке не существует.", h.keyboard.FindBook())
 				return
 			}
 			h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())

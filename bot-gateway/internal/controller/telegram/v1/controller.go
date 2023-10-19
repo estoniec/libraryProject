@@ -8,6 +8,7 @@ import (
 
 type Builder interface {
 	NewMessage(msg telego.Update, text string, keyboard *telego.InlineKeyboardMarkup) (*telego.Message, error)
+	NewMessageWithKeyboard(msg telego.Update, text string, keyboard *telego.ReplyKeyboardMarkup) (*telego.Message, error)
 	DeleteMessage(msg telego.Update) error
 	NewCallbackMessage(msg *telego.CallbackQuery, text string) error
 }

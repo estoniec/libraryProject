@@ -103,10 +103,28 @@ func (k *KeyboardManager) Find(id string) *telego.InlineKeyboardMarkup {
 	return keyboard
 }
 
-func (k *KeyboardManager) Cancel() *telego.InlineKeyboardMarkup {
+func (k *KeyboardManager) Admin() *telego.ReplyKeyboardMarkup {
+	keyboard := tu.Keyboard(
+		tu.KeyboardRow(
+			tu.KeyboardButton("Добавить книгу"),
+		),
+		tu.KeyboardRow(
+			tu.KeyboardButton("Изменить количество книг"),
+		),
+		tu.KeyboardRow(
+			tu.KeyboardButton("Удалить книгу"),
+		),
+	)
+	return keyboard
+}
+
+func (k *KeyboardManager) SuccessAdd() *telego.InlineKeyboardMarkup {
 	keyboard := tu.InlineKeyboard(
 		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton("Отменить").WithCallbackData(addCommand("/menu")),
+			tu.InlineKeyboardButton("Подтвердить").WithCallbackData(addCommand("/accept")),
+		),
+		tu.InlineKeyboardRow(
+			tu.InlineKeyboardButton("Отменить создание").WithCallbackData(addCommand("/cancel")),
 		),
 	)
 	return keyboard

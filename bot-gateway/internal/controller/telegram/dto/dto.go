@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"gateway/internal/domain/books/model"
 	pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
 )
 
@@ -13,6 +14,10 @@ type CreateSearchInput struct {
 	ID        int64
 	FindType  string
 	Something string
+}
+
+type CheckRoleInput struct {
+	ID int64
 }
 
 func NewByInput(offset int64, book *pb.FindBook) FindByInput {
@@ -37,5 +42,47 @@ type FindSearchInput struct {
 func NewFindInput(ID int64) FindSearchInput {
 	return FindSearchInput{
 		ID: ID,
+	}
+}
+
+func NewCheckRoleInput(ID int64) CheckRoleInput {
+	return CheckRoleInput{
+		ID: ID,
+	}
+}
+
+type AddBookInput struct {
+	Book model.Book
+}
+
+func NewAddBookInput(book model.Book) AddBookInput {
+	return AddBookInput{
+		Book: book,
+	}
+}
+
+type RegInput struct {
+	Phone    string
+	Username string
+	Class    string
+	ID       int64
+}
+
+type CheckInput struct {
+	ID int64
+}
+
+func NewRegInput(phone string, username string, class string, ID int64) RegInput {
+	return RegInput{
+		Phone:    phone,
+		Username: username,
+		Class:    class,
+		ID:       ID,
+	}
+}
+
+func NewCheckInput(id int64) CheckInput {
+	return CheckInput{
+		ID: id,
 	}
 }

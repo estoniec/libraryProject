@@ -19,3 +19,17 @@ func (s *Server) FindBy(ctx context.Context, req *pb.FindByRequest) (*pb.FindByR
 
 	return response, nil
 }
+
+func (s *Server) CreateBook(ctx context.Context, req *pb.CreateBookRequest) (*pb.CreateBookResponse, error) {
+	dto := NewCreateInput(req)
+
+	res, err := s.service.CreateBook(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewCreateOutput(res)
+
+	return response, nil
+}

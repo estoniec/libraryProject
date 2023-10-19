@@ -33,3 +33,17 @@ func (s *Server) CheckUser(ctx context.Context, req *pb.CheckRequest) (*pb.Check
 
 	return response, nil
 }
+
+func (s *Server) CheckRole(ctx context.Context, req *pb.CheckRoleRequest) (*pb.CheckRoleResponse, error) {
+	dto := NewCheckRoleInput(req)
+
+	res, err := s.service.CheckRole(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewCheckRoleOutput(res)
+
+	return response, nil
+}
