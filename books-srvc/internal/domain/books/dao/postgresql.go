@@ -12,19 +12,19 @@ import (
 	"log/slog"
 )
 
-type RegistrationDAO struct {
+type BooksDAO struct {
 	qb     sq.StatementBuilderType
 	client psql.Client
 }
 
-func NewBookStorage(client psql.Client) *RegistrationDAO {
-	return &RegistrationDAO{
+func NewBookStorage(client psql.Client) *BooksDAO {
+	return &BooksDAO{
 		qb:     sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 		client: client,
 	}
 }
 
-func (repo *RegistrationDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([]model.Book, error) {
+func (repo *BooksDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([]model.Book, error) {
 	where := sq.And{}
 	if dto.Book.ISBN != "" {
 		where = append(where, sq.Eq{"isbn": dto.Book.ISBN})
@@ -75,7 +75,7 @@ func (repo *RegistrationDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([
 	return books, nil
 }
 
-func (repo *RegistrationDAO) Create(ctx context.Context, dto dto.CreateBookInput) (model.Book, error) {
+func (repo *BooksDAO) Create(ctx context.Context, dto dto.CreateBookInput) (model.Book, error) {
 	var book model.Book
 	sql, args, err := repo.qb.
 		Insert(
@@ -107,7 +107,7 @@ func (repo *RegistrationDAO) Create(ctx context.Context, dto dto.CreateBookInput
 	return book, nil
 }
 
-func (repo *RegistrationDAO) EditCount(ctx context.Context, dto dto.EditCountBookInput) error {
+func (repo *BooksDAO) EditCount(ctx context.Context, dto dto.EditCountBookInput) error {
 	_, _, err := repo.qb.
 		Update(
 			postgres.BooksTable,
@@ -124,7 +124,7 @@ func (repo *RegistrationDAO) EditCount(ctx context.Context, dto dto.EditCountBoo
 	return nil
 }
 
-func (repo *RegistrationDAO) Delete(ctx context.Context, dto dto.DeleteBookInput) error {
+func (repo *BooksDAO) Delete(ctx context.Context, dto dto.DeleteBookInput) error {
 	_, _, err := repo.qb.
 		Delete(
 			postgres.BooksTable,
