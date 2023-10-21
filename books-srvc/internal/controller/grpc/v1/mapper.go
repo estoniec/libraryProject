@@ -55,3 +55,17 @@ func NewCreateOutput(output dto.CreateBookOutput) *pb.CreateBookResponse {
 		},
 	}
 }
+
+func NewEditCountInput(req *pb.EditCountBookRequest) dto.EditCountBookInput {
+	return dto.EditCountBookInput{
+		ISBN:  req.ISBN,
+		Count: int(req.Count),
+	}
+}
+
+func NewEditCountOutput(output dto.EditCountBookOutput) *pb.EditCountBookResponse {
+	return &pb.EditCountBookResponse{
+		Status: output.Status,
+		Error:  output.Error,
+	}
+}

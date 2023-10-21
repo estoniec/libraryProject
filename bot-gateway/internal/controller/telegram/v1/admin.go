@@ -98,7 +98,7 @@ func (h *AdminHandler) AddBook(ctx context.Context, msg telego.Update) {
 		}
 		return
 	}
-	_, err = h.builder.NewMessage(msg, "Вы перешли в создание книги. Для начала введите её ISBN:", nil)
+	_, err = h.builder.NewMessage(msg, "Вы перешли в создание книги. Для начала введите её ISBN (пример ввода: \"5080020229\"), который указан на 1 или 2 странице книги:", nil)
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -177,4 +177,78 @@ func (h *AdminHandler) AddBook(ctx context.Context, msg telego.Update) {
 	return
 }
 
-// TODO додлеть EditCountBook, DeleteBook
+func (h *AdminHandler) EditCountBook(ctx context.Context, msg telego.Update) {
+	dtoCheck := dto.NewCheckRoleInput(msg.Message.From.ID)
+	role, err := h.regUsecase.CheckRole(ctx, dtoCheck)
+	if err != nil || role.Status == 404 {
+		slog.Error(role.Error)
+		return
+	}
+	if role.Role < 2 {
+		_, err = h.builder.NewMessage(msg, "Для использования данной команды у вас недостаточно прав", nil)
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		return
+	}
+	_, err = h.builder.NewMessage(msg, "Введите ISBN книги (пример ввода: \"5080020229\"), который указан на 1 или 2 странице книги:", nil)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	answers, c := h.question.NewQuestion(msg)
+	defer c()
+	isbn, ok := <-answers
+	if !ok || isbn.Text == "" {
+		h.builder.NewMessage(msg, "Попробуйте ввести ISBN заново.", nil)
+		return
+	}
+	_, err = h.builder.NewMessage(msg, "Теперь введите количество книг, которое вы хотите установить:", nil)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	count, ok := <-answers
+	if !ok || count.Text == "" {
+		h.builder.NewMessage(msg, "Попробуйте ввести автора заново.", nil)
+		return
+	}
+	countInt, err := strconv.Atoi(count.Text)
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте ввести количество книг заново.", nil)
+		return
+	}
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы хотите изменить количество книг у книги с ISBN: %s на %s (шт.)", isbn.Text, count.Text), h.keyboard.SuccessAdd())
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+	defer cl()
+	answer, ok := <-callbackAnswers
+	if !ok {
+		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
+		return
+	}
+	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
+		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		input := dto.NewEditCountBookInput(isbn.Text, countInt)
+		res, err := h.bookUsecase.EditCountBook(ctx, input)
+		if err != nil || res.Status == 404 {
+			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+			slog.Error(err.Error())
+			return
+		}
+		h.builder.NewMessageWithKeyboard(msg, "Вы успешно изменили количество книг!", h.keyboard.Admin())
+	} else {
+		h.GetKeyboard(ctx, answer)
+	}
+	return
+}
+
+// TODO додлеть DeleteBook

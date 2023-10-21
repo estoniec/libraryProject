@@ -33,3 +33,31 @@ func (s *Server) CreateBook(ctx context.Context, req *pb.CreateBookRequest) (*pb
 
 	return response, nil
 }
+
+func (s *Server) EditCountBook(ctx context.Context, req *pb.EditCountBookRequest) (*pb.EditCountBookResponse, error) {
+	dto := NewEditCountInput(req)
+
+	res, err := s.service.EditCountBook(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewEditCountOutput(res)
+
+	return response, nil
+}
+
+func (s *Server) DeleteBook(ctx context.Context, req *pb.DeleteBookRequest) (*pb.DeleteBookResponse, error) {
+	dto := NewEditCountInput(req)
+
+	res, err := s.service.EditCountBook(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewEditCountOutput(res)
+
+	return response, nil
+}

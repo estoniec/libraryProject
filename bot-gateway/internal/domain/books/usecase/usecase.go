@@ -77,3 +77,17 @@ func (u *Usecase) AddBook(ctx context.Context, input dto.AddBookInput) (books_dt
 	response := books_dto.NewAddBookOutput(res.GetError(), res.GetStatus(), input.Book)
 	return response, nil
 }
+
+func (u *Usecase) EditCountBook(ctx context.Context, input dto.EditCountBookInput) (books_dto.EditCountBookOutput, error) {
+	dto := books_dto.NewEditCountBookDTO(input.ISBN, int64(input.Count))
+	res, err := u.client.EditCountBook(ctx, &pb.EditCountBookRequest{
+		ISBN:  dto.ISBN,
+		Count: dto.Count,
+	})
+	if err != nil {
+		response := books_dto.NewEditCountBookOutput(err.Error(), 404)
+		return response, err
+	}
+	response := books_dto.NewEditCountBookOutput(res.GetError(), res.GetStatus())
+	return response, nil
+}

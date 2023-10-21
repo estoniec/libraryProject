@@ -20,6 +20,7 @@ type BooksUsecase interface {
 	CreateSearch(ctx context.Context, input dto.CreateSearchInput) (books_dto.CreateSearchOutput, error)
 	FindSearch(ctx context.Context, input dto.FindSearchInput) (books_dto.FindSearchOutput, error)
 	AddBook(ctx context.Context, input dto.AddBookInput) (books_dto.AddBookOutput, error)
+	EditCountBook(ctx context.Context, input dto.EditCountBookInput) (books_dto.EditCountBookOutput, error)
 }
 
 type BooksKeyboard interface {
@@ -111,7 +112,7 @@ func (h *BooksHandler) FindByISBN(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	_, err = h.builder.NewMessage(msg, "Введите ISBN книги:", nil)
+	_, err = h.builder.NewMessage(msg, "Введите ISBN книги (пример ввода: \"5080020229\"), который указан на 1 или 2 странице книги:", nil)
 	if err != nil {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		slog.Error(err.Error())

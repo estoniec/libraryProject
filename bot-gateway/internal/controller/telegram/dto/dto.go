@@ -86,3 +86,15 @@ func NewCheckInput(id int64) CheckInput {
 		ID: id,
 	}
 }
+
+type EditCountBookInput struct {
+	ISBN  string
+	Count int
+}
+
+func NewEditCountBookInput(isbn string, count int) EditCountBookInput {
+	return EditCountBookInput{
+		ISBN:  isbn,
+		Count: count,
+	}
+}

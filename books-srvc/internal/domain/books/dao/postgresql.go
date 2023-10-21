@@ -106,3 +106,20 @@ func (repo *RegistrationDAO) Create(ctx context.Context, dto dto.CreateBookInput
 
 	return book, nil
 }
+
+func (repo *RegistrationDAO) EditCount(ctx context.Context, dto dto.EditCountBookInput) error {
+	_, _, err := repo.qb.
+		Update(
+			postgres.BooksTable,
+		).Set(
+		"count", dto.Count,
+	).Where(
+		sq.Eq{"isbn": dto.ISBN},
+	).ToSql()
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	return nil
+}

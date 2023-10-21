@@ -53,7 +53,7 @@ message CreateBookResponse {
 // DELETE
 
 message DeleteBookRequest {
-  int64 ISBN = 1;
+  string ISBN = 1;
 }
 
 message DeleteBookResponse {
