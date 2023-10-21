@@ -53,7 +53,7 @@ message CreateBookResponse {
 // DELETE
 
 message DeleteBookRequest {
-  int64 ID = 1;
+  int64 ISBN = 1;
 }
 
 message DeleteBookResponse {
@@ -64,7 +64,8 @@ message DeleteBookResponse {
 // EDIT COUNT
 
 message EditCountBookRequest {
-  int64 ID = 1;
+  int64 ISBN = 1;
+  int64 Count = 2;
 }
 
 message EditCountBookResponse {
