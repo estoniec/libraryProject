@@ -40,6 +40,21 @@ type AddBookDTO struct {
 	Book *pb.Book
 }
 
+type EditCountBookOutput struct {
+	Error  string
+	Status int64
+}
+
+type EditCountBookDTO struct {
+	ISBN  string
+	Count int64
+}
+
+type DeleteBookOutput struct {
+	Error  string
+	Status int64
+}
+
 func NewByOutput(error string, status int64, books []model.Book) FindByOutput {
 	return FindByOutput{
 		Error:  error,
@@ -90,5 +105,26 @@ func NewAddBookDTO(book model.Book) AddBookDTO {
 			Name:   book.Name,
 			Author: book.Author,
 		},
+	}
+}
+
+func NewEditCountBookOutput(error string, status int64) EditCountBookOutput {
+	return EditCountBookOutput{
+		Error:  error,
+		Status: status,
+	}
+}
+
+func NewEditCountBookDTO(isbn string, count int64) EditCountBookDTO {
+	return EditCountBookDTO{
+		ISBN:  isbn,
+		Count: count,
+	}
+}
+
+func NewDeleteBookOutput(error string, status int64) DeleteBookOutput {
+	return DeleteBookOutput{
+		Error:  error,
+		Status: status,
 	}
 }
