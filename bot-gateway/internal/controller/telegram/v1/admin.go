@@ -311,5 +311,3 @@ func (h *AdminHandler) DeleteBook(ctx context.Context, msg telego.Update) {
 	}
 	return
 }
-
-// TODO додлеть DeleteBook

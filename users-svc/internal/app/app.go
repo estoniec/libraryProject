@@ -23,7 +23,7 @@ type App struct {
 
 func NewApp(ctx context.Context, cfg *config.Config) App {
 	pgDsn := fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s",
+		"postgresql://%s:%s@%s:%s/%s",
 		cfg.Database.Username,
 		cfg.Database.Password,
 		cfg.Database.Host,

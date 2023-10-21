@@ -26,7 +26,7 @@ func (repo *RegistrationDAO) CreateUser(ctx context.Context, req model.User) err
 	sql, args, err := repo.qb.
 		Insert(postgres.UserTable).
 		Columns(
-			"id",
+			"user_id",
 			"phone",
 			"username",
 			"class",
@@ -88,7 +88,7 @@ func (repo *RegistrationDAO) FindUserByRole(ctx context.Context, req dto.CheckRo
 		).From(
 		postgres.UserTable,
 	).Where(
-		sq.Eq{"id": req.ID},
+		sq.Eq{"user_id": req.ID},
 	).ToSql()
 	if err != nil {
 		slog.Error(err.Error())

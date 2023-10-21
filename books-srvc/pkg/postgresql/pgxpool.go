@@ -32,7 +32,7 @@ type PgConfig struct {
 	database string
 }
 
-// NewClient creates new postgres client.
+// NewClient creates new postgresql client.
 func NewClient(
 	ctx context.Context,
 	maxAttempts int,
@@ -59,7 +59,7 @@ func NewClient(
 	err = DoWithAttempts(func() error {
 		pingErr := pool.Ping(ctx)
 		if pingErr != nil {
-			log.Printf("Failed to connect to postgres due to error %v... Going to do the next attempt\n", pingErr)
+			log.Printf("Failed to connect to postgresql due to error %v... Going to do the next attempt\n", pingErr)
 			return pingErr
 		}
 
