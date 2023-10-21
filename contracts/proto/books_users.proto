@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package books_users_service.books_users;
+
+option go_package = "./gen/go/books_users;pb_books_users";
+
+service BooksUsersService {
+  rpc RentBook(RentBookRequest) returns (RentBookResponse) {}
+}
+
+message RentBookRequest {
+  int64 bookID = 1;
+  int64 userID = 2;
+  int64 returnAt = 3;
+}
+
+message RentBookResponse {
+  string author = 1;
+  string name = 2;
+  string error = 3;
+  int64 status = 4;
+}
