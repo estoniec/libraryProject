@@ -21,6 +21,7 @@ type BooksUsecase interface {
 	FindSearch(ctx context.Context, input dto.FindSearchInput) (books_dto.FindSearchOutput, error)
 	AddBook(ctx context.Context, input dto.AddBookInput) (books_dto.AddBookOutput, error)
 	EditCountBook(ctx context.Context, input dto.EditCountBookInput) (books_dto.EditCountBookOutput, error)
+	DeleteBook(ctx context.Context, input dto.DeleteBookInput) (books_dto.DeleteBookOutput, error)
 }
 
 type BooksKeyboard interface {

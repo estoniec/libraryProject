@@ -123,3 +123,18 @@ func (repo *RegistrationDAO) EditCount(ctx context.Context, dto dto.EditCountBoo
 
 	return nil
 }
+
+func (repo *RegistrationDAO) Delete(ctx context.Context, dto dto.DeleteBookInput) error {
+	_, _, err := repo.qb.
+		Delete(
+			postgres.BooksTable,
+		).Where(
+		sq.Eq{"isbn": dto.ISBN},
+	).ToSql()
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	return nil
+}

@@ -69,3 +69,16 @@ func NewEditCountOutput(output dto.EditCountBookOutput) *pb.EditCountBookRespons
 		Error:  output.Error,
 	}
 }
+
+func NewDeleteInput(req *pb.DeleteBookRequest) dto.DeleteBookInput {
+	return dto.DeleteBookInput{
+		ISBN: req.ISBN,
+	}
+}
+
+func NewDeleteOutput(output dto.DeleteBookOutput) *pb.DeleteBookResponse {
+	return &pb.DeleteBookResponse{
+		Status: output.Status,
+		Error:  output.Error,
+	}
+}

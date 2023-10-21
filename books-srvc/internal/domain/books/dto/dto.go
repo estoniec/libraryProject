@@ -33,6 +33,15 @@ type EditCountBookOutput struct {
 	Status int64
 }
 
+type DeleteBookInput struct {
+	ISBN string
+}
+
+type DeleteBookOutput struct {
+	Error  string
+	Status int64
+}
+
 func NewFindByOutput(error string,
 	status int64,
 	book []model.Book) FindByOutput {
@@ -56,6 +65,14 @@ func NewCreateBookOutput(error string,
 func NewEditCountOutput(error string,
 	status int64) EditCountBookOutput {
 	return EditCountBookOutput{
+		Error:  error,
+		Status: status,
+	}
+}
+
+func NewDeleteOutput(error string,
+	status int64) DeleteBookOutput {
+	return DeleteBookOutput{
 		Error:  error,
 		Status: status,
 	}

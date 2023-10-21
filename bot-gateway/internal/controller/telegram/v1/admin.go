@@ -45,6 +45,8 @@ func (h *AdminHandler) AddGroup(handlerGroup handling.HandlersGroup) {
 func (h *AdminHandler) Register() {
 	regGroup := handling.NewHandlersGroup()
 	regGroup.NewHandler(h.AddBook, "Добавить книгу")
+	regGroup.NewHandler(h.EditCountBook, "Изменить количество книг")
+	regGroup.NewHandler(h.DeleteBook, "Удалить книгу")
 	keyboard := regGroup.NewHandler(h.GetKeyboard, "/getkeyboard")
 	keyboard.WithCommand("/cancel")
 	h.AddGroup(regGroup)
@@ -219,7 +221,7 @@ func (h *AdminHandler) EditCountBook(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести количество книг заново.", nil)
 		return
 	}
-	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы хотите изменить количество книг у книги с ISBN: %s на %s (шт.)", isbn.Text, count.Text), h.keyboard.SuccessAdd())
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите изменить количество книг у книги с ISBN: %s на %s (шт.)?", isbn.Text, count.Text), h.keyboard.SuccessAdd())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -239,6 +241,65 @@ func (h *AdminHandler) EditCountBook(ctx context.Context, msg telego.Update) {
 		}
 		input := dto.NewEditCountBookInput(isbn.Text, countInt)
 		res, err := h.bookUsecase.EditCountBook(ctx, input)
+		if err != nil || res.Status == 404 {
+			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+			slog.Error(err.Error())
+			return
+		}
+		h.builder.NewMessageWithKeyboard(msg, "Вы успешно изменили количество книг!", h.keyboard.Admin())
+	} else {
+		h.GetKeyboard(ctx, answer)
+	}
+	return
+}
+
+func (h *AdminHandler) DeleteBook(ctx context.Context, msg telego.Update) {
+	dtoCheck := dto.NewCheckRoleInput(msg.Message.From.ID)
+	role, err := h.regUsecase.CheckRole(ctx, dtoCheck)
+	if err != nil || role.Status == 404 {
+		slog.Error(role.Error)
+		return
+	}
+	if role.Role < 2 {
+		_, err = h.builder.NewMessage(msg, "Для использования данной команды у вас недостаточно прав", nil)
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		return
+	}
+	_, err = h.builder.NewMessage(msg, "Введите ISBN книги (пример ввода: \"5080020229\"), который указан на 1 или 2 странице книги:", nil)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	answers, c := h.question.NewQuestion(msg)
+	defer c()
+	isbn, ok := <-answers
+	if !ok || isbn.Text == "" {
+		h.builder.NewMessage(msg, "Попробуйте ввести ISBN заново.", nil)
+		return
+	}
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите удалить книгу с ISBN: %s?", isbn.Text), h.keyboard.SuccessAdd())
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+	defer cl()
+	answer, ok := <-callbackAnswers
+	if !ok {
+		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
+		return
+	}
+	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
+		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		input := dto.NewDeleteBookInput(isbn.Text)
+		res, err := h.bookUsecase.DeleteBook(ctx, input)
 		if err != nil || res.Status == 404 {
 			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
 			slog.Error(err.Error())

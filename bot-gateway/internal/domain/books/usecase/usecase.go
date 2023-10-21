@@ -91,3 +91,15 @@ func (u *Usecase) EditCountBook(ctx context.Context, input dto.EditCountBookInpu
 	response := books_dto.NewEditCountBookOutput(res.GetError(), res.GetStatus())
 	return response, nil
 }
+
+func (u *Usecase) DeleteBook(ctx context.Context, input dto.DeleteBookInput) (books_dto.DeleteBookOutput, error) {
+	res, err := u.client.DeleteBook(ctx, &pb.DeleteBookRequest{
+		ISBN: input.ISBN,
+	})
+	if err != nil {
+		response := books_dto.NewDeleteBookOutput(err.Error(), 404)
+		return response, err
+	}
+	response := books_dto.NewDeleteBookOutput(res.GetError(), res.GetStatus())
+	return response, nil
+}

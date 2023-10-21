@@ -98,3 +98,13 @@ func NewEditCountBookInput(isbn string, count int) EditCountBookInput {
 		Count: count,
 	}
 }
+
+type DeleteBookInput struct {
+	ISBN string
+}
+
+func NewDeleteBookInput(isbn string) DeleteBookInput {
+	return DeleteBookInput{
+		ISBN: isbn,
+	}
+}

@@ -10,6 +10,7 @@ type Repository interface {
 	FindBy(ctx context.Context, dto dto.FindByInput) ([]model.Book, error)
 	Create(ctx context.Context, dto dto.CreateBookInput) (model.Book, error)
 	EditCount(ctx context.Context, dto dto.EditCountBookInput) error
+	Delete(ctx context.Context, dto dto.DeleteBookInput) error
 }
 
 type Service struct {
@@ -44,4 +45,12 @@ func (s *Service) EditCountBook(ctx context.Context, input dto.EditCountBookInpu
 		return dto.NewEditCountOutput(err.Error(), 404), err
 	}
 	return dto.NewEditCountOutput("", 200), nil
+}
+
+func (s *Service) DeleteBook(ctx context.Context, input dto.DeleteBookInput) (dto.DeleteBookOutput, error) {
+	err := s.repository.Delete(ctx, input)
+	if err != nil {
+		return dto.NewDeleteOutput(err.Error(), 404), err
+	}
+	return dto.NewDeleteOutput("", 200), nil
 }

@@ -49,15 +49,15 @@ func (s *Server) EditCountBook(ctx context.Context, req *pb.EditCountBookRequest
 }
 
 func (s *Server) DeleteBook(ctx context.Context, req *pb.DeleteBookRequest) (*pb.DeleteBookResponse, error) {
-	dto := NewEditCountInput(req)
+	dto := NewDeleteInput(req)
 
-	res, err := s.service.EditCountBook(ctx, dto)
+	res, err := s.service.DeleteBook(ctx, dto)
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err
 	}
 
-	response := NewEditCountOutput(res)
+	response := NewDeleteOutput(res)
 
 	return response, nil
 }
