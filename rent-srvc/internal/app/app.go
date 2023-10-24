@@ -10,6 +10,7 @@ import (
 	"net"
 	"rent/internal/config"
 	v1 "rent/internal/controller/grpc/v1"
+	"rent/internal/domain/rent/dao"
 	"rent/internal/domain/rent/service"
 	psql "rent/pkg/postgresql"
 	"time"
@@ -35,7 +36,7 @@ func NewApp(ctx context.Context, cfg *config.Config) App {
 	if err != nil {
 		return App{}
 	}
-	storage := dao.NewRegistrationStorage(pgClient)
+	storage := dao.NewRentStorage(pgClient)
 	svc := service.NewService(storage)
 	server := v1.NewServer(svc, pb.UnimplementedBooksUsersServiceServer{})
 	return App{
