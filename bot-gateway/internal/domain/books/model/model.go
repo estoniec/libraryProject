@@ -1,6 +1,9 @@
 package model
 
-import pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
+import (
+	"encoding/json"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
+)
 
 type Book struct {
 	ID     int
@@ -47,6 +50,6 @@ func NewFindBook(
 		ISBN:   isbn,
 		Name:   name,
 		Author: author,
-		ID:     id,
+		,
 	}
 }

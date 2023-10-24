@@ -108,3 +108,17 @@ func NewDeleteBookInput(isbn string) DeleteBookInput {
 		ISBN: isbn,
 	}
 }
+
+type RentInput struct {
+	BookID   string
+	UserID   int64
+	ReturnAt int64
+}
+
+func NewRentInput(bookID string, userID int64, returnAt int64) RentInput {
+	return RentInput{
+		BookID:   bookID,
+		UserID:   userID,
+		ReturnAt: returnAt,
+	}
+}

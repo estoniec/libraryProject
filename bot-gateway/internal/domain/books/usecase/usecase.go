@@ -1,4 +1,4 @@
-package books_usecase
+package booksService
 
 import (
 	"context"

@@ -1,4 +1,4 @@
-package books_storage
+package booksService
 
 import (
 	"context"

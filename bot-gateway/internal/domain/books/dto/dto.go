@@ -1,4 +1,4 @@
-package books_dto
+package booksService
 
 import (
 	"gateway/internal/domain/books/model"

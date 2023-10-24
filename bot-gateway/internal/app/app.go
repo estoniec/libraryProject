@@ -56,7 +56,7 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 
 	bookRepository := books_storage.NewBooksStorage(client)
 
-	regUsecase := users_usecase.NewUsecase(regClient)
+	regUsecase := usersService.NewUsecase(regClient)
 	bookService := books_service.NewService(bookClient, bookRepository)
 
 	bot, err := telego.NewBot(c.BotToken)
@@ -72,7 +72,7 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 	router := router.NewRouter(bot)
 	handler := v1.NewHandler(builder, router, questionManager, callbackQuestionManager)
 	regHandler := v1.NewRegHandler(builder, router, questionManager, callbackQuestionManager, regUsecase, keyboardManager)
-	booksUsecase := books_usecase.NewUsecase(bookClient, bookService)
+	booksUsecase := booksService.NewUsecase(bookClient, bookService)
 	booksHandler := v1.NewBooksHandler(builder, router, questionManager, callbackQuestionManager, booksUsecase, keyboardManager)
 	adminHandler := v1.NewAdminHandler(builder, router, questionManager, callbackQuestionManager, regUsecase, booksUsecase, keyboardManager)
 	return &App{

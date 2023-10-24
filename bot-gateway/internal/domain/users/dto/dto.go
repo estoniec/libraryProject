@@ -1,4 +1,4 @@
-package reg_dto
+package usersService
 
 type RegOutput struct {
 	Error  string

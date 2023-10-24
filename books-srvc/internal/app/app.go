@@ -62,7 +62,7 @@ func (a *App) startGRPC() error {
 		slog.Error("Failed to listing:", err)
 	}
 
-	slog.Info("Queue Svc on", a.config.Port)
+	slog.Info("Books Svc on", a.config.Port)
 
 	grpcServer := grpc.NewServer()
 
