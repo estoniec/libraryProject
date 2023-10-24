@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	Create(ctx context.Context, dto dto.CreateDTO) (string, string, error)
+	Create(ctx context.Context, dto dto.CreateDTO) (int, error)
 }
 
 type Service struct {
@@ -21,9 +21,9 @@ func NewService(repository Repository) *Service {
 
 func (s *Service) RentBook(ctx context.Context, input dto.RentBookInput) (dto.RentBookOutput, error) {
 	dtoRent := dto.NewCreateDTO(int(input.BookID), int(input.UserID), int(input.ReturnAt))
-	author, name, err := s.repository.Create(ctx, dtoRent)
+	id, err := s.repository.Create(ctx, dtoRent)
 	if err != nil {
-		return dto.NewRentBookOutput(author, name, err.Error(), 404), err
+		return dto.NewRentBookOutput(id, err.Error(), 404), err
 	}
-	return dto.NewRentBookOutput(author, name, err.Error(), 404), nil
+	return dto.NewRentBookOutput(id, err.Error(), 404), nil
 }

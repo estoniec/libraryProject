@@ -9,7 +9,7 @@ import (
 func NewFindByInput(req *pb.FindByRequest) dto.FindByInput {
 	return dto.FindByInput{
 		Offset: int(req.GetOffset()),
-		Book:   model.NewFindBook(req.GetFind().GetISBN(), req.GetFind().GetName(), req.GetFind().GetAuthor()),
+		Book:   model.NewFindBook(req.GetFind().GetISBN(), req.GetFind().GetName(), req.GetFind().GetAuthor(), req.GetFind().GetID()),
 	}
 }
 

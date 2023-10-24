@@ -24,10 +24,12 @@ func NewBook(
 func NewFindBook(
 	isbn string,
 	name string,
-	author string) Book {
+	author string,
+	id int64) Book {
 	return Book{
 		ISBN:   isbn,
 		Name:   name,
 		Author: author,
+		ID:     int(id),
 	}
 }

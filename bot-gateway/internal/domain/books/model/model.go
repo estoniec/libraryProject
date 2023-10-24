@@ -41,10 +41,12 @@ func NewBooks(books []*pb.Book) []Book {
 func NewFindBook(
 	isbn string,
 	name string,
-	author string) *pb.FindBook {
+	author string,
+	id int64) *pb.FindBook {
 	return &pb.FindBook{
 		ISBN:   isbn,
 		Name:   name,
 		Author: author,
+		ID:     id,
 	}
 }

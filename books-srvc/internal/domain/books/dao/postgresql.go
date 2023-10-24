@@ -35,6 +35,9 @@ func (repo *BooksDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([]model.
 	if dto.Book.Author != "" {
 		where = append(where, sq.Eq{"author": dto.Book.Author})
 	}
+	if dto.Book.ID != 0 {
+		where = append(where, sq.Eq{"id": dto.Book.ID})
+	}
 	var books []model.Book
 	sql, args, err := repo.qb.
 		Select(
@@ -108,7 +111,7 @@ func (repo *BooksDAO) Create(ctx context.Context, dto dto.CreateBookInput) (mode
 }
 
 func (repo *BooksDAO) EditCount(ctx context.Context, dto dto.EditCountBookInput) error {
-	_, _, err := repo.qb.
+	sql, args, err := repo.qb.
 		Update(
 			postgres.BooksTable,
 		).Set(
@@ -120,17 +123,27 @@ func (repo *BooksDAO) EditCount(ctx context.Context, dto dto.EditCountBookInput)
 		slog.Error(err.Error())
 		return err
 	}
+	_, err = repo.client.Exec(ctx, sql, args...)
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
 
 	return nil
 }
 
 func (repo *BooksDAO) Delete(ctx context.Context, dto dto.DeleteBookInput) error {
-	_, _, err := repo.qb.
+	sql, args, err := repo.qb.
 		Delete(
 			postgres.BooksTable,
 		).Where(
 		sq.Eq{"isbn": dto.ISBN},
 	).ToSql()
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	_, err = repo.client.Exec(ctx, sql, args...)
 	if err != nil {
 		slog.Error(err.Error())
 		return err

@@ -7,8 +7,7 @@ type RentBookInput struct {
 }
 
 type RentBookOutput struct {
-	Author string
-	Name   string
+	ID     int
 	Error  string
 	Status int64
 }
@@ -19,10 +18,9 @@ type CreateDTO struct {
 	ReturnAt int
 }
 
-func NewRentBookOutput(author string, name string, error string, status int64) RentBookOutput {
+func NewRentBookOutput(id int, error string, status int64) RentBookOutput {
 	return RentBookOutput{
-		Author: author,
-		Name:   name,
+		ID:     id,
 		Error:  error,
 		Status: status,
 	}

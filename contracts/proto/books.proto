@@ -15,7 +15,6 @@ message FindBook {
   string ISBN = 1;
   string name = 2;
   string author = 3;
-  int64 ID = 4;
 }
 
 message Book {
