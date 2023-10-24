@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	BooksUsersService_RentBook_FullMethodName = "/books_users_service.books_users.BooksUsersService/RentBook"
+	BooksUsersService_FindBook_FullMethodName = "/books_users_service.books_users.BooksUsersService/FindBook"
 )
 
 // BooksUsersServiceClient is the client API for BooksUsersService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BooksUsersServiceClient interface {
 	RentBook(ctx context.Context, in *RentBookRequest, opts ...grpc.CallOption) (*RentBookResponse, error)
+	FindBook(ctx context.Context, in *FindBookRequest, opts ...grpc.CallOption) (*FindBookResponse, error)
 }
 
 type booksUsersServiceClient struct {
@@ -46,11 +48,21 @@ func (c *booksUsersServiceClient) RentBook(ctx context.Context, in *RentBookRequ
 	return out, nil
 }
 
+func (c *booksUsersServiceClient) FindBook(ctx context.Context, in *FindBookRequest, opts ...grpc.CallOption) (*FindBookResponse, error) {
+	out := new(FindBookResponse)
+	err := c.cc.Invoke(ctx, BooksUsersService_FindBook_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BooksUsersServiceServer is the server API for BooksUsersService service.
 // All implementations must embed UnimplementedBooksUsersServiceServer
 // for forward compatibility
 type BooksUsersServiceServer interface {
 	RentBook(context.Context, *RentBookRequest) (*RentBookResponse, error)
+	FindBook(context.Context, *FindBookRequest) (*FindBookResponse, error)
 	mustEmbedUnimplementedBooksUsersServiceServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedBooksUsersServiceServer struct {
 
 func (UnimplementedBooksUsersServiceServer) RentBook(context.Context, *RentBookRequest) (*RentBookResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RentBook not implemented")
+}
+func (UnimplementedBooksUsersServiceServer) FindBook(context.Context, *FindBookRequest) (*FindBookResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindBook not implemented")
 }
 func (UnimplementedBooksUsersServiceServer) mustEmbedUnimplementedBooksUsersServiceServer() {}
 
@@ -92,6 +107,24 @@ func _BooksUsersService_RentBook_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BooksUsersService_FindBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindBookRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksUsersServiceServer).FindBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksUsersService_FindBook_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksUsersServiceServer).FindBook(ctx, req.(*FindBookRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BooksUsersService_ServiceDesc is the grpc.ServiceDesc for BooksUsersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var BooksUsersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RentBook",
 			Handler:    _BooksUsersService_RentBook_Handler,
+		},
+		{
+			MethodName: "FindBook",
+			Handler:    _BooksUsersService_FindBook_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

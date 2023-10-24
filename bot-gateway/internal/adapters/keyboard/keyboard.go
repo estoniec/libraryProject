@@ -114,6 +114,9 @@ func (k *KeyboardManager) Admin() *telego.ReplyKeyboardMarkup {
 		tu.KeyboardRow(
 			tu.KeyboardButton("Удалить книгу"),
 		),
+		tu.KeyboardRow(
+			tu.KeyboardButton("Подтвердить аренду книги"),
+		),
 	)
 	return keyboard
 }

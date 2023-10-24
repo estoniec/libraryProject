@@ -6,6 +6,7 @@ option go_package = "./gen/go/books_users;pb_books_users";
 
 service BooksUsersService {
   rpc RentBook(RentBookRequest) returns (RentBookResponse) {}
+  rpc FindBook(FindBookRequest) returns (FindBookResponse) {}
 }
 
 message Book {
@@ -42,4 +43,14 @@ message RentBookResponse {
   string error = 1;
   int64 status = 2;
   int64 id = 3;
+}
+
+message FindBookRequest {
+  int64 id = 1;
+}
+
+message FindBookResponse {
+  string error = 1;
+  int64 status = 2;
+  Book book = 4;
 }

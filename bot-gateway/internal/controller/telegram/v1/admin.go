@@ -311,3 +311,62 @@ func (h *AdminHandler) DeleteBook(ctx context.Context, msg telego.Update) {
 	}
 	return
 }
+
+func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
+	dtoCheck := dto.NewCheckRoleInput(msg.Message.From.ID)
+	role, err := h.regUsecase.CheckRole(ctx, dtoCheck)
+	if err != nil || role.Status == 404 {
+		slog.Error(role.Error)
+		return
+	}
+	if role.Role < 2 {
+		_, err = h.builder.NewMessage(msg, "Для использования данной команды у вас недостаточно прав", nil)
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		return
+	}
+	_, err = h.builder.NewMessage(msg, "Введите номер, который вам продиктует арендатор:", nil)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	answers, c := h.question.NewQuestion(msg)
+	defer c()
+	id, ok := <-answers
+	if !ok || id.Text == "" {
+		h.builder.NewMessage(msg, "Попробуйте ввести номер заново.", nil)
+		return
+	}
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите удалить книгу с ISBN: %s?", id.Text), h.keyboard.SuccessAdd())
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+	defer cl()
+	answer, ok := <-callbackAnswers
+	if !ok {
+		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
+		return
+	}
+	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
+		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		input := dto.NewDeleteBookInput(isbn.Text)
+		res, err := h.bookUsecase.DeleteBook(ctx, input)
+		if err != nil || res.Status == 404 {
+			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+			slog.Error(err.Error())
+			return
+		}
+		h.builder.NewMessageWithKeyboard(msg, "Вы успешно изменили количество книг!", h.keyboard.Admin())
+	} else {
+		h.GetKeyboard(ctx, answer)
+	}
+	return
+}

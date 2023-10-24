@@ -95,13 +95,13 @@ func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 	}
 	bookIDint, err := strconv.Atoi(bookID)
 	if err != nil {
-		h.builder.NewMessage(msg, "Аренда книги создана. Информации о книге не найдено.", h.keyboard.FindBook())
+		h.builder.NewMessage(msg, fmt.Sprintf("Запрос на аренду книги создан, но информации о книге не найдено.\n\nЧтобы подтвердить аренду книги подойдите в библиотеку и продиктуйте номер: %d", rent.ID), h.keyboard.FindBook())
 		return
 	}
 	inputBook := dto.NewByInput(0, model.NewFindBook("", "", "", int64(bookIDint)))
 	book, err := h.bookUsecase.FindBy(ctx, inputBook)
 	if err != nil {
-		h.builder.NewMessage(msg, "Аренда книги создана. Информации о книге не найдено.", h.keyboard.FindBook())
+		h.builder.NewMessage(msg, fmt.Sprintf("Запрос на аренду книги создан, но информации о книге не найдено.\n\nЧтобы подтвердить аренду книги подойдите в библиотеку и продиктуйте номер: %d", rent.ID), h.keyboard.FindBook())
 		return
 	}
 	var findBooks []string
@@ -110,5 +110,5 @@ func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 		ids = append(ids, strconv.Itoa(book.ID))
 		findBooks = append(findBooks, fmt.Sprintf("ID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.ID, book.ISBN, book.Author, book.Name, book.Count))
 	}
-	h.builder.NewMessage(msg, fmt.Sprintf("Запрос на аренду книги создан. Информация о книге:\n\n%v\n\nЧтобы подтвердить аренду книги подойдите в библиотеку и продиктуйте номер: .", strings.Join(findBooks, "\n\n")), h.keyboard.Menu())
+	h.builder.NewMessage(msg, fmt.Sprintf("Запрос на аренду книги создан. Информация о книге:\n\n%v\n\nЧтобы подтвердить аренду книги подойдите в библиотеку и продиктуйте номер: %d", strings.Join(findBooks, "\n\n"), rent.ID), h.keyboard.Menu())
 }

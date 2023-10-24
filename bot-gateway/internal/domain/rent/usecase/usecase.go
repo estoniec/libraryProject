@@ -21,7 +21,7 @@ func NewUsecase(client pb.BooksUsersServiceClient) *Usecase {
 func (u *Usecase) RentBook(ctx context.Context, input dto2.RentInput) (dto.RentBookOutput, error) {
 	bookIDint, err := strconv.Atoi(input.BookID)
 	if err != nil {
-		return dto.NewRentBookOutput(err.Error(), 404), err
+		return dto.NewRentBookOutput(err.Error(), 404, 0), err
 	}
 	dtoRent := dto.NewRentBookDTO(int64(bookIDint), input.UserID, input.ReturnAt)
 	res, err := u.client.RentBook(ctx, &pb.RentBookRequest{
@@ -30,7 +30,7 @@ func (u *Usecase) RentBook(ctx context.Context, input dto2.RentInput) (dto.RentB
 		ReturnAt: dtoRent.ReturnAt,
 	})
 	if err != nil {
-		return dto.NewRentBookOutput(err.Error(), 404), err
+		return dto.NewRentBookOutput(err.Error(), 404, 0), err
 	}
-	return dto.NewRentBookOutput(res.GetError(), res.GetStatus()), nil
+	return dto.NewRentBookOutput(res.GetError(), res.GetStatus(), res.GetId()), nil
 }
