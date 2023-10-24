@@ -2,6 +2,7 @@ package booksService
 
 import (
 	"context"
+	books_dto "gateway/internal/domain/books/dto"
 	pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
 )
 

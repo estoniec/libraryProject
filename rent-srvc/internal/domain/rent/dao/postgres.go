@@ -21,7 +21,8 @@ func NewRentStorage(client psql.Client) *RentDAO {
 	}
 }
 
-func (repo *RentDAO) Create(ctx context.Context, dto dto.CreateDTO) error {
+func (repo *RentDAO) Create(ctx context.Context, dto dto.CreateDTO) (int64, error) {
+	var id int64
 	sql, args, err := repo.qb.
 		Insert(
 			postgres.BooksUsersTable,
@@ -33,16 +34,16 @@ func (repo *RentDAO) Create(ctx context.Context, dto dto.CreateDTO) error {
 		dto.BookID,
 		dto.UserID,
 		dto.ReturnAt,
-	).ToSql()
+	).Suffix("RETURNING \"id\"").ToSql()
 	if err != nil {
 		slog.Error(err.Error())
-		return err
+		return id, err
 	}
-	_, err = repo.client.Exec(ctx, sql, args...)
+	err = repo.client.QueryRow(ctx, sql, args...).Scan(&id)
 	if err != nil {
 		slog.Error(err.Error())
-		return err
+		return id, err
 	}
 
-	return nil
+	return id, nil
 }

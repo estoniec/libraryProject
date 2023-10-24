@@ -126,7 +126,7 @@ func (h *BooksHandler) FindByISBN(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		return
 	}
-	dto := dto.NewByInput(0, model.NewFindBook(isbn.Text, "", ""))
+	dto := dto.NewByInput(0, model.NewFindBook(isbn.Text, "", "", 0))
 	book, err := h.usecase.FindBy(ctx, dto)
 	if err != nil || book.Status == 404 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -167,7 +167,7 @@ func (h *BooksHandler) FindByAuthor(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		return
 	}
-	bookDTO := dto.NewByInput(0, model.NewFindBook("", "", author.Text))
+	bookDTO := dto.NewByInput(0, model.NewFindBook("", "", author.Text, 0))
 	book, err := h.usecase.FindBy(ctx, bookDTO)
 	if err != nil || book.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -216,7 +216,7 @@ func (h *BooksHandler) FindByName(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		return
 	}
-	dtoBy := dto.NewByInput(0, model.NewFindBook("", name.Text, ""))
+	dtoBy := dto.NewByInput(0, model.NewFindBook("", name.Text, "", 0))
 	book, err := h.usecase.FindBy(ctx, dtoBy)
 	if err != nil || book.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -276,7 +276,7 @@ func (h *BooksHandler) FindByNameAndAuthor(ctx context.Context, msg telego.Updat
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		return
 	}
-	dto := dto.NewByInput(0, model.NewFindBook("", name.Text, author.Text))
+	dto := dto.NewByInput(0, model.NewFindBook("", name.Text, author.Text, 0))
 	book, err := h.usecase.FindBy(ctx, dto)
 	if err != nil || book.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -304,7 +304,7 @@ func (h *BooksHandler) FindAll(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	dtoBy := dto.NewByInput(0, model.NewFindBook("", "", ""))
+	dtoBy := dto.NewByInput(0, model.NewFindBook("", "", "", 0))
 	book, err := h.usecase.FindBy(ctx, dtoBy)
 	if err != nil || book.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -408,7 +408,7 @@ func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 
 	switch find.Searched[0] {
 	case "author":
-		dtoBy := dto.NewByInput(offset, model.NewFindBook("", "", find.Searched[1]))
+		dtoBy := dto.NewByInput(offset, model.NewFindBook("", "", find.Searched[1], 0))
 		books, err := h.usecase.FindBy(ctx, dtoBy)
 		if err != nil || books.Status != 200 {
 			if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -438,7 +438,7 @@ func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(int(offset+9), int(predOffset), ID, ids...))
 		return
 	case "name":
-		dtoBy := dto.NewByInput(offset, model.NewFindBook("", find.Searched[1], ""))
+		dtoBy := dto.NewByInput(offset, model.NewFindBook("", find.Searched[1], "", 0))
 		books, err := h.usecase.FindBy(ctx, dtoBy)
 		if err != nil || books.Status != 200 {
 			if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -468,7 +468,7 @@ func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(int(offset+9), int(predOffset), ID, ids...))
 		return
 	case "all":
-		dtoBy := dto.NewByInput(offset, model.NewFindBook("", "", ""))
+		dtoBy := dto.NewByInput(offset, model.NewFindBook("", "", "", 0))
 		books, err := h.usecase.FindBy(ctx, dtoBy)
 		if err != nil || books.Status != 200 {
 			if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -532,7 +532,7 @@ func (h *BooksHandler) Pred(ctx context.Context, msg telego.Update) {
 
 	switch find.Searched[0] {
 	case "author":
-		dtoBy := dto.NewByInput(offset, model.NewFindBook("", "", find.Searched[1]))
+		dtoBy := dto.NewByInput(offset, model.NewFindBook("", "", find.Searched[1], 0))
 		books, err := h.usecase.FindBy(ctx, dtoBy)
 		if err != nil || books.Status != 200 {
 			if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -566,7 +566,7 @@ func (h *BooksHandler) Pred(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(int(offset+9), int(predOffset), ID, ids...))
 		return
 	case "name":
-		dtoBy := dto.NewByInput(offset, model.NewFindBook("", find.Searched[1], ""))
+		dtoBy := dto.NewByInput(offset, model.NewFindBook("", find.Searched[1], "", 0))
 		books, err := h.usecase.FindBy(ctx, dtoBy)
 		if err != nil || books.Status != 200 {
 			if err.Error() == "rpc error: code = Unknown desc = book is not found" {
@@ -600,7 +600,7 @@ func (h *BooksHandler) Pred(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(int(offset+9), int(predOffset), ID, ids...))
 		return
 	case "all":
-		dtoBy := dto.NewByInput(offset, model.NewFindBook("", "", ""))
+		dtoBy := dto.NewByInput(offset, model.NewFindBook("", "", "", 0))
 		books, err := h.usecase.FindBy(ctx, dtoBy)
 		if err != nil || books.Status != 200 {
 			if err.Error() == "rpc error: code = Unknown desc = book is not found" {

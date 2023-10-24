@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
 )
 
@@ -50,6 +49,6 @@ func NewFindBook(
 		ISBN:   isbn,
 		Name:   name,
 		Author: author,
-		,
+		ID:     id,
 	}
 }

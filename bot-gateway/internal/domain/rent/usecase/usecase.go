@@ -32,4 +32,5 @@ func (u *Usecase) RentBook(ctx context.Context, input dto2.RentInput) (dto.RentB
 	if err != nil {
 		return dto.NewRentBookOutput(err.Error(), 404), err
 	}
+	return dto.NewRentBookOutput(res.GetError(), res.GetStatus()), nil
 }

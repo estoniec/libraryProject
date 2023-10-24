@@ -17,5 +17,6 @@ func NewRentBookOutput(output dto.RentBookOutput) *pb.RentBookResponse {
 	return &pb.RentBookResponse{
 		Error:  output.Error,
 		Status: output.Status,
+		ID:     output.ID,
 	}
 }

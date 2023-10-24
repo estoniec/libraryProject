@@ -9,6 +9,7 @@ type RentBookInput struct {
 type RentBookOutput struct {
 	Error  string
 	Status int64
+	ID     int64
 }
 
 type CreateDTO struct {
@@ -17,10 +18,11 @@ type CreateDTO struct {
 	ReturnAt int
 }
 
-func NewRentBookOutput(error string, status int64) RentBookOutput {
+func NewRentBookOutput(error string, status int64, id int64) RentBookOutput {
 	return RentBookOutput{
 		Error:  error,
 		Status: status,
+		ID:     id,
 	}
 }
 
