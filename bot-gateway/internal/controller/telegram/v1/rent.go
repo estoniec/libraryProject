@@ -129,9 +129,9 @@ func (h *RentHandler) GetDebt(ctx context.Context) {
 	if len(debts.Debt) > 0 {
 		var debters []string
 		for _, debt := range debts.Debt {
-			debters = append(debters, fmt.Sprintf("\n\nISBN: %s\nАвтор: %s\nНазвание: %s\nСсылка для перехода в диалог с арендатором: t.me/%s (после \"t.me/\" так же идёт его номер телефона)\nУчебный класс арендатора: %s", debt.Books.ISBN, debt.Books.Author, debt.Books.Name, debt.Users.Phone, debt.Users.Class))
+			debters = append(debters, fmt.Sprintf("ISBN: %s,\nАвтор: %s,\nНазвание: %s,\nСсылка для перехода в диалог с арендатором: t.me/%s (после \"t.me/\" так же идёт его номер телефона),\nУчебный класс арендатора: %s;", debt.Books.ISBN, debt.Books.Author, debt.Books.Name, debt.Users.Phone, debt.Users.Class))
 			h.builder.NewMessageByID(debt.Users.ID, fmt.Sprintf("Ежедневное уведомление: вы должны вернуть книгу со следующими данными в библиотеку, так как срок аренды истёк.\n\nISBN: %s\nАвтор: %s\nНазвание: %s", debt.Books.ISBN, debt.Books.Author, debt.Books.Name), nil)
 		}
-		h.builder.NewMessageByID(1077777665, fmt.Sprintf("Обнаружены люди, у которых истёк срок аренды книги.%v", debters), nil)
+		h.builder.NewMessageByID(1077777665, fmt.Sprintf("Обнаружены люди, у которых истёк срок аренды книги.%v", strings.Join(debters, "\n\n")), nil)
 	}
 }

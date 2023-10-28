@@ -120,6 +120,7 @@ func (repo *RentDAO) FindByTime(ctx context.Context, dto dto.GetDebtInput) ([]mo
 			sq.LtOrEq{"returnat": dto.Time},
 		}).Join(
 		"public.books ON public.books_users.fk_book_id = public.books.book_id",
+	).Join(
 		"public.users ON public.books_users.fk_users_id = public.users.user_id",
 	).ToSql()
 	if err != nil {

@@ -62,7 +62,7 @@ func (repo *RegistrationDAO) FindUser(ctx context.Context, req dto.CheckInput) (
 		).From(
 		postgres.UserTable,
 	).Where(
-		sq.Eq{"id": req.ID},
+		sq.Eq{"user_id": req.ID},
 	).Prefix(
 		"SELECT EXISTS(",
 	).Suffix(
