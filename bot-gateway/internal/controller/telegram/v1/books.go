@@ -333,49 +333,6 @@ func (h *BooksHandler) FindAll(ctx context.Context, msg telego.Update) {
 	return
 }
 
-func (h *BooksHandler) RentBook(ctx context.Context, msg telego.Update) {
-	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
-	if err != nil {
-		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
-		slog.Error(err.Error())
-		return
-	}
-	_, err = h.builder.NewMessage(msg, "Введите количество дней (от 1 до 30), через которые книга будет возвращена:", nil)
-	if err != nil {
-		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
-		slog.Error(err.Error())
-		return
-	}
-	answer, c := h.question.NewQuestion(msg)
-	defer c()
-	days, ok := <-answer
-	if !ok || days.Text == "" {
-		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
-		return
-	}
-
-	//dto := dto2.NewNameInput(days.Text, 0)
-	//books, err := h.service.FindByName(ctx, dto)
-	//if err != nil || books.Status != 200 {
-	//	if err.Error() == "rpc error: code = Unknown desc = book is not found" {
-	//		h.builder.NewMessage(msg, "Книг с таким названием не существует.", h.keyboard.FindBook())
-	//		slog.Error(err.Error())
-	//		return
-	//	}
-	//	h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
-	//	slog.Error(err.Error())
-	//	return
-	//}
-	//var findBooks []string
-	//var ids []string
-	//for _, book := range books.Book {
-	//	ids = append(ids, strconv.Itoa(book.ID))
-	//	findBooks = append(findBooks, fmt.Sprintf("ID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.ID, book.ISBN, book.Author, book.Name, book.Count))
-	//}
-	//h.builder.NewMessage(msg, fmt.Sprintf("Книги найдены, вот информация о них:\n\n%v\n\nЧтобы арендовать какую-то из этих книг, нажмите на кнопку с её ID.", strings.Join(findBooks, "\n\n")), h.keyboard.FindBy(msg.CallbackQuery.From.ID, "name", name.Text, ids...))
-	//return
-}
-
 func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
 	if err != nil {

@@ -7,9 +7,9 @@ option go_package = "./gen/go/books_users;pb_books_users";
 service BooksUsersService {
   rpc RentBook(RentBookRequest) returns (RentBookResponse) {}
   rpc ConfirmRent(ConfirmRentRequest) returns (ConfirmRentResponse) {}
-  rpc ReturnBook(ReturnBookRequest) returns (ReturnBookResponse) {}
   rpc ConfirmReturn(ConfirmReturnRequest) returns (ConfirmReturnResponse) {}
   rpc FindBook(FindBookRequest) returns (FindBookResponse) {}
+  rpc GetDebt(GetDebtRequest) returns (GetDebtResponse) {}
 }
 
 message Book {
@@ -67,15 +67,6 @@ message ConfirmRentResponse {
   int64 status = 2;
 }
 
-message ReturnBookRequest {
-  int64 ID = 1;
-}
-
-message ReturnBookResponse {
-  string error = 1;
-  int64 status = 2;
-}
-
 message ConfirmReturnRequest {
   int64 ID = 1;
 }
@@ -83,4 +74,14 @@ message ConfirmReturnRequest {
 message ConfirmReturnResponse {
   string error = 1;
   int64 status = 2;
+}
+
+message GetDebtRequest {
+  int64 time = 1;
+}
+
+message GetDebtResponse {
+  string error = 1;
+  int64 status = 2;
+  BooksUsers debt = 3;
 }

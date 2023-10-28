@@ -383,6 +383,13 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 			slog.Error(err.Error())
 			return
 		}
+		inputEdit := dto.NewEditCountBookInput(book.Book.GetISBN(), int(book.Book.GetCount())-1)
+		resEdit, err := h.bookUsecase.EditCountBook(ctx, inputEdit)
+		if err != nil || resEdit.Status == 404 {
+			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+			slog.Error(err.Error())
+			return
+		}
 		h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили аренду книги!", h.keyboard.Admin())
 	} else {
 		h.GetKeyboard(ctx, answer)
