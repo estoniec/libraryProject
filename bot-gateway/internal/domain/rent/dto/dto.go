@@ -1,6 +1,9 @@
 package rentService
 
-import pb "github.com/estoniec/libraryProject/contracts/gen/go/books_users"
+import (
+	"gateway/internal/domain/rent/model"
+	pb "github.com/estoniec/libraryProject/contracts/gen/go/books_users"
+)
 
 type RentBookOutput struct {
 	Error  string
@@ -53,5 +56,19 @@ func NewConfirmRentOutput(error string, status int64) ConfirmRentOutput {
 	return ConfirmRentOutput{
 		Error:  error,
 		Status: status,
+	}
+}
+
+type GetDebtOutput struct {
+	Error  string
+	Status int64
+	Debt   []rentService.BooksUsers
+}
+
+func NewGetDebtOutput(error string, status int64, debts []rentService.BooksUsers) GetDebtOutput {
+	return GetDebtOutput{
+		Error:  error,
+		Status: status,
+		Debt:   debts,
 	}
 }

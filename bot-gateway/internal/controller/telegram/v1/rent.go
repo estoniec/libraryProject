@@ -19,6 +19,7 @@ type RentUsecase interface {
 	RentBook(ctx context.Context, input dto.RentInput) (rentService.RentBookOutput, error)
 	FindBook(ctx context.Context, input dto.FindBookInput) (rentService.FindBookOutput, error)
 	ConfirmRent(ctx context.Context, input dto.ConfirmRentInput) (rentService.ConfirmRentOutput, error)
+	GetDebt(ctx context.Context, input dto.GetDebtInput) (rentService.GetDebtOutput, error)
 }
 
 type RentKeyboard interface {
@@ -58,6 +59,7 @@ func (h *RentHandler) Register() {
 	rentBook.WithCommand("/rent")
 	h.AddGroup(regGroup)
 }
+
 func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
 	if err != nil {
@@ -91,7 +93,7 @@ func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 	}
 	input := dto.NewRentInput(bookID, msg.CallbackQuery.From.ID, time.Now().Unix()+int64(daysInt*24*60*60))
 	rent, err := h.usecase.RentBook(ctx, input)
-	if err != nil || rent.Status == 404 {
+	if err != nil || rent.Status == 404 || rent.ID == 0 {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		slog.Error(err.Error())
 		return
@@ -114,4 +116,22 @@ func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 		findBooks = append(findBooks, fmt.Sprintf("ID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.ID, book.ISBN, book.Author, book.Name, book.Count))
 	}
 	h.builder.NewMessage(msg, fmt.Sprintf("Запрос на аренду книги создан. Информация о книге:\n\n%v\n\nЧтобы подтвердить аренду книги подойдите в библиотеку и продиктуйте номер: %d", strings.Join(findBooks, "\n\n"), rent.ID), h.keyboard.Menu())
+}
+
+func (h *RentHandler) GetDebt(ctx context.Context) {
+	timeNow := time.Now().Unix()
+	input := dto.NewGetDebtInput(timeNow)
+	debts, err := h.usecase.GetDebt(ctx, input)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	if len(debts.Debt) > 0 {
+		var debters []string
+		for _, debt := range debts.Debt {
+			debters = append(debters, fmt.Sprintf("\n\nISBN: %s\nАвтор: %s\nНазвание: %s\nСсылка для перехода в диалог с арендатором: t.me/%s (после \"t.me/\" так же идёт его номер телефона)\nУчебный класс арендатора: %s", debt.Books.ISBN, debt.Books.Author, debt.Books.Name, debt.Users.Phone, debt.Users.Class))
+			h.builder.NewMessageByID(debt.Users.ID, fmt.Sprintf("Ежедневное уведомление: вы должны вернуть книгу со следующими данными в библиотеку, так как срок аренды истёк.\n\nISBN: %s\nАвтор: %s\nНазвание: %s", debt.Books.ISBN, debt.Books.Author, debt.Books.Name), nil)
+		}
+		h.builder.NewMessageByID(1077777665, fmt.Sprintf("Обнаружены люди, у которых истёк срок аренды книги.%v", debters), nil)
+	}
 }

@@ -142,3 +142,13 @@ func NewConfirmRentInput(id int64) ConfirmRentInput {
 		ID: id,
 	}
 }
+
+type GetDebtInput struct {
+	Time int64
+}
+
+func NewGetDebtInput(time int64) GetDebtInput {
+	return GetDebtInput{
+		Time: time,
+	}
+}

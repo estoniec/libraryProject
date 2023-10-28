@@ -17,6 +17,7 @@ import (
 	rentPb "github.com/estoniec/libraryProject/contracts/gen/go/books_users"
 	regPb "github.com/estoniec/libraryProject/contracts/gen/go/users"
 	"github.com/go-redis/redis"
+	"github.com/jasonlvhit/gocron"
 	"github.com/mymmrac/telego"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -33,6 +34,7 @@ type App struct {
 	booksHandler *v1.BooksHandler
 	adminHandler *v1.AdminHandler
 	rentHandler  *v1.RentHandler
+	scheduler    *gocron.Scheduler
 }
 
 func NewApp(ctx context.Context, c *config.Config) *App {
@@ -87,6 +89,7 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 	booksHandler := v1.NewBooksHandler(builder, router, questionManager, callbackQuestionManager, booksUsecase, keyboardManager)
 	rentHandler := v1.NewRentHandler(builder, router, questionManager, callbackQuestionManager, rentUsecase, booksUsecase, keyboardManager)
 	adminHandler := v1.NewAdminHandler(builder, router, questionManager, callbackQuestionManager, regUsecase, booksUsecase, rentUsecase, keyboardManager)
+	s := gocron.NewScheduler()
 	return &App{
 		config:       c,
 		bot:          bot,
@@ -95,6 +98,7 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 		booksHandler: booksHandler,
 		adminHandler: adminHandler,
 		rentHandler:  rentHandler,
+		scheduler:    s,
 	}
 }
 
@@ -121,6 +125,9 @@ func (a *App) start(ctx context.Context) error {
 	a.adminHandler.Register()
 	a.rentHandler.Register()
 	a.handler.HandleUpdates(ctx, updates)
+
+	a.scheduler.Every(1).Day().Do(a.rentHandler.GetDebt)
+	<-a.scheduler.Start()
 
 	slog.Info("bot has started")
 	return nil

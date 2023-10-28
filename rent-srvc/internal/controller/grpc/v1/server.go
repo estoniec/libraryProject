@@ -10,6 +10,7 @@ type Service interface {
 	RentBook(ctx context.Context, input dto.RentBookInput) (dto.RentBookOutput, error)
 	FindBook(ctx context.Context, input dto.FindBookInput) (dto.FindBookOutput, error)
 	ConfirmRent(ctx context.Context, input dto.ConfirmRentInput) (dto.ConfirmRentOutput, error)
+	GetDebt(ctx context.Context, input dto.GetDebtInput) (dto.GetDebtOutput, error)
 }
 
 type Server struct {

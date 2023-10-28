@@ -47,3 +47,17 @@ func (s *Server) ConfirmRent(ctx context.Context, req *pb.ConfirmRentRequest) (*
 
 	return response, nil
 }
+
+func (s *Server) GetDebt(ctx context.Context, req *pb.GetDebtRequest) (*pb.GetDebtResponse, error) {
+	dto := NewGetDebtInput(req)
+
+	res, err := s.service.GetDebt(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewGetDebtOutput(res)
+
+	return response, nil
+}

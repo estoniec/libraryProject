@@ -10,6 +10,7 @@ type Repository interface {
 	Create(ctx context.Context, dto dto.CreateDTO) (int, error)
 	Find(ctx context.Context, dto dto.FindBookInput) (model.Book, error)
 	UpdateGet(ctx context.Context, dto dto.ConfirmRentInput) error
+	FindByTime(ctx context.Context, dto dto.GetDebtInput) ([]model.BooksUsers, error)
 }
 
 type Service struct {
@@ -45,4 +46,12 @@ func (s *Service) ConfirmRent(ctx context.Context, input dto.ConfirmRentInput) (
 		return dto.NewConfirmRentOutput(err.Error(), 404), err
 	}
 	return dto.NewConfirmRentOutput("", 200), nil
+}
+
+func (s *Service) GetDebt(ctx context.Context, input dto.GetDebtInput) (dto.GetDebtOutput, error) {
+	debt, err := s.repository.FindByTime(ctx, input)
+	if err != nil {
+		return dto.NewGetDebtOutput(err.Error(), 404, []model.BooksUsers{}), err
+	}
+	return dto.NewGetDebtOutput("", 200, debt), nil
 }

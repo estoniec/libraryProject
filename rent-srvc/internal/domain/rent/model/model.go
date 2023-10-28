@@ -16,7 +16,7 @@ type Book struct {
 	Author string
 }
 
-type Books_Users struct {
+type BooksUsers struct {
 	ID       int64
 	Users    User
 	Books    Book

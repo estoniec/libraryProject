@@ -69,3 +69,21 @@ func NewConfirmRentOutput(error string, status int64) ConfirmRentOutput {
 		Status: status,
 	}
 }
+
+type GetDebtInput struct {
+	Time int64
+}
+
+type GetDebtOutput struct {
+	Error  string
+	Status int64
+	Debt   []model.BooksUsers
+}
+
+func NewGetDebtOutput(error string, status int64, debt []model.BooksUsers) GetDebtOutput {
+	return GetDebtOutput{
+		Error:  error,
+		Status: status,
+		Debt:   debt,
+	}
+}

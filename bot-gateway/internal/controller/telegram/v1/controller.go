@@ -11,6 +11,7 @@ type Builder interface {
 	NewMessageWithKeyboard(msg telego.Update, text string, keyboard *telego.ReplyKeyboardMarkup) (*telego.Message, error)
 	DeleteMessage(msg telego.Update) error
 	NewCallbackMessage(msg *telego.CallbackQuery, text string) error
+	NewMessageByID(id int64, text string, keyboard *telego.InlineKeyboardMarkup) (*telego.Message, error)
 }
 
 type Router interface {

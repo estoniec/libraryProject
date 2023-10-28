@@ -4,6 +4,7 @@ import (
 	"context"
 	dto2 "gateway/internal/controller/telegram/dto"
 	dto "gateway/internal/domain/rent/dto"
+	rentService "gateway/internal/domain/rent/model"
 	pb "github.com/estoniec/libraryProject/contracts/gen/go/books_users"
 	"strconv"
 )
@@ -53,4 +54,15 @@ func (u *Usecase) ConfirmRent(ctx context.Context, input dto2.ConfirmRentInput) 
 		return dto.NewConfirmRentOutput(err.Error(), 404), err
 	}
 	return dto.NewConfirmRentOutput(res.GetError(), res.GetStatus()), nil
+}
+
+func (u *Usecase) GetDebt(ctx context.Context, input dto2.GetDebtInput) (dto.GetDebtOutput, error) {
+	res, err := u.client.GetDebt(ctx, &pb.GetDebtRequest{
+		Time: input.Time,
+	})
+	debts := rentService.NewBooksUsers(res.GetDebt())
+	if err != nil {
+		return dto.NewGetDebtOutput(err.Error(), 404, debts), err
+	}
+	return dto.NewGetDebtOutput(res.GetError(), res.GetStatus(), debts), nil
 }

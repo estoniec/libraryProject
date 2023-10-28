@@ -53,3 +53,40 @@ func NewConfirmRentOutput(output dto.ConfirmRentOutput) *pb.ConfirmRentResponse 
 		Status: output.Status,
 	}
 }
+
+func NewGetDebtInput(req *pb.GetDebtRequest) dto.GetDebtInput {
+	return dto.GetDebtInput{
+		Time: req.GetTime(),
+	}
+}
+
+func NewGetDebtOutput(output dto.GetDebtOutput) *pb.GetDebtResponse {
+	var debts []*pb.BooksUsers
+	if len(output.Debt) == 0 {
+		debts = nil
+	} else {
+		debts = make([]*pb.BooksUsers, len(output.Debt))
+		for i, debt := range output.Debt {
+			debts[i] = &pb.BooksUsers{
+				ID: debt.ID,
+				Book: &pb.Book{
+					ID:     int64(debt.Books.ID),
+					ISBN:   debt.Books.ISBN,
+					Name:   debt.Books.Name,
+					Author: debt.Books.Author,
+					Count:  int64(debt.Books.Count),
+				},
+				User: &pb.User{
+					ID:    debt.Users.ID,
+					Phone: debt.Users.Phone,
+					Class: debt.Users.Class,
+				},
+			}
+		}
+	}
+	return &pb.GetDebtResponse{
+		Error:  output.Error,
+		Status: output.Status,
+		Debt:   debts,
+	}
+}

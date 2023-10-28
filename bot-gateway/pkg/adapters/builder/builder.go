@@ -64,6 +64,24 @@ func (b *Builder) NewMessageWithKeyboard(msg telego.Update, text string, keyboar
 	return sentMessage, nil
 }
 
+func (b *Builder) NewMessageByID(id int64, text string, keyboard *telego.InlineKeyboardMarkup) (*telego.Message, error) {
+	message := tu.Message(
+		tu.ID(id),
+		text,
+	)
+	if keyboard != nil {
+		message = message.WithReplyMarkup(keyboard)
+	}
+	sentMessage, err := b.bot.SendMessage(
+		message,
+	)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+	return sentMessage, nil
+}
+
 func (b *Builder) DeleteMessage(msg telego.Update) error {
 	var msgID int
 	var chatID int64

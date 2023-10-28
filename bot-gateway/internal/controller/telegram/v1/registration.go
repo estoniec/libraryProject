@@ -19,6 +19,7 @@ type RegUsecase interface {
 type RegKeyboard interface {
 	Repeat() *telego.InlineKeyboardMarkup
 	Menu() *telego.InlineKeyboardMarkup
+	PhoneNumber() *telego.ReplyKeyboardMarkup
 }
 
 type RegHandler struct {
@@ -75,7 +76,7 @@ func (h *RegHandler) Registration(ctx context.Context, msg telego.Update) {
 		return
 	}
 
-	_, err := h.builder.NewMessage(msg, "Здравствуйте!\nДля продолжения работы с ботом необходимо зарегистрироваться.\nДля начала, пожалуйста, введите свой контактный номер телефона:", nil)
+	_, err := h.builder.NewMessageWithKeyboard(msg, "Здравствуйте!\nДля продолжения работы с ботом необходимо зарегистрироваться.\nДля начала, пожалуйста, введите свой контактный номер телефона с помощью кнопки (внизу)", h.keyboard.PhoneNumber())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -83,7 +84,7 @@ func (h *RegHandler) Registration(ctx context.Context, msg telego.Update) {
 	answers, c := h.question.NewQuestion(msg)
 	defer c()
 	telephone, ok := <-answers
-	if !ok || !utils.IsPhoneNumber(telephone.Text) {
+	if !ok {
 		h.builder.NewMessage(msg, "Попробуйте ввести номер телефона заново.", h.keyboard.Repeat())
 		return
 	}
@@ -109,7 +110,7 @@ func (h *RegHandler) Registration(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести класс и параллель заново.", h.keyboard.Repeat())
 		return
 	}
-	dto := dto.NewRegInput(telephone.Text, username.Text, class.Text, msg.Message.From.ID)
+	dto := dto.NewRegInput(telephone.Contact.PhoneNumber, username.Text, class.Text, msg.Message.From.ID)
 	res, err := h.usecase.Registration(ctx, dto)
 	if err != nil || res.Error != "" {
 		slog.Error(err.Error(), res.Error)

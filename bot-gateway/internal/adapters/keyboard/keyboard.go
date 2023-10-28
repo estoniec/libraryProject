@@ -117,7 +117,7 @@ func (k *KeyboardManager) Admin() *telego.ReplyKeyboardMarkup {
 		tu.KeyboardRow(
 			tu.KeyboardButton("Подтвердить аренду книги"),
 		),
-	)
+	).WithResizeKeyboard()
 	return keyboard
 }
 
@@ -130,6 +130,15 @@ func (k *KeyboardManager) SuccessAdd() *telego.InlineKeyboardMarkup {
 			tu.InlineKeyboardButton("Отменить создание").WithCallbackData(addCommand("/cancel")),
 		),
 	)
+	return keyboard
+}
+
+func (k *KeyboardManager) PhoneNumber() *telego.ReplyKeyboardMarkup {
+	keyboard := tu.Keyboard(
+		tu.KeyboardRow(
+			tu.KeyboardButton("Отправить номер телефона").WithRequestContact(),
+		),
+	).WithResizeKeyboard()
 	return keyboard
 }
 
