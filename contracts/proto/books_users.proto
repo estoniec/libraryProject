@@ -83,5 +83,5 @@ message GetDebtRequest {
 message GetDebtResponse {
   string error = 1;
   int64 status = 2;
-  BooksUsers debt = 3;
+  repeated BooksUsers debt = 3;
 }
