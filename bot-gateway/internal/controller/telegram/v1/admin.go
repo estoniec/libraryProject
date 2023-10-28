@@ -23,10 +23,11 @@ type AdminHandler struct {
 	callbackQuestion CallbackQuestion
 	regUsecase       RegUsecase
 	bookUsecase      BooksUsecase
+	rentUsecase      RentUsecase
 	keyboard         AdminKeyboard
 }
 
-func NewAdminHandler(builder Builder, router Router, question Question, callback CallbackQuestion, regUsecase RegUsecase, bookUsecase BooksUsecase, keyboard AdminKeyboard) *AdminHandler {
+func NewAdminHandler(builder Builder, router Router, question Question, callback CallbackQuestion, regUsecase RegUsecase, bookUsecase BooksUsecase, rentUsecase RentUsecase, keyboard AdminKeyboard) *AdminHandler {
 	return &AdminHandler{
 		builder:          builder,
 		router:           router,
@@ -34,6 +35,7 @@ func NewAdminHandler(builder Builder, router Router, question Question, callback
 		callbackQuestion: callback,
 		regUsecase:       regUsecase,
 		bookUsecase:      bookUsecase,
+		rentUsecase:      rentUsecase,
 		keyboard:         keyboard,
 	}
 }
@@ -47,6 +49,7 @@ func (h *AdminHandler) Register() {
 	regGroup.NewHandler(h.AddBook, "Добавить книгу")
 	regGroup.NewHandler(h.EditCountBook, "Изменить количество книг")
 	regGroup.NewHandler(h.DeleteBook, "Удалить книгу")
+	regGroup.NewHandler(h.ConfirmRent, "Подтвердить аренду книги")
 	keyboard := regGroup.NewHandler(h.GetKeyboard, "/getkeyboard")
 	keyboard.WithCommand("/cancel")
 	h.AddGroup(regGroup)
@@ -339,7 +342,23 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести номер заново.", nil)
 		return
 	}
-	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите удалить книгу с ISBN: %s?", id.Text), h.keyboard.SuccessAdd())
+	idInt, err := strconv.Atoi(id.Text)
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте ввести номер заново.", nil)
+		return
+	}
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	input := dto.NewFindBookInput(int64(idInt))
+	book, err := h.rentUsecase.FindBook(ctx, input)
+	if err != nil {
+		slog.Error(err.Error())
+		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
+		return
+	}
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить аренду книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Book.GetID(), book.Book.GetISBN(), book.Book.GetAuthor(), book.Book.GetName(), book.Book.GetCount()), h.keyboard.SuccessAdd())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -352,19 +371,19 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 		return
 	}
 	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
-		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
-		if err != nil {
-			slog.Error(err.Error())
-			return
-		}
-		input := dto.NewDeleteBookInput(isbn.Text)
-		res, err := h.bookUsecase.DeleteBook(ctx, input)
-		if err != nil || res.Status == 404 {
-			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
-			slog.Error(err.Error())
-			return
-		}
-		h.builder.NewMessageWithKeyboard(msg, "Вы успешно изменили количество книг!", h.keyboard.Admin())
+		//err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+		//if err != nil {
+		//	slog.Error(err.Error())
+		//	return
+		//}
+		//input := dto.NewDeleteBookInput(isbn.Text)
+		//res, err := h.bookUsecase.DeleteBook(ctx, input)
+		//if err != nil || res.Status == 404 {
+		//	h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+		//	slog.Error(err.Error())
+		//	return
+		//}
+		h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили аренду книги!", h.keyboard.Admin())
 	} else {
 		h.GetKeyboard(ctx, answer)
 	}

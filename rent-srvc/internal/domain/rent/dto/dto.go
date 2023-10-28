@@ -1,5 +1,7 @@
 package dto
 
+import "rent/internal/domain/rent/model"
+
 type RentBookInput struct {
 	BookID   int64
 	UserID   int64
@@ -31,5 +33,23 @@ func NewCreateDTO(bookID int, userID int, returnAt int) CreateDTO {
 		BookID:   bookID,
 		UserID:   userID,
 		ReturnAt: returnAt,
+	}
+}
+
+type FindBookInput struct {
+	ID int64
+}
+
+type FindBookOutput struct {
+	Error  string
+	Status int64
+	Book   model.Book
+}
+
+func NewFindBookOutput(error string, status int64, book model.Book) FindBookOutput {
+	return FindBookOutput{
+		Error:  error,
+		Status: status,
+		Book:   book,
 	}
 }

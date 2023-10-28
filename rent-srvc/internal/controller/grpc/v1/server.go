@@ -8,6 +8,7 @@ import (
 
 type Service interface {
 	RentBook(ctx context.Context, input dto.RentBookInput) (dto.RentBookOutput, error)
+	FindBook(ctx context.Context, input dto.FindBookInput) (dto.FindBookOutput, error)
 }
 
 type Server struct {

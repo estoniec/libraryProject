@@ -36,7 +36,7 @@ func (repo *BooksDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([]model.
 		where = append(where, sq.Eq{"author": dto.Book.Author})
 	}
 	if dto.Book.ID != 0 {
-		where = append(where, sq.Eq{"id": dto.Book.ID})
+		where = append(where, sq.Eq{"book_id": dto.Book.ID})
 	}
 	var books []model.Book
 	sql, args, err := repo.qb.

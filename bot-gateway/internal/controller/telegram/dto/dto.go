@@ -122,3 +122,13 @@ func NewRentInput(bookID string, userID int64, returnAt int64) RentInput {
 		ReturnAt: returnAt,
 	}
 }
+
+type FindBookInput struct {
+	ID int64
+}
+
+func NewFindBookInput(id int64) FindBookInput {
+	return FindBookInput{
+		ID: id,
+	}
+}

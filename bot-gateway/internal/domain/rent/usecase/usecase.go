@@ -34,3 +34,13 @@ func (u *Usecase) RentBook(ctx context.Context, input dto2.RentInput) (dto.RentB
 	}
 	return dto.NewRentBookOutput(res.GetError(), res.GetStatus(), res.GetId()), nil
 }
+
+func (u *Usecase) FindBook(ctx context.Context, input dto2.FindBookInput) (dto.FindBookOutput, error) {
+	res, err := u.client.FindBook(ctx, &pb.FindBookRequest{
+		Id: input.ID,
+	})
+	if err != nil {
+		return dto.NewFindBookOutput(err.Error(), 404, nil), err
+	}
+	return dto.NewFindBookOutput(res.GetError(), res.GetStatus(), res.GetBook()), nil
+}

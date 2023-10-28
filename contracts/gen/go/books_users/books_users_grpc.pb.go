@@ -19,8 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	BooksUsersService_RentBook_FullMethodName = "/books_users_service.books_users.BooksUsersService/RentBook"
-	BooksUsersService_FindBook_FullMethodName = "/books_users_service.books_users.BooksUsersService/FindBook"
+	BooksUsersService_RentBook_FullMethodName      = "/books_users_service.books_users.BooksUsersService/RentBook"
+	BooksUsersService_ConfirmRent_FullMethodName   = "/books_users_service.books_users.BooksUsersService/ConfirmRent"
+	BooksUsersService_ReturnBook_FullMethodName    = "/books_users_service.books_users.BooksUsersService/ReturnBook"
+	BooksUsersService_ConfirmReturn_FullMethodName = "/books_users_service.books_users.BooksUsersService/ConfirmReturn"
+	BooksUsersService_FindBook_FullMethodName      = "/books_users_service.books_users.BooksUsersService/FindBook"
 )
 
 // BooksUsersServiceClient is the client API for BooksUsersService service.
@@ -28,6 +31,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BooksUsersServiceClient interface {
 	RentBook(ctx context.Context, in *RentBookRequest, opts ...grpc.CallOption) (*RentBookResponse, error)
+	ConfirmRent(ctx context.Context, in *ConfirmRentRequest, opts ...grpc.CallOption) (*ConfirmRentResponse, error)
+	ReturnBook(ctx context.Context, in *ReturnBookRequest, opts ...grpc.CallOption) (*ReturnBookResponse, error)
+	ConfirmReturn(ctx context.Context, in *ConfirmReturnRequest, opts ...grpc.CallOption) (*ConfirmReturnResponse, error)
 	FindBook(ctx context.Context, in *FindBookRequest, opts ...grpc.CallOption) (*FindBookResponse, error)
 }
 
@@ -48,6 +54,33 @@ func (c *booksUsersServiceClient) RentBook(ctx context.Context, in *RentBookRequ
 	return out, nil
 }
 
+func (c *booksUsersServiceClient) ConfirmRent(ctx context.Context, in *ConfirmRentRequest, opts ...grpc.CallOption) (*ConfirmRentResponse, error) {
+	out := new(ConfirmRentResponse)
+	err := c.cc.Invoke(ctx, BooksUsersService_ConfirmRent_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *booksUsersServiceClient) ReturnBook(ctx context.Context, in *ReturnBookRequest, opts ...grpc.CallOption) (*ReturnBookResponse, error) {
+	out := new(ReturnBookResponse)
+	err := c.cc.Invoke(ctx, BooksUsersService_ReturnBook_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *booksUsersServiceClient) ConfirmReturn(ctx context.Context, in *ConfirmReturnRequest, opts ...grpc.CallOption) (*ConfirmReturnResponse, error) {
+	out := new(ConfirmReturnResponse)
+	err := c.cc.Invoke(ctx, BooksUsersService_ConfirmReturn_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *booksUsersServiceClient) FindBook(ctx context.Context, in *FindBookRequest, opts ...grpc.CallOption) (*FindBookResponse, error) {
 	out := new(FindBookResponse)
 	err := c.cc.Invoke(ctx, BooksUsersService_FindBook_FullMethodName, in, out, opts...)
@@ -62,6 +95,9 @@ func (c *booksUsersServiceClient) FindBook(ctx context.Context, in *FindBookRequ
 // for forward compatibility
 type BooksUsersServiceServer interface {
 	RentBook(context.Context, *RentBookRequest) (*RentBookResponse, error)
+	ConfirmRent(context.Context, *ConfirmRentRequest) (*ConfirmRentResponse, error)
+	ReturnBook(context.Context, *ReturnBookRequest) (*ReturnBookResponse, error)
+	ConfirmReturn(context.Context, *ConfirmReturnRequest) (*ConfirmReturnResponse, error)
 	FindBook(context.Context, *FindBookRequest) (*FindBookResponse, error)
 	mustEmbedUnimplementedBooksUsersServiceServer()
 }
@@ -72,6 +108,15 @@ type UnimplementedBooksUsersServiceServer struct {
 
 func (UnimplementedBooksUsersServiceServer) RentBook(context.Context, *RentBookRequest) (*RentBookResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RentBook not implemented")
+}
+func (UnimplementedBooksUsersServiceServer) ConfirmRent(context.Context, *ConfirmRentRequest) (*ConfirmRentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmRent not implemented")
+}
+func (UnimplementedBooksUsersServiceServer) ReturnBook(context.Context, *ReturnBookRequest) (*ReturnBookResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReturnBook not implemented")
+}
+func (UnimplementedBooksUsersServiceServer) ConfirmReturn(context.Context, *ConfirmReturnRequest) (*ConfirmReturnResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmReturn not implemented")
 }
 func (UnimplementedBooksUsersServiceServer) FindBook(context.Context, *FindBookRequest) (*FindBookResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindBook not implemented")
@@ -107,6 +152,60 @@ func _BooksUsersService_RentBook_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BooksUsersService_ConfirmRent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfirmRentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksUsersServiceServer).ConfirmRent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksUsersService_ConfirmRent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksUsersServiceServer).ConfirmRent(ctx, req.(*ConfirmRentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BooksUsersService_ReturnBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReturnBookRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksUsersServiceServer).ReturnBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksUsersService_ReturnBook_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksUsersServiceServer).ReturnBook(ctx, req.(*ReturnBookRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BooksUsersService_ConfirmReturn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfirmReturnRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksUsersServiceServer).ConfirmReturn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksUsersService_ConfirmReturn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksUsersServiceServer).ConfirmReturn(ctx, req.(*ConfirmReturnRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BooksUsersService_FindBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FindBookRequest)
 	if err := dec(in); err != nil {
@@ -135,6 +234,18 @@ var BooksUsersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RentBook",
 			Handler:    _BooksUsersService_RentBook_Handler,
+		},
+		{
+			MethodName: "ConfirmRent",
+			Handler:    _BooksUsersService_ConfirmRent_Handler,
+		},
+		{
+			MethodName: "ReturnBook",
+			Handler:    _BooksUsersService_ReturnBook_Handler,
+		},
+		{
+			MethodName: "ConfirmReturn",
+			Handler:    _BooksUsersService_ConfirmReturn_Handler,
 		},
 		{
 			MethodName: "FindBook",

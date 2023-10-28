@@ -30,7 +30,6 @@ func NewApp(ctx context.Context, cfg *config.Config) App {
 		cfg.Database.Port,
 		cfg.Database.Database,
 	)
-
 	// TODO to config
 	pgClient, err := psql.NewClient(ctx, 5, 3*time.Second, pgDsn, false)
 	if err != nil {

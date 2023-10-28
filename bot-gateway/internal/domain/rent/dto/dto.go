@@ -1,5 +1,7 @@
 package rentService
 
+import pb "github.com/estoniec/libraryProject/contracts/gen/go/books_users"
+
 type RentBookOutput struct {
 	Error  string
 	Status int64
@@ -25,5 +27,19 @@ func NewRentBookDTO(bookID int64, userID int64, returnAt int64) RentBookDTO {
 		BookID:   bookID,
 		UserID:   userID,
 		ReturnAt: returnAt,
+	}
+}
+
+type FindBookOutput struct {
+	Error  string
+	Status int64
+	Book   *pb.Book
+}
+
+func NewFindBookOutput(error string, status int64, book *pb.Book) FindBookOutput {
+	return FindBookOutput{
+		Error:  error,
+		Status: status,
+		Book:   book,
 	}
 }

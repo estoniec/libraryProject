@@ -20,3 +20,23 @@ func NewRentBookOutput(output dto.RentBookOutput) *pb.RentBookResponse {
 		Id:     output.ID,
 	}
 }
+
+func NewFindBookInput(req *pb.FindBookRequest) dto.FindBookInput {
+	return dto.FindBookInput{
+		ID: req.GetId(),
+	}
+}
+
+func NewFindBookOutput(output dto.FindBookOutput) *pb.FindBookResponse {
+	return &pb.FindBookResponse{
+		Error:  output.Error,
+		Status: output.Status,
+		Book: &pb.Book{
+			ID:     int64(output.Book.ID),
+			Name:   output.Book.Name,
+			Author: output.Book.Author,
+			ISBN:   output.Book.ISBN,
+			Count:  int64(output.Book.Count),
+		},
+	}
+}

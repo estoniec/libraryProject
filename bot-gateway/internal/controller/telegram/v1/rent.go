@@ -17,6 +17,7 @@ import (
 
 type RentUsecase interface {
 	RentBook(ctx context.Context, input dto.RentInput) (rentService.RentBookOutput, error)
+	FindBook(ctx context.Context, input dto.FindBookInput) (rentService.FindBookOutput, error)
 }
 
 type RentKeyboard interface {
@@ -52,7 +53,8 @@ func (h *RentHandler) AddGroup(handlerGroup handling.HandlersGroup) {
 
 func (h *RentHandler) Register() {
 	regGroup := handling.NewHandlersGroup()
-
+	rentBook := regGroup.NewHandler(h.RentBook)
+	rentBook.WithCommand("/rent")
 	h.AddGroup(regGroup)
 }
 func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
