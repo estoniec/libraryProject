@@ -18,6 +18,7 @@ import (
 type RentUsecase interface {
 	RentBook(ctx context.Context, input dto.RentInput) (rentService.RentBookOutput, error)
 	FindBook(ctx context.Context, input dto.FindBookInput) (rentService.FindBookOutput, error)
+	ConfirmRent(ctx context.Context, input dto.ConfirmRentInput) (rentService.ConfirmRentOutput, error)
 }
 
 type RentKeyboard interface {

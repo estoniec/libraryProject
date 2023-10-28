@@ -132,3 +132,13 @@ func NewFindBookInput(id int64) FindBookInput {
 		ID: id,
 	}
 }
+
+type ConfirmRentInput struct {
+	ID int64
+}
+
+func NewConfirmRentInput(id int64) ConfirmRentInput {
+	return ConfirmRentInput{
+		ID: id,
+	}
+}

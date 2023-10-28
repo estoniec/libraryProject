@@ -9,6 +9,7 @@ import (
 type Repository interface {
 	Create(ctx context.Context, dto dto.CreateDTO) (int, error)
 	Find(ctx context.Context, dto dto.FindBookInput) (model.Book, error)
+	UpdateGet(ctx context.Context, dto dto.ConfirmRentInput) error
 }
 
 type Service struct {
@@ -36,4 +37,12 @@ func (s *Service) FindBook(ctx context.Context, input dto.FindBookInput) (dto.Fi
 		return dto.NewFindBookOutput(err.Error(), 404, book), err
 	}
 	return dto.NewFindBookOutput("", 200, book), nil
+}
+
+func (s *Service) ConfirmRent(ctx context.Context, input dto.ConfirmRentInput) (dto.ConfirmRentOutput, error) {
+	err := s.repository.UpdateGet(ctx, input)
+	if err != nil {
+		return dto.NewConfirmRentOutput(err.Error(), 404), err
+	}
+	return dto.NewConfirmRentOutput("", 200), nil
 }

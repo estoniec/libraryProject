@@ -53,3 +53,19 @@ func NewFindBookOutput(error string, status int64, book model.Book) FindBookOutp
 		Book:   book,
 	}
 }
+
+type ConfirmRentInput struct {
+	ID int64
+}
+
+type ConfirmRentOutput struct {
+	Error  string
+	Status int64
+}
+
+func NewConfirmRentOutput(error string, status int64) ConfirmRentOutput {
+	return ConfirmRentOutput{
+		Error:  error,
+		Status: status,
+	}
+}

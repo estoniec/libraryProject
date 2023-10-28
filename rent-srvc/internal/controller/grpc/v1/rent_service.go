@@ -33,3 +33,17 @@ func (s *Server) FindBook(ctx context.Context, req *pb.FindBookRequest) (*pb.Fin
 
 	return response, nil
 }
+
+func (s *Server) ConfirmRent(ctx context.Context, req *pb.ConfirmRentRequest) (*pb.ConfirmRentResponse, error) {
+	dto := NewConfirmRentInput(req)
+
+	res, err := s.service.ConfirmRent(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewConfirmRentOutput(res)
+
+	return response, nil
+}

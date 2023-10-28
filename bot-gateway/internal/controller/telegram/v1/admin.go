@@ -371,18 +371,18 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 		return
 	}
 	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
-		//err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
-		//if err != nil {
-		//	slog.Error(err.Error())
-		//	return
-		//}
-		//input := dto.NewDeleteBookInput(isbn.Text)
-		//res, err := h.bookUsecase.DeleteBook(ctx, input)
-		//if err != nil || res.Status == 404 {
-		//	h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
-		//	slog.Error(err.Error())
-		//	return
-		//}
+		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		input := dto.NewConfirmRentInput(int64(idInt))
+		res, err := h.rentUsecase.ConfirmRent(ctx, input)
+		if err != nil || res.Status == 404 {
+			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+			slog.Error(err.Error())
+			return
+		}
 		h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили аренду книги!", h.keyboard.Admin())
 	} else {
 		h.GetKeyboard(ctx, answer)

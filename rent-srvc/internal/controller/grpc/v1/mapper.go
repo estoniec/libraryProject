@@ -40,3 +40,16 @@ func NewFindBookOutput(output dto.FindBookOutput) *pb.FindBookResponse {
 		},
 	}
 }
+
+func NewConfirmRentInput(req *pb.ConfirmRentRequest) dto.ConfirmRentInput {
+	return dto.ConfirmRentInput{
+		ID: req.GetID(),
+	}
+}
+
+func NewConfirmRentOutput(output dto.ConfirmRentOutput) *pb.ConfirmRentResponse {
+	return &pb.ConfirmRentResponse{
+		Error:  output.Error,
+		Status: output.Status,
+	}
+}

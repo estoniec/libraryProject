@@ -3,7 +3,6 @@ package dao
 import (
 	"context"
 	sq "github.com/Masterminds/squirrel"
-	"log"
 	"log/slog"
 	"rent/internal/dal/postgres"
 	"rent/internal/domain/rent/dto"
@@ -73,6 +72,26 @@ func (repo *RentDAO) Find(ctx context.Context, dto dto.FindBookInput) (model.Boo
 		slog.Error(err.Error())
 		return model.Book{}, err
 	}
-	log.Print(book.ID, book.ISBN, book.Count, book.Author, book.Name)
 	return book, nil
+}
+
+func (repo *RentDAO) UpdateGet(ctx context.Context, dto dto.ConfirmRentInput) error {
+	sql, args, err := repo.qb.
+		Update(
+			postgres.BooksUsersTable,
+		).Set(
+		"isget",
+		true,
+	).Where(
+		sq.Eq{"id": dto.ID}).ToSql()
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	_, err = repo.client.Exec(ctx, sql, args...)
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	return nil
 }
