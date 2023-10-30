@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	BooksUsersService_RentBook_FullMethodName      = "/books_users_service.books_users.BooksUsersService/RentBook"
-	BooksUsersService_ConfirmRent_FullMethodName   = "/books_users_service.books_users.BooksUsersService/ConfirmRent"
-	BooksUsersService_ConfirmReturn_FullMethodName = "/books_users_service.books_users.BooksUsersService/ConfirmReturn"
-	BooksUsersService_FindBook_FullMethodName      = "/books_users_service.books_users.BooksUsersService/FindBook"
-	BooksUsersService_GetDebt_FullMethodName       = "/books_users_service.books_users.BooksUsersService/GetDebt"
+	BooksUsersService_RentBook_FullMethodName        = "/books_users_service.books_users.BooksUsersService/RentBook"
+	BooksUsersService_ConfirmRent_FullMethodName     = "/books_users_service.books_users.BooksUsersService/ConfirmRent"
+	BooksUsersService_ConfirmReturn_FullMethodName   = "/books_users_service.books_users.BooksUsersService/ConfirmReturn"
+	BooksUsersService_FindBook_FullMethodName        = "/books_users_service.books_users.BooksUsersService/FindBook"
+	BooksUsersService_GetDebt_FullMethodName         = "/books_users_service.books_users.BooksUsersService/GetDebt"
+	BooksUsersService_FindByUidAndBid_FullMethodName = "/books_users_service.books_users.BooksUsersService/FindByUidAndBid"
 )
 
 // BooksUsersServiceClient is the client API for BooksUsersService service.
@@ -35,6 +36,7 @@ type BooksUsersServiceClient interface {
 	ConfirmReturn(ctx context.Context, in *ConfirmReturnRequest, opts ...grpc.CallOption) (*ConfirmReturnResponse, error)
 	FindBook(ctx context.Context, in *FindBookRequest, opts ...grpc.CallOption) (*FindBookResponse, error)
 	GetDebt(ctx context.Context, in *GetDebtRequest, opts ...grpc.CallOption) (*GetDebtResponse, error)
+	FindByUidAndBid(ctx context.Context, in *FindByUidAndBidRequest, opts ...grpc.CallOption) (*FindByUidAndBidResponse, error)
 }
 
 type booksUsersServiceClient struct {
@@ -90,6 +92,15 @@ func (c *booksUsersServiceClient) GetDebt(ctx context.Context, in *GetDebtReques
 	return out, nil
 }
 
+func (c *booksUsersServiceClient) FindByUidAndBid(ctx context.Context, in *FindByUidAndBidRequest, opts ...grpc.CallOption) (*FindByUidAndBidResponse, error) {
+	out := new(FindByUidAndBidResponse)
+	err := c.cc.Invoke(ctx, BooksUsersService_FindByUidAndBid_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BooksUsersServiceServer is the server API for BooksUsersService service.
 // All implementations must embed UnimplementedBooksUsersServiceServer
 // for forward compatibility
@@ -99,6 +110,7 @@ type BooksUsersServiceServer interface {
 	ConfirmReturn(context.Context, *ConfirmReturnRequest) (*ConfirmReturnResponse, error)
 	FindBook(context.Context, *FindBookRequest) (*FindBookResponse, error)
 	GetDebt(context.Context, *GetDebtRequest) (*GetDebtResponse, error)
+	FindByUidAndBid(context.Context, *FindByUidAndBidRequest) (*FindByUidAndBidResponse, error)
 	mustEmbedUnimplementedBooksUsersServiceServer()
 }
 
@@ -120,6 +132,9 @@ func (UnimplementedBooksUsersServiceServer) FindBook(context.Context, *FindBookR
 }
 func (UnimplementedBooksUsersServiceServer) GetDebt(context.Context, *GetDebtRequest) (*GetDebtResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDebt not implemented")
+}
+func (UnimplementedBooksUsersServiceServer) FindByUidAndBid(context.Context, *FindByUidAndBidRequest) (*FindByUidAndBidResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindByUidAndBid not implemented")
 }
 func (UnimplementedBooksUsersServiceServer) mustEmbedUnimplementedBooksUsersServiceServer() {}
 
@@ -224,6 +239,24 @@ func _BooksUsersService_GetDebt_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BooksUsersService_FindByUidAndBid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindByUidAndBidRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksUsersServiceServer).FindByUidAndBid(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksUsersService_FindByUidAndBid_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksUsersServiceServer).FindByUidAndBid(ctx, req.(*FindByUidAndBidRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BooksUsersService_ServiceDesc is the grpc.ServiceDesc for BooksUsersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -250,6 +283,10 @@ var BooksUsersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDebt",
 			Handler:    _BooksUsersService_GetDebt_Handler,
+		},
+		{
+			MethodName: "FindByUidAndBid",
+			Handler:    _BooksUsersService_FindByUidAndBid_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

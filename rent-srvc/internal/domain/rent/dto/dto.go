@@ -87,3 +87,22 @@ func NewGetDebtOutput(error string, status int64, debt []model.BooksUsers) GetDe
 		Debt:   debt,
 	}
 }
+
+type FindByUIDAndBIDInput struct {
+	Uid int64
+	Bid int64
+}
+
+type FindByUIDAndBIDOutput struct {
+	Error  string
+	Status int64
+	ID     int64
+}
+
+func NewFindByUIDAndBIDOutput(error string, status int64, id int64) FindByUIDAndBIDOutput {
+	return FindByUIDAndBIDOutput{
+		Error:  error,
+		Status: status,
+		ID:     id,
+	}
+}

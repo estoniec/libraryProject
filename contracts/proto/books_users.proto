@@ -10,6 +10,7 @@ service BooksUsersService {
   rpc ConfirmReturn(ConfirmReturnRequest) returns (ConfirmReturnResponse) {}
   rpc FindBook(FindBookRequest) returns (FindBookResponse) {}
   rpc GetDebt(GetDebtRequest) returns (GetDebtResponse) {}
+  rpc FindByUidAndBid(FindByUidAndBidRequest) returns (FindByUidAndBidResponse) {}
 }
 
 message Book {
@@ -84,4 +85,15 @@ message GetDebtResponse {
   string error = 1;
   int64 status = 2;
   repeated BooksUsers debt = 3;
+}
+
+message FindByUidAndBidRequest {
+  int64 UID = 1;
+  int64 BID = 2;
+}
+
+message FindByUidAndBidResponse {
+  string error = 1;
+  int64 status = 2;
+  int64 id = 3;
 }

@@ -31,12 +31,18 @@ func NewFindBookOutput(output dto.FindBookOutput) *pb.FindBookResponse {
 	return &pb.FindBookResponse{
 		Error:  output.Error,
 		Status: output.Status,
-		Book: &pb.Book{
-			ID:     int64(output.Book.ID),
-			Name:   output.Book.Books.Name,
-			Author: output.Book.Books.Author,
-			ISBN:   output.Book.Books.ISBN,
-			Count:  int64(output.Book.Books.Count),
+		Book: &pb.BooksUsers{
+			Book: &pb.Book{
+				ID:     int64(output.Book.ID),
+				Name:   output.Book.Books.Name,
+				Author: output.Book.Books.Author,
+				ISBN:   output.Book.Books.ISBN,
+				Count:  int64(output.Book.Books.Count),
+			},
+			User: &pb.User{
+				ID:    output.Book.Users.ID,
+				Phone: output.Book.Users.Phone,
+			},
 		},
 	}
 }
@@ -88,5 +94,20 @@ func NewGetDebtOutput(output dto.GetDebtOutput) *pb.GetDebtResponse {
 		Error:  output.Error,
 		Status: output.Status,
 		Debt:   debts,
+	}
+}
+
+func NewFindByUidAndBidInput(req *pb.FindByUidAndBidRequest) dto.FindByUIDAndBIDInput {
+	return dto.FindByUIDAndBIDInput{
+		Uid: req.GetUID(),
+		Bid: req.GetBID(),
+	}
+}
+
+func NewFindByUidAndBidOutput(output dto.FindByUIDAndBIDOutput) *pb.ConfirmRentResponse {
+	return &pb.FindByUidAndBidResponse{
+		Error:  output.Error,
+		Status: output.Status,
+		ID:     output.ID,
 	}
 }

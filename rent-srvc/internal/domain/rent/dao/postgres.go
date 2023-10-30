@@ -156,3 +156,33 @@ func (repo *RentDAO) FindByTime(ctx context.Context, dto dto.GetDebtInput) ([]mo
 	}
 	return debts, nil
 }
+
+func (repo *RentDAO) FindByUIDAndBID(ctx context.Context, dto dto.FindByUIDAndBIDInput) (int64, error) {
+	var id int64
+	sql, args, err := repo.qb.
+		Select(
+			"id",
+		).From(
+		postgres.BooksUsersTable,
+	).Where(
+		sq.And{
+			sq.Eq{"fk_user_id": dto.Uid},
+			sq.Eq{"fk_book_id": dto.Bid},
+			sq.Eq{"isreturn": false},
+		}).ToSql()
+	if err != nil {
+		slog.Error(err.Error())
+		return 0, err
+	}
+
+	err = repo.client.QueryRow(ctx, sql, args...).Scan(&id)
+	if err != nil {
+		slog.Error(err.Error())
+		if err == pgx.ErrNoRows {
+			return 0, fmt.Errorf("rent is not found")
+		}
+		return 0, err
+	}
+
+	return id, nil
+}

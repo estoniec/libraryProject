@@ -36,10 +36,10 @@ func NewRentBookDTO(bookID int64, userID int64, returnAt int64) RentBookDTO {
 type FindBookOutput struct {
 	Error  string
 	Status int64
-	Book   *pb.Book
+	Book   *pb.BooksUsers
 }
 
-func NewFindBookOutput(error string, status int64, book *pb.Book) FindBookOutput {
+func NewFindBookOutput(error string, status int64, book *pb.BooksUsers) FindBookOutput {
 	return FindBookOutput{
 		Error:  error,
 		Status: status,

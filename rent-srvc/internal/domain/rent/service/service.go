@@ -11,6 +11,7 @@ type Repository interface {
 	Find(ctx context.Context, dto dto.FindBookInput) (model.BooksUsers, error)
 	UpdateGet(ctx context.Context, dto dto.ConfirmRentInput) error
 	FindByTime(ctx context.Context, dto dto.GetDebtInput) ([]model.BooksUsers, error)
+	FindByUIDAndBID(ctx context.Context, dto dto.FindByUIDAndBIDInput) (int64, error)
 }
 
 type Service struct {
@@ -54,4 +55,12 @@ func (s *Service) GetDebt(ctx context.Context, input dto.GetDebtInput) (dto.GetD
 		return dto.NewGetDebtOutput(err.Error(), 404, []model.BooksUsers{}), err
 	}
 	return dto.NewGetDebtOutput("", 200, debt), nil
+}
+
+func (s *Service) FindByUidAndBid(ctx context.Context, input dto.FindByUIDAndBIDInput) (dto.FindByUIDAndBIDOutput, error) {
+	id, err := s.repository.FindByUIDAndBID(ctx, input)
+	if err != nil {
+		return dto.NewFindByUIDAndBIDOutput(err.Error(), 404, 0), err
+	}
+	return dto.NewFindByUIDAndBIDOutput("", 200, id), nil
 }

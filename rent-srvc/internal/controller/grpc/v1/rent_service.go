@@ -61,3 +61,17 @@ func (s *Server) GetDebt(ctx context.Context, req *pb.GetDebtRequest) (*pb.GetDe
 
 	return response, nil
 }
+
+func (s *Server) FindByUidAndBid(ctx context.Context, req *pb.FindByUidAndBidRequest) (*pb.FindByUidAndBidResponse, error) {
+	dto := NewFindByUidAndBidInput(req)
+
+	res, err := s.service.FindByUidAndBid(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewFindByUidAndBidOutput(res)
+
+	return response, nil
+}

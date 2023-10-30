@@ -11,6 +11,7 @@ type Service interface {
 	FindBook(ctx context.Context, input dto.FindBookInput) (dto.FindBookOutput, error)
 	ConfirmRent(ctx context.Context, input dto.ConfirmRentInput) (dto.ConfirmRentOutput, error)
 	GetDebt(ctx context.Context, input dto.GetDebtInput) (dto.GetDebtOutput, error)
+	FindByUidAndBid(ctx context.Context, input dto.FindByUIDAndBIDInput) (dto.FindByUIDAndBIDOutput, error)
 }
 
 type Server struct {
