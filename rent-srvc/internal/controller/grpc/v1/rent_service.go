@@ -75,3 +75,17 @@ func (s *Server) FindByUidAndBid(ctx context.Context, req *pb.FindByUidAndBidReq
 
 	return response, nil
 }
+
+func (s *Server) ConfirmReturn(ctx context.Context, req *pb.ConfirmReturnRequest) (*pb.ConfirmReturnResponse, error) {
+	dto := NewConfirmReturnInput(req)
+
+	res, err := s.service.ConfirmReturn(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewConfirmReturnOutput(res)
+
+	return response, nil
+}

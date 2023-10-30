@@ -397,3 +397,86 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 	}
 	return
 }
+
+func (h *AdminHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
+	dtoCheck := dto.NewCheckRoleInput(msg.Message.From.ID)
+	role, err := h.regUsecase.CheckRole(ctx, dtoCheck)
+	if err != nil || role.Status == 404 {
+		slog.Error(role.Error)
+		return
+	}
+	if role.Role < 2 {
+		_, err = h.builder.NewMessage(msg, "Для использования данной команды у вас недостаточно прав", nil)
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		return
+	}
+	_, err = h.builder.NewMessage(msg, "Введите номер, который вам продиктует арендатор:", nil)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	answers, c := h.question.NewQuestion(msg)
+	defer c()
+	id, ok := <-answers
+	if !ok || id.Text == "" {
+		h.builder.NewMessage(msg, "Попробуйте ввести номер заново.", nil)
+		return
+	}
+	idInt, err := strconv.Atoi(id.Text)
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте ввести номер заново.", nil)
+		return
+	}
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	input := dto.NewFindBookInput(int64(idInt))
+	book, err := h.rentUsecase.FindBook(ctx, input)
+	if err != nil {
+		slog.Error(err.Error())
+		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
+		return
+	}
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить возврат книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Book.GetBook().GetID(), book.Book.GetBook().GetISBN(), book.Book.GetBook().GetAuthor(), book.Book.GetBook().GetName(), book.Book.GetBook().GetCount()), h.keyboard.SuccessAdd())
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+	defer cl()
+	answer, ok := <-callbackAnswers
+	if !ok {
+		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
+		return
+	}
+	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
+		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		input := dto.NewConfirmReturnInput(int64(idInt))
+		res, err := h.rentUsecase.ConfirmReturn(ctx, input)
+		if err != nil || res.Status == 404 {
+			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+			slog.Error(err.Error())
+			return
+		}
+		inputEdit := dto.NewEditCountBookInput(book.Book.GetBook().GetISBN(), int(book.Book.GetBook().GetCount())+1)
+		resEdit, err := h.bookUsecase.EditCountBook(ctx, inputEdit)
+		if err != nil || resEdit.Status == 404 {
+			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+			slog.Error(err.Error())
+			return
+		}
+		h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили возврат книги!", h.keyboard.Admin())
+		h.builder.NewMessageByID(book.Book.GetUser().GetID(), fmt.Sprintf("Возврат книги со следующими параметрами успешно подтверждён.\n\nISBN: %s\nАвтор: %s\nНазвание: %s", book.Book.GetBook().GetISBN(), book.Book.GetBook().GetAuthor(), book.Book.GetBook().GetName()), nil)
+	} else {
+		h.GetKeyboard(ctx, answer)
+	}
+	return
+}

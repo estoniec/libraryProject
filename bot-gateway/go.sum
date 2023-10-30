@@ -88,6 +88,8 @@ github.com/estoniec/libraryProject v0.0.0-20231028121156-d06f6901be0e h1:HVJ9cVe
 github.com/estoniec/libraryProject v0.0.0-20231028121156-d06f6901be0e/go.mod h1:dgkrr7Ll/0k7s7gEfUyza9h+aoPpG8xc9928s58gKjI=
 github.com/estoniec/libraryProject v0.0.0-20231030152201-76c3e1558523 h1:EUtTWIsvcwrLTYE05ez+3F8cEjVKahDjDRGbos1zDp4=
 github.com/estoniec/libraryProject v0.0.0-20231030152201-76c3e1558523/go.mod h1:dgkrr7Ll/0k7s7gEfUyza9h+aoPpG8xc9928s58gKjI=
+github.com/estoniec/libraryProject v0.0.0-20231030154820-62289ed2715f h1:XL6nTikkU7ihnrs1LWINC2AYSZi6k9H2+/Kp3/eaJ1k=
+github.com/estoniec/libraryProject v0.0.0-20231030154820-62289ed2715f/go.mod h1:dgkrr7Ll/0k7s7gEfUyza9h+aoPpG8xc9928s58gKjI=
 github.com/fasthttp/router v1.4.20 h1:yPeNxz5WxZGojzolKqiP15DTXnxZce9Drv577GBrDgU=
 github.com/fasthttp/router v1.4.20/go.mod h1:um867yNQKtERxBm+C+yzgWxjspTiQoA8z86Ec3fK/tc=
 github.com/frankban/quicktest v1.14.4 h1:g2rn0vABPOOXmZUj+vbmUp0lPoXEMuhTpIluN0XL9UY=

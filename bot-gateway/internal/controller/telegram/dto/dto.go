@@ -152,3 +152,25 @@ func NewGetDebtInput(time int64) GetDebtInput {
 		Time: time,
 	}
 }
+
+type CheckRentInput struct {
+	UID int64
+	BID int64
+}
+
+func NewCheckRentInput(uid int64, bid int64) CheckRentInput {
+	return CheckRentInput{
+		UID: uid,
+		BID: bid,
+	}
+}
+
+type ConfirmReturnInput struct {
+	ID int64
+}
+
+func NewConfirmReturnInput(id int64) ConfirmReturnInput {
+	return ConfirmReturnInput{
+		ID: id,
+	}
+}

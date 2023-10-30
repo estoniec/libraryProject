@@ -72,3 +72,29 @@ func NewGetDebtOutput(error string, status int64, debts []rentService.BooksUsers
 		Debt:   debts,
 	}
 }
+
+type CheckRentOutput struct {
+	Error  string
+	Status int64
+	ID     int64
+}
+
+func NewCheckRentOutput(error string, status int64, id int64) CheckRentOutput {
+	return CheckRentOutput{
+		Error:  error,
+		Status: status,
+		ID:     id,
+	}
+}
+
+type ConfirmReturnOutput struct {
+	Error  string
+	Status int64
+}
+
+func NewConfirmReturnOutput(error string, status int64) ConfirmReturnOutput {
+	return ConfirmReturnOutput{
+		Error:  error,
+		Status: status,
+	}
+}

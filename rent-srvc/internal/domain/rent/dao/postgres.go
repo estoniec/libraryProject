@@ -166,7 +166,7 @@ func (repo *RentDAO) FindByUIDAndBID(ctx context.Context, dto dto.FindByUIDAndBI
 		postgres.BooksUsersTable,
 	).Where(
 		sq.And{
-			sq.Eq{"fk_user_id": dto.Uid},
+			sq.Eq{"fk_users_id": dto.Uid},
 			sq.Eq{"fk_book_id": dto.Bid},
 			sq.Eq{"isreturn": false},
 		}).ToSql()
@@ -185,4 +185,25 @@ func (repo *RentDAO) FindByUIDAndBID(ctx context.Context, dto dto.FindByUIDAndBI
 	}
 
 	return id, nil
+}
+
+func (repo *RentDAO) UpdateReturn(ctx context.Context, dto dto.ConfirmReturnInput) error {
+	sql, args, err := repo.qb.
+		Update(
+			postgres.BooksUsersTable,
+		).Set(
+		"isreturn",
+		true,
+	).Where(
+		sq.Eq{"id": dto.ID}).ToSql()
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	_, err = repo.client.Exec(ctx, sql, args...)
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	return nil
 }

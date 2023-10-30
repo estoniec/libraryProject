@@ -12,6 +12,7 @@ type Repository interface {
 	UpdateGet(ctx context.Context, dto dto.ConfirmRentInput) error
 	FindByTime(ctx context.Context, dto dto.GetDebtInput) ([]model.BooksUsers, error)
 	FindByUIDAndBID(ctx context.Context, dto dto.FindByUIDAndBIDInput) (int64, error)
+	UpdateReturn(ctx context.Context, dto dto.ConfirmReturnInput) error
 }
 
 type Service struct {
@@ -63,4 +64,12 @@ func (s *Service) FindByUidAndBid(ctx context.Context, input dto.FindByUIDAndBID
 		return dto.NewFindByUIDAndBIDOutput(err.Error(), 404, 0), err
 	}
 	return dto.NewFindByUIDAndBIDOutput("", 200, id), nil
+}
+
+func (s *Service) ConfirmReturn(ctx context.Context, input dto.ConfirmReturnInput) (dto.ConfirmReturnOutput, error) {
+	err := s.repository.UpdateReturn(ctx, input)
+	if err != nil {
+		return dto.NewConfirmReturnOutput(err.Error(), 404), err
+	}
+	return dto.NewConfirmReturnOutput("", 200), nil
 }

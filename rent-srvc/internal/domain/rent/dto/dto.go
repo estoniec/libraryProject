@@ -106,3 +106,19 @@ func NewFindByUIDAndBIDOutput(error string, status int64, id int64) FindByUIDAnd
 		ID:     id,
 	}
 }
+
+type ConfirmReturnInput struct {
+	ID int64
+}
+
+type ConfirmReturnOutput struct {
+	Error  string
+	Status int64
+}
+
+func NewConfirmReturnOutput(error string, status int64) ConfirmReturnOutput {
+	return ConfirmReturnOutput{
+		Error:  error,
+		Status: status,
+	}
+}

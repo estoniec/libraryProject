@@ -66,3 +66,24 @@ func (u *Usecase) GetDebt(ctx context.Context, input dto2.GetDebtInput) (dto.Get
 	}
 	return dto.NewGetDebtOutput(res.GetError(), res.GetStatus(), debts), nil
 }
+
+func (u *Usecase) CheckRent(ctx context.Context, input dto2.CheckRentInput) (dto.CheckRentOutput, error) {
+	res, err := u.client.FindByUidAndBid(ctx, &pb.FindByUidAndBidRequest{
+		UID: input.UID,
+		BID: input.BID,
+	})
+	if err != nil && err.Error() != "rpc error: code = Unknown desc = rent is not found" {
+		return dto.NewCheckRentOutput(err.Error(), 404, 0), err
+	}
+	return dto.NewCheckRentOutput(res.GetError(), res.GetStatus(), res.GetId()), nil
+}
+
+func (u *Usecase) ConfirmReturn(ctx context.Context, input dto2.ConfirmReturnInput) (dto.ConfirmReturnOutput, error) {
+	res, err := u.client.ConfirmReturn(ctx, &pb.ConfirmReturnRequest{
+		ID: input.ID,
+	})
+	if err != nil {
+		return dto.NewConfirmReturnOutput(err.Error(), 404), err
+	}
+	return dto.NewConfirmReturnOutput(res.GetError(), res.GetStatus()), nil
+}

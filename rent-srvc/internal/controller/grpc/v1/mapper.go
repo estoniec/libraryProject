@@ -104,10 +104,23 @@ func NewFindByUidAndBidInput(req *pb.FindByUidAndBidRequest) dto.FindByUIDAndBID
 	}
 }
 
-func NewFindByUidAndBidOutput(output dto.FindByUIDAndBIDOutput) *pb.ConfirmRentResponse {
+func NewFindByUidAndBidOutput(output dto.FindByUIDAndBIDOutput) *pb.FindByUidAndBidResponse {
 	return &pb.FindByUidAndBidResponse{
 		Error:  output.Error,
 		Status: output.Status,
-		ID:     output.ID,
+		Id:     output.ID,
+	}
+}
+
+func NewConfirmReturnInput(req *pb.ConfirmReturnRequest) dto.ConfirmReturnInput {
+	return dto.ConfirmReturnInput{
+		ID: req.GetID(),
+	}
+}
+
+func NewConfirmReturnOutput(output dto.ConfirmReturnOutput) *pb.ConfirmReturnResponse {
+	return &pb.ConfirmReturnResponse{
+		Error:  output.Error,
+		Status: output.Status,
 	}
 }

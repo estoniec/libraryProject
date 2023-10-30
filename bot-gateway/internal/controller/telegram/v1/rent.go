@@ -20,6 +20,8 @@ type RentUsecase interface {
 	FindBook(ctx context.Context, input dto.FindBookInput) (rentService.FindBookOutput, error)
 	ConfirmRent(ctx context.Context, input dto.ConfirmRentInput) (rentService.ConfirmRentOutput, error)
 	GetDebt(ctx context.Context, input dto.GetDebtInput) (rentService.GetDebtOutput, error)
+	CheckRent(ctx context.Context, input dto.CheckRentInput) (rentService.CheckRentOutput, error)
+	ConfirmReturn(ctx context.Context, input dto.ConfirmReturnInput) (rentService.ConfirmReturnOutput, error)
 }
 
 type RentKeyboard interface {
@@ -67,6 +69,30 @@ func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
+	bookID, err := jsonparser.GetString([]byte(msg.CallbackQuery.Data), "id")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	bookIDInt, err := strconv.Atoi(bookID)
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	inputCheck := dto.NewCheckRentInput(msg.CallbackQuery.From.ID, int64(bookIDInt))
+	check, err := h.usecase.CheckRent(ctx, inputCheck)
+	if err != nil || check.Status == 404 || check.ID != 0 {
+		if check.ID != 0 {
+			h.builder.NewMessage(msg, fmt.Sprintf("Вы уже создали запрос на аренду данной книги, если вы её до сих пор не получили, то подойдите к библиотекарю и продиктуйте номер: %d.", check.ID), h.keyboard.FindBook())
+			return
+		} else if check.ID == 0 && check.Error != "rpc error: code = Unknown desc = rent is not found" {
+			h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+			slog.Error(err.Error())
+			return
+		}
+	}
 	_, err = h.builder.NewMessage(msg, "Введите количество дней (от 1 до 30), через которые книга будет возвращена:", nil)
 	if err != nil {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
@@ -85,12 +111,6 @@ func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести количество дней заново.", h.keyboard.FindBook())
 		return
 	}
-	bookID, err := jsonparser.GetString([]byte(msg.CallbackQuery.Data), "id")
-	if err != nil {
-		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
-		slog.Error(err.Error())
-		return
-	}
 	input := dto.NewRentInput(bookID, msg.CallbackQuery.From.ID, time.Now().Unix()+int64(daysInt*24*60*60))
 	rent, err := h.usecase.RentBook(ctx, input)
 	if err != nil || rent.Status == 404 || rent.ID == 0 {
@@ -98,12 +118,7 @@ func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	bookIDint, err := strconv.Atoi(bookID)
-	if err != nil {
-		h.builder.NewMessage(msg, fmt.Sprintf("Запрос на аренду книги создан, но информации о книге не найдено.\n\nЧтобы подтвердить аренду книги подойдите в библиотеку и продиктуйте номер: %d", rent.ID), h.keyboard.FindBook())
-		return
-	}
-	inputBook := dto.NewByInput(0, model.NewFindBook("", "", "", int64(bookIDint)))
+	inputBook := dto.NewByInput(0, model.NewFindBook("", "", "", int64(bookIDInt)))
 	book, err := h.bookUsecase.FindBy(ctx, inputBook)
 	if err != nil {
 		h.builder.NewMessage(msg, fmt.Sprintf("Запрос на аренду книги создан, но информации о книге не найдено.\n\nЧтобы подтвердить аренду книги подойдите в библиотеку и продиктуйте номер: %d", rent.ID), h.keyboard.FindBook())
@@ -137,3 +152,4 @@ func (h *RentHandler) GetDebt(ctx context.Context) {
 }
 
 // TODO сделать для админа кнопку подтверждение возврата книги + метод к этому
+// TODO сделать отмену запроса аренды книги
