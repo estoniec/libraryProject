@@ -43,10 +43,10 @@ type FindBookInput struct {
 type FindBookOutput struct {
 	Error  string
 	Status int64
-	Book   model.Book
+	Book   model.BooksUsers
 }
 
-func NewFindBookOutput(error string, status int64, book model.Book) FindBookOutput {
+func NewFindBookOutput(error string, status int64, book model.BooksUsers) FindBookOutput {
 	return FindBookOutput{
 		Error:  error,
 		Status: status,

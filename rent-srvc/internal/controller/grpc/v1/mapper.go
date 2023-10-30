@@ -33,10 +33,10 @@ func NewFindBookOutput(output dto.FindBookOutput) *pb.FindBookResponse {
 		Status: output.Status,
 		Book: &pb.Book{
 			ID:     int64(output.Book.ID),
-			Name:   output.Book.Name,
-			Author: output.Book.Author,
-			ISBN:   output.Book.ISBN,
-			Count:  int64(output.Book.Count),
+			Name:   output.Book.Books.Name,
+			Author: output.Book.Books.Author,
+			ISBN:   output.Book.Books.ISBN,
+			Count:  int64(output.Book.Books.Count),
 		},
 	}
 }

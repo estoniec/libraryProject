@@ -50,8 +50,8 @@ func (repo *RentDAO) Create(ctx context.Context, dto dto.CreateDTO) (int, error)
 	return id, nil
 }
 
-func (repo *RentDAO) Find(ctx context.Context, dto dto.FindBookInput) (model.Book, error) {
-	var book model.Book
+func (repo *RentDAO) Find(ctx context.Context, dto dto.FindBookInput) (model.BooksUsers, error) {
+	var book model.BooksUsers
 	sql, args, err := repo.qb.
 		Select(
 			"public.books.book_id",
@@ -59,20 +59,26 @@ func (repo *RentDAO) Find(ctx context.Context, dto dto.FindBookInput) (model.Boo
 			"public.books.count",
 			"public.books.name",
 			"public.books.author",
+			"public.users.user_id",
+			"public.users.phone",
 		).From(
 		postgres.BooksUsersTable,
 	).Where(
-		sq.Eq{"id": dto.ID}).Join(
+		sq.Eq{"id": dto.ID},
+		sq.Eq{"isreturn": false},
+	).Join(
 		"public.books ON public.books_users.fk_book_id = public.books.book_id",
+	).Join(
+		"public.users ON public.books_users.fk_users_id = public.users.user_id",
 	).ToSql()
 	if err != nil {
 		slog.Error(err.Error())
-		return model.Book{}, err
+		return model.BooksUsers{}, err
 	}
-	err = repo.client.QueryRow(ctx, sql, args...).Scan(&book.ID, &book.ISBN, &book.Count, &book.Name, &book.Author)
+	err = repo.client.QueryRow(ctx, sql, args...).Scan(&book.Books.ID, &book.Books.ISBN, &book.Books.Count, &book.Books.Name, &book.Books.Author, &book.Users.ID, &book.Users.Phone)
 	if err != nil {
 		slog.Error(err.Error())
-		return model.Book{}, err
+		return model.BooksUsers{}, err
 	}
 	return book, nil
 }

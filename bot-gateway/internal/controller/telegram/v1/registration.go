@@ -84,7 +84,7 @@ func (h *RegHandler) Registration(ctx context.Context, msg telego.Update) {
 	answers, c := h.question.NewQuestion(msg)
 	defer c()
 	telephone, ok := <-answers
-	if !ok {
+	if !ok || telephone.Contact == nil {
 		h.builder.NewMessage(msg, "Попробуйте ввести номер телефона заново.", h.keyboard.Repeat())
 		return
 	}

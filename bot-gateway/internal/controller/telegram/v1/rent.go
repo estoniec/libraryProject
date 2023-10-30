@@ -130,8 +130,10 @@ func (h *RentHandler) GetDebt(ctx context.Context) {
 		var debters []string
 		for _, debt := range debts.Debt {
 			debters = append(debters, fmt.Sprintf("ISBN: %s,\nАвтор: %s,\nНазвание: %s,\nСсылка для перехода в диалог с арендатором: t.me/%s (после \"t.me/\" так же идёт его номер телефона),\nУчебный класс арендатора: %s;", debt.Books.ISBN, debt.Books.Author, debt.Books.Name, debt.Users.Phone, debt.Users.Class))
-			h.builder.NewMessageByID(debt.Users.ID, fmt.Sprintf("Ежедневное уведомление: вы должны вернуть книгу со следующими данными в библиотеку, так как срок аренды истёк.\n\nISBN: %s\nАвтор: %s\nНазвание: %s", debt.Books.ISBN, debt.Books.Author, debt.Books.Name), nil)
+			h.builder.NewMessageByID(debt.Users.ID, fmt.Sprintf("Ежедневное уведомление: вы должны вернуть книгу со следующими данными в библиотеку, так как срок аренды истёк.\n\nISBN: %s,\nАвтор: %s,\nНазвание: %s.", debt.Books.ISBN, debt.Books.Author, debt.Books.Name), nil)
 		}
-		h.builder.NewMessageByID(1077777665, fmt.Sprintf("Обнаружены люди, у которых истёк срок аренды книги.%v", strings.Join(debters, "\n\n")), nil)
+		h.builder.NewMessageByID(1077777665, fmt.Sprintf("Обнаружены люди, у которых истёк срок аренды книги.\n\n%v", strings.Join(debters, "\n\n")), nil)
 	}
 }
+
+// TODO сделать для админа кнопку подтверждение возврата книги + метод к этому

@@ -55,7 +55,7 @@ message FindBookRequest {
 message FindBookResponse {
   string error = 1;
   int64 status = 2;
-  Book book = 4;
+  BooksUsers book = 4;
 }
 
 message ConfirmRentRequest {

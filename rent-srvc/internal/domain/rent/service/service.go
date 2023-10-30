@@ -8,7 +8,7 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, dto dto.CreateDTO) (int, error)
-	Find(ctx context.Context, dto dto.FindBookInput) (model.Book, error)
+	Find(ctx context.Context, dto dto.FindBookInput) (model.BooksUsers, error)
 	UpdateGet(ctx context.Context, dto dto.ConfirmRentInput) error
 	FindByTime(ctx context.Context, dto dto.GetDebtInput) ([]model.BooksUsers, error)
 }

@@ -117,6 +117,9 @@ func (k *KeyboardManager) Admin() *telego.ReplyKeyboardMarkup {
 		tu.KeyboardRow(
 			tu.KeyboardButton("Подтвердить аренду книги"),
 		),
+		tu.KeyboardRow(
+			tu.KeyboardButton("Подтвердить возврат книги"),
+		),
 	).WithResizeKeyboard()
 	return keyboard
 }
