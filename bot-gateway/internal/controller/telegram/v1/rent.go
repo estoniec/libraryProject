@@ -151,5 +151,13 @@ func (h *RentHandler) GetDebt(ctx context.Context) {
 	}
 }
 
-// TODO сделать для админа кнопку подтверждение возврата книги + метод к этому
+func (h *RentHandler) MyRents(ctx context.Context, msg telego.Update) {
+	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+}
+
 // TODO сделать отмену запроса аренды книги

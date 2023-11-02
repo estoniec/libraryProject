@@ -4,8 +4,8 @@ go 1.21.0
 
 require (
 	github.com/buger/jsonparser v1.1.1
-	github.com/estoniec/automaticLibrary v0.0.0-20230915194929-4a812bed2d78
-	github.com/estoniec/project11 v0.0.0-20230915191702-240741b9caaf
+	github.com/estoniec/libraryProject v0.0.0-20231030154820-62289ed2715f
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/mymmrac/telego v0.26.1
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.16.0
@@ -17,13 +17,19 @@ require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/fasthttp/router v1.4.20 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/go-co-op/gocron v1.35.2 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/google/uuid v1.3.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/jasonlvhit/gocron v0.0.1 // indirect
 	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/onsi/ginkgo v1.16.5 // indirect
+	github.com/onsi/gomega v1.28.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/savsgio/gotils v0.0.0-20230208104028-c358bd845dee // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect

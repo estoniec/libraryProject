@@ -13,6 +13,8 @@ type Repository interface {
 	FindByTime(ctx context.Context, dto dto.GetDebtInput) ([]model.BooksUsers, error)
 	FindByUIDAndBID(ctx context.Context, dto dto.FindByUIDAndBIDInput) (int64, error)
 	UpdateReturn(ctx context.Context, dto dto.ConfirmReturnInput) error
+	FindAll(ctx context.Context, dto dto.FindBookInput) (model.BooksUsers, error)
+	FindBy(ctx context.Context, dto dto.FindByInput) ([]model.BooksUsers, error)
 }
 
 type Service struct {
@@ -68,6 +70,14 @@ func (s *Service) FindByUidAndBid(ctx context.Context, input dto.FindByUIDAndBID
 
 func (s *Service) ConfirmReturn(ctx context.Context, input dto.ConfirmReturnInput) (dto.ConfirmReturnOutput, error) {
 	err := s.repository.UpdateReturn(ctx, input)
+	if err != nil {
+		return dto.NewConfirmReturnOutput(err.Error(), 404), err
+	}
+	return dto.NewConfirmReturnOutput("", 200), nil
+}
+
+func (s *Service) FindAll(ctx context.Context, input dto.FindBookInput) (dto.FindBookOutput, error) {
+	book, err := s.repository.FindAll(ctx, input)
 	if err != nil {
 		return dto.NewConfirmReturnOutput(err.Error(), 404), err
 	}

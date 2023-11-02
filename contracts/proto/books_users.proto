@@ -56,7 +56,7 @@ message FindBookRequest {
 message FindBookResponse {
   string error = 1;
   int64 status = 2;
-  BooksUsers book = 4;
+  BooksUsers book = 3;
 }
 
 message ConfirmRentRequest {
@@ -96,4 +96,18 @@ message FindByUidAndBidResponse {
   string error = 1;
   int64 status = 2;
   int64 id = 3;
+}
+
+message FindByRequest {
+  int64 Offset = 1;
+  int64 ID = 2;
+  int64 Time = 3;
+  int64 UserID = 4;
+  int64 BookID = 5;
+}
+
+message FindByResponse {
+  string error = 1;
+  int64 status = 2;
+  repeated BooksUsers book = 3;
 }

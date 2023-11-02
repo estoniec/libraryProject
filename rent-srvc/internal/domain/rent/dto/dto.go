@@ -122,3 +122,25 @@ func NewConfirmReturnOutput(error string, status int64) ConfirmReturnOutput {
 		Status: status,
 	}
 }
+
+type FindByInput struct {
+	Offset int64
+	ID     int64
+	Time   int64
+	UserID int64
+	BookID int64
+}
+
+type FindByOutput struct {
+	Error  string
+	Status int64
+	Model  []model.BooksUsers
+}
+
+func NewFindByOutput(error string, status int64, model []model.BooksUsers) FindByOutput {
+	return FindByOutput{
+		Error:  error,
+		Status: status,
+		Model:  model,
+	}
+}

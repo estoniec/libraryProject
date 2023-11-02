@@ -20,6 +20,7 @@ type BooksUsers struct {
 	ID       int64
 	Users    User
 	Books    Book
-	isReturn bool
-	isGet    bool
+	IsReturn bool
+	IsGet    bool
+	ReturnAt int64
 }

@@ -64,8 +64,10 @@ func (repo *RentDAO) Find(ctx context.Context, dto dto.FindBookInput) (model.Boo
 		).From(
 		postgres.BooksUsersTable,
 	).Where(
-		sq.Eq{"id": dto.ID},
-		sq.Eq{"isreturn": false},
+		sq.And{
+			sq.Eq{"id": dto.ID},
+			sq.Eq{"isreturn": false},
+		},
 	).Join(
 		"public.books ON public.books_users.fk_book_id = public.books.book_id",
 	).Join(
@@ -206,4 +208,71 @@ func (repo *RentDAO) UpdateReturn(ctx context.Context, dto dto.ConfirmReturnInpu
 		return err
 	}
 	return nil
+}
+
+func (repo *RentDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([]model.BooksUsers, error) {
+	where := sq.And{}
+	if dto.ID != 0 {
+		where = append(where, sq.Eq{"id": dto.ID})
+		where = append(where, sq.Eq{"isreturn": false})
+	}
+	if dto.Time != 0 {
+		where = append(where, sq.Eq{"isreturn": false})
+		where = append(where, sq.Eq{"isget": true})
+		where = append(where, sq.LtOrEq{"returnat": dto.Time})
+	}
+	if dto.UserID != 0 && dto.BookID != 0 {
+		where = append(where, sq.Eq{"fk_users_id": dto.UserID})
+		where = append(where, sq.Eq{"fk_book_id": dto.BookID})
+		where = append(where, sq.Eq{"isreturn": false})
+	}
+	var books []model.BooksUsers
+	sql, args, err := repo.qb.
+		Select(
+			"id",
+			"returnat",
+			"isreturn",
+			"isget",
+			"public.books.book_id",
+			"public.books.isbn",
+			"public.books.count",
+			"public.books.name",
+			"public.books.author",
+			"public.users.user_id",
+			"public.users.phone",
+			"public.users.class",
+		).From(
+		postgres.BooksUsersTable,
+	).Where(
+		where,
+	).Join(
+		"public.books ON public.books_users.fk_book_id = public.books.book_id",
+	).Join(
+		"public.users ON public.books_users.fk_users_id = public.users.user_id",
+	).Limit(5).Offset(uint64(dto.Offset)).ToSql()
+	if err != nil {
+		slog.Error(err.Error())
+		return []model.BooksUsers{}, err
+	}
+	rows, err := repo.client.Query(ctx, sql, args...)
+	if err != nil {
+		slog.Error(err.Error())
+		if err == pgx.ErrNoRows {
+			return []model.BooksUsers{}, fmt.Errorf("book is not found")
+		}
+		return []model.BooksUsers{}, err
+	}
+
+	for rows.Next() {
+		var book model.BooksUsers
+		err := rows.Scan(&book.ID, &book.ReturnAt, &book.IsReturn, &book.IsGet, &book.Books.ID, &book.Books.ISBN, &book.Books.Count, &book.Books.Name, &book.Books.Author, &book.Users.ID, &book.Users.Phone, &book.Users.Class)
+		if err != nil {
+			return nil, err
+		}
+		books = append(books, book)
+	}
+	if len(books) == 0 {
+		return books, fmt.Errorf("book is not found")
+	}
+	return books, nil
 }
