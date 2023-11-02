@@ -76,10 +76,10 @@ func (s *Service) ConfirmReturn(ctx context.Context, input dto.ConfirmReturnInpu
 	return dto.NewConfirmReturnOutput("", 200), nil
 }
 
-func (s *Service) FindAll(ctx context.Context, input dto.FindBookInput) (dto.FindBookOutput, error) {
-	book, err := s.repository.FindAll(ctx, input)
+func (s *Service) FindBy(ctx context.Context, input dto.FindByInput) (dto.FindByOutput, error) {
+	model, err := s.repository.FindBy(ctx, input)
 	if err != nil {
-		return dto.NewConfirmReturnOutput(err.Error(), 404), err
+		return dto.NewFindByOutput(err.Error(), 404, model), err
 	}
-	return dto.NewConfirmReturnOutput("", 200), nil
+	return dto.NewFindByOutput("", 200, model), nil
 }

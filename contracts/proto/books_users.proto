@@ -11,6 +11,7 @@ service BooksUsersService {
   rpc FindBook(FindBookRequest) returns (FindBookResponse) {}
   rpc GetDebt(GetDebtRequest) returns (GetDebtResponse) {}
   rpc FindByUidAndBid(FindByUidAndBidRequest) returns (FindByUidAndBidResponse) {}
+  rpc FindBy(FindByRequest) returns (FindByResponse) {}
 }
 
 message Book {

@@ -125,7 +125,7 @@ func NewConfirmReturnOutput(output dto.ConfirmReturnOutput) *pb.ConfirmReturnRes
 	}
 }
 
-func FindByInput(req *pb.FindByRequest) dto.FindByInput {
+func NewFindByInput(req *pb.FindByRequest) dto.FindByInput {
 	return dto.FindByInput{
 		Offset: req.GetOffset(),
 		ID:     req.GetID(),
@@ -146,6 +146,7 @@ func NewFindByOutput(output dto.FindByOutput) *pb.FindByResponse {
 				ID:       model.ID,
 				IsReturn: model.IsReturn,
 				IsGet:    model.IsGet,
+				Returnat: model.ReturnAt,
 				Book: &pb.Book{
 					ID:     int64(model.Books.ID),
 					ISBN:   model.Books.ISBN,
@@ -164,6 +165,6 @@ func NewFindByOutput(output dto.FindByOutput) *pb.FindByResponse {
 	return &pb.FindByResponse{
 		Status: output.Status,
 		Error:  output.Error,
-		Book:   models,
+		Model:  models,
 	}
 }

@@ -89,3 +89,17 @@ func (s *Server) ConfirmReturn(ctx context.Context, req *pb.ConfirmReturnRequest
 
 	return response, nil
 }
+
+func (s *Server) FindBy(ctx context.Context, req *pb.FindByRequest) (*pb.FindByResponse, error) {
+	dto := NewFindByInput(req)
+
+	res, err := s.service.FindBy(ctx, dto)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	response := NewFindByOutput(res)
+
+	return response, nil
+}

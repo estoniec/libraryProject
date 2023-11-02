@@ -25,6 +25,7 @@ const (
 	BooksUsersService_FindBook_FullMethodName        = "/books_users_service.books_users.BooksUsersService/FindBook"
 	BooksUsersService_GetDebt_FullMethodName         = "/books_users_service.books_users.BooksUsersService/GetDebt"
 	BooksUsersService_FindByUidAndBid_FullMethodName = "/books_users_service.books_users.BooksUsersService/FindByUidAndBid"
+	BooksUsersService_FindBy_FullMethodName          = "/books_users_service.books_users.BooksUsersService/FindBy"
 )
 
 // BooksUsersServiceClient is the client API for BooksUsersService service.
@@ -37,6 +38,7 @@ type BooksUsersServiceClient interface {
 	FindBook(ctx context.Context, in *FindBookRequest, opts ...grpc.CallOption) (*FindBookResponse, error)
 	GetDebt(ctx context.Context, in *GetDebtRequest, opts ...grpc.CallOption) (*GetDebtResponse, error)
 	FindByUidAndBid(ctx context.Context, in *FindByUidAndBidRequest, opts ...grpc.CallOption) (*FindByUidAndBidResponse, error)
+	FindBy(ctx context.Context, in *FindByRequest, opts ...grpc.CallOption) (*FindByResponse, error)
 }
 
 type booksUsersServiceClient struct {
@@ -101,6 +103,15 @@ func (c *booksUsersServiceClient) FindByUidAndBid(ctx context.Context, in *FindB
 	return out, nil
 }
 
+func (c *booksUsersServiceClient) FindBy(ctx context.Context, in *FindByRequest, opts ...grpc.CallOption) (*FindByResponse, error) {
+	out := new(FindByResponse)
+	err := c.cc.Invoke(ctx, BooksUsersService_FindBy_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BooksUsersServiceServer is the server API for BooksUsersService service.
 // All implementations must embed UnimplementedBooksUsersServiceServer
 // for forward compatibility
@@ -111,6 +122,7 @@ type BooksUsersServiceServer interface {
 	FindBook(context.Context, *FindBookRequest) (*FindBookResponse, error)
 	GetDebt(context.Context, *GetDebtRequest) (*GetDebtResponse, error)
 	FindByUidAndBid(context.Context, *FindByUidAndBidRequest) (*FindByUidAndBidResponse, error)
+	FindBy(context.Context, *FindByRequest) (*FindByResponse, error)
 	mustEmbedUnimplementedBooksUsersServiceServer()
 }
 
@@ -135,6 +147,9 @@ func (UnimplementedBooksUsersServiceServer) GetDebt(context.Context, *GetDebtReq
 }
 func (UnimplementedBooksUsersServiceServer) FindByUidAndBid(context.Context, *FindByUidAndBidRequest) (*FindByUidAndBidResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindByUidAndBid not implemented")
+}
+func (UnimplementedBooksUsersServiceServer) FindBy(context.Context, *FindByRequest) (*FindByResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindBy not implemented")
 }
 func (UnimplementedBooksUsersServiceServer) mustEmbedUnimplementedBooksUsersServiceServer() {}
 
@@ -257,6 +272,24 @@ func _BooksUsersService_FindByUidAndBid_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BooksUsersService_FindBy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindByRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BooksUsersServiceServer).FindBy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BooksUsersService_FindBy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BooksUsersServiceServer).FindBy(ctx, req.(*FindByRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BooksUsersService_ServiceDesc is the grpc.ServiceDesc for BooksUsersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -287,6 +320,10 @@ var BooksUsersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindByUidAndBid",
 			Handler:    _BooksUsersService_FindByUidAndBid_Handler,
+		},
+		{
+			MethodName: "FindBy",
+			Handler:    _BooksUsersService_FindBy_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

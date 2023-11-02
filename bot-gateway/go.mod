@@ -4,7 +4,7 @@ go 1.21.0
 
 require (
 	github.com/buger/jsonparser v1.1.1
-	github.com/estoniec/libraryProject v0.0.0-20231102124134-b385da8642dd
+	github.com/estoniec/libraryProject v0.0.0-20231102124957-91aa038fd0c8
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/mymmrac/telego v0.26.1
 	github.com/sourcegraph/conc v0.3.0

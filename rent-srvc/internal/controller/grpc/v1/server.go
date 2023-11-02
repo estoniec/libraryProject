@@ -13,6 +13,7 @@ type Service interface {
 	GetDebt(ctx context.Context, input dto.GetDebtInput) (dto.GetDebtOutput, error)
 	FindByUidAndBid(ctx context.Context, input dto.FindByUIDAndBIDInput) (dto.FindByUIDAndBIDOutput, error)
 	ConfirmReturn(ctx context.Context, input dto.ConfirmReturnInput) (dto.ConfirmReturnOutput, error)
+	FindBy(ctx context.Context, input dto.FindByInput) (dto.FindByOutput, error)
 }
 
 type Server struct {
