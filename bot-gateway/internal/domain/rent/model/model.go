@@ -22,27 +22,31 @@ type BooksUsers struct {
 	ID       int64
 	Users    User
 	Books    Book
-	isReturn bool
-	isGet    bool
+	IsReturn bool
+	IsGet    bool
+	ReturnAt int64
 }
 
-func NewBooksUsers(debts []*pb.BooksUsers) []BooksUsers {
+func NewBooksUsers(models []*pb.BooksUsers) []BooksUsers {
 	var res []BooksUsers
-	for _, debt := range debts {
+	for _, model := range models {
 		b := BooksUsers{
-			ID: debt.GetID(),
+			ID: model.GetID(),
 			Books: Book{
-				ID:     int(debt.GetBook().GetID()),
-				ISBN:   debt.GetBook().GetISBN(),
-				Name:   debt.GetBook().GetName(),
-				Author: debt.GetBook().GetAuthor(),
-				Count:  int(debt.GetBook().GetCount()),
+				ID:     int(model.GetBook().GetID()),
+				ISBN:   model.GetBook().GetISBN(),
+				Name:   model.GetBook().GetName(),
+				Author: model.GetBook().GetAuthor(),
+				Count:  int(model.GetBook().GetCount()),
 			},
 			Users: User{
-				ID:    debt.GetUser().GetID(),
-				Phone: debt.GetUser().GetPhone(),
-				Class: debt.GetUser().GetClass(),
+				ID:    model.GetUser().GetID(),
+				Phone: model.GetUser().GetPhone(),
+				Class: model.GetUser().GetClass(),
 			},
+			ReturnAt: model.GetReturnat(),
+			IsReturn: model.GetIsReturn(),
+			IsGet:    model.GetIsGet(),
 		}
 		res = append(res, b)
 	}

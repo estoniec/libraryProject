@@ -8,9 +8,6 @@ service BooksUsersService {
   rpc RentBook(RentBookRequest) returns (RentBookResponse) {}
   rpc ConfirmRent(ConfirmRentRequest) returns (ConfirmRentResponse) {}
   rpc ConfirmReturn(ConfirmReturnRequest) returns (ConfirmReturnResponse) {}
-  rpc FindBook(FindBookRequest) returns (FindBookResponse) {}
-  rpc GetDebt(GetDebtRequest) returns (GetDebtResponse) {}
-  rpc FindByUidAndBid(FindByUidAndBidRequest) returns (FindByUidAndBidResponse) {}
   rpc FindBy(FindByRequest) returns (FindByResponse) {}
 }
 
@@ -51,16 +48,6 @@ message RentBookResponse {
   int64 id = 3;
 }
 
-message FindBookRequest {
-  int64 id = 1;
-}
-
-message FindBookResponse {
-  string error = 1;
-  int64 status = 2;
-  BooksUsers book = 3;
-}
-
 message ConfirmRentRequest {
   int64 ID = 1;
 }
@@ -77,27 +64,6 @@ message ConfirmReturnRequest {
 message ConfirmReturnResponse {
   string error = 1;
   int64 status = 2;
-}
-
-message GetDebtRequest {
-  int64 time = 1;
-}
-
-message GetDebtResponse {
-  string error = 1;
-  int64 status = 2;
-  repeated BooksUsers debt = 3;
-}
-
-message FindByUidAndBidRequest {
-  int64 UID = 1;
-  int64 BID = 2;
-}
-
-message FindByUidAndBidResponse {
-  string error = 1;
-  int64 status = 2;
-  int64 id = 3;
 }
 
 message FindByRequest {

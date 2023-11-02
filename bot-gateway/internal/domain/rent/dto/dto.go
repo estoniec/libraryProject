@@ -2,7 +2,6 @@ package rentService
 
 import (
 	"gateway/internal/domain/rent/model"
-	pb "github.com/estoniec/libraryProject/contracts/gen/go/books_users"
 )
 
 type RentBookOutput struct {
@@ -36,14 +35,14 @@ func NewRentBookDTO(bookID int64, userID int64, returnAt int64) RentBookDTO {
 type FindBookOutput struct {
 	Error  string
 	Status int64
-	Book   *pb.BooksUsers
+	Model  []rentService.BooksUsers
 }
 
-func NewFindBookOutput(error string, status int64, book *pb.BooksUsers) FindBookOutput {
+func NewFindBookOutput(error string, status int64, models []rentService.BooksUsers) FindBookOutput {
 	return FindBookOutput{
 		Error:  error,
 		Status: status,
-		Book:   book,
+		Model:  models,
 	}
 }
 

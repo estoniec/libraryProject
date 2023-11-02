@@ -38,19 +38,13 @@ func (u *Usecase) RentBook(ctx context.Context, input dto2.RentInput) (dto.RentB
 
 func (u *Usecase) FindBook(ctx context.Context, input dto2.FindBookInput) (dto.FindBookOutput, error) {
 	res, err := u.client.FindBy(ctx, &pb.FindByRequest{
-		Id: input.ID,
+		ID: input.ID,
 	})
 	if err != nil {
 		return dto.NewFindBookOutput(err.Error(), 404, nil), err
 	}
-	return dto.NewFindBookOutput(res.GetError(), res.GetStatus(), res.GetBook()), nil
-	res, err := u.client.FindBook(ctx, &pb.FindBookRequest{
-		Id: input.ID,
-	})
-	if err != nil {
-		return dto.NewFindBookOutput(err.Error(), 404, nil), err
-	}
-	return dto.NewFindBookOutput(res.GetError(), res.GetStatus(), res.GetBook()), nil
+	models := rentService.NewBooksUsers(res.GetModel())
+	return dto.NewFindBookOutput(res.GetError(), res.GetStatus(), models), nil
 }
 
 func (u *Usecase) ConfirmRent(ctx context.Context, input dto2.ConfirmRentInput) (dto.ConfirmRentOutput, error) {
@@ -64,25 +58,26 @@ func (u *Usecase) ConfirmRent(ctx context.Context, input dto2.ConfirmRentInput) 
 }
 
 func (u *Usecase) GetDebt(ctx context.Context, input dto2.GetDebtInput) (dto.GetDebtOutput, error) {
-	res, err := u.client.GetDebt(ctx, &pb.GetDebtRequest{
+	res, err := u.client.FindBy(ctx, &pb.FindByRequest{
 		Time: input.Time,
 	})
-	debts := rentService.NewBooksUsers(res.GetDebt())
 	if err != nil {
-		return dto.NewGetDebtOutput(err.Error(), 404, debts), err
+		return dto.NewGetDebtOutput(err.Error(), 404, nil), err
 	}
-	return dto.NewGetDebtOutput(res.GetError(), res.GetStatus(), debts), nil
+	models := rentService.NewBooksUsers(res.GetModel())
+	return dto.NewGetDebtOutput(res.GetError(), res.GetStatus(), models), nil
 }
 
 func (u *Usecase) CheckRent(ctx context.Context, input dto2.CheckRentInput) (dto.CheckRentOutput, error) {
-	res, err := u.client.FindByUidAndBid(ctx, &pb.FindByUidAndBidRequest{
-		UID: input.UID,
-		BID: input.BID,
+	res, err := u.client.FindBy(ctx, &pb.FindByRequest{
+		UserID: input.UID,
+		BookID: input.BID,
 	})
-	if err != nil && err.Error() != "rpc error: code = Unknown desc = rent is not found" {
+	if err != nil {
 		return dto.NewCheckRentOutput(err.Error(), 404, 0), err
 	}
-	return dto.NewCheckRentOutput(res.GetError(), res.GetStatus(), res.GetId()), nil
+	models := rentService.NewBooksUsers(res.GetModel())
+	return dto.NewCheckRentOutput(res.GetError(), res.GetStatus(), models[0].ID), nil
 }
 
 func (u *Usecase) ConfirmReturn(ctx context.Context, input dto2.ConfirmReturnInput) (dto.ConfirmReturnOutput, error) {
