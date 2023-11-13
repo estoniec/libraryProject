@@ -40,6 +40,33 @@ func (b *Builder) NewMessage(msg telego.Update, text string, keyboard *telego.In
 	return sentMessage, nil
 }
 
+func (b *Builder) NewMessageAndDeleteKeyboard(msg telego.Update, text string, deleteKeyboard bool, keyboard *telego.InlineKeyboardMarkup) (*telego.Message, error) {
+	var chatID int64
+	if msg.CallbackQuery != nil {
+		chatID = msg.CallbackQuery.Message.Chat.ID
+	} else {
+		chatID = msg.Message.Chat.ID
+	}
+	message := tu.Message(
+		tu.ID(chatID),
+		text,
+	)
+	if keyboard != nil {
+		message = message.WithReplyMarkup(keyboard)
+	}
+	if deleteKeyboard == true {
+		message = message.WithReplyMarkup(tu.ReplyKeyboardRemove().WithRemoveKeyboard())
+	}
+	sentMessage, err := b.bot.SendMessage(
+		message,
+	)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+	return sentMessage, nil
+}
+
 func (b *Builder) NewMessageWithKeyboard(msg telego.Update, text string, keyboard *telego.ReplyKeyboardMarkup) (*telego.Message, error) {
 	var chatID int64
 	if msg.CallbackQuery != nil {

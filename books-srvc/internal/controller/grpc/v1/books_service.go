@@ -3,7 +3,6 @@ package v1
 import (
 	"context"
 	pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
-	"log/slog"
 )
 
 func (s *Server) FindBy(ctx context.Context, req *pb.FindByRequest) (*pb.FindByResponse, error) {
@@ -11,7 +10,6 @@ func (s *Server) FindBy(ctx context.Context, req *pb.FindByRequest) (*pb.FindByR
 
 	res, err := s.service.FindBy(ctx, dto)
 	if err != nil {
-		slog.Error(err.Error())
 		return nil, err
 	}
 
@@ -25,7 +23,6 @@ func (s *Server) CreateBook(ctx context.Context, req *pb.CreateBookRequest) (*pb
 
 	res, err := s.service.CreateBook(ctx, dto)
 	if err != nil {
-		slog.Error(err.Error())
 		return nil, err
 	}
 
@@ -39,7 +36,6 @@ func (s *Server) EditCountBook(ctx context.Context, req *pb.EditCountBookRequest
 
 	res, err := s.service.EditCountBook(ctx, dto)
 	if err != nil {
-		slog.Error(err.Error())
 		return nil, err
 	}
 
@@ -53,7 +49,6 @@ func (s *Server) DeleteBook(ctx context.Context, req *pb.DeleteBookRequest) (*pb
 
 	res, err := s.service.DeleteBook(ctx, dto)
 	if err != nil {
-		slog.Error(err.Error())
 		return nil, err
 	}
 

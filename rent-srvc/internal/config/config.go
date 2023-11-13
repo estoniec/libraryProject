@@ -26,7 +26,7 @@ func GetConfig() *Config {
 	once.Do(func() {
 		instance = &Config{}
 
-		if err := cleanenv.ReadConfig("./config.yaml", instance); err != nil {
+		if err := cleanenv.ReadConfig("../app/config.yaml", instance); err != nil {
 			var text string
 			help, _ := cleanenv.GetDescription(instance, &text)
 			log.Print(help)

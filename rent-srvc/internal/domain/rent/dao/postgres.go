@@ -108,6 +108,10 @@ func (repo *RentDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([]model.B
 		where = append(where, sq.Eq{"fk_book_id": dto.BookID})
 		where = append(where, sq.Eq{"isreturn": false})
 	}
+	if dto.UserID != 0 {
+		where = append(where, sq.Eq{"fk_users_id": dto.UserID})
+		where = append(where, sq.Eq{"isreturn": false})
+	}
 	var books []model.BooksUsers
 	sql, args, err := repo.qb.
 		Select(
@@ -138,10 +142,10 @@ func (repo *RentDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([]model.B
 	}
 	rows, err := repo.client.Query(ctx, sql, args...)
 	if err != nil {
-		slog.Error(err.Error())
 		if err == pgx.ErrNoRows {
-			return []model.BooksUsers{}, fmt.Errorf("book is not found")
+			return []model.BooksUsers{}, fmt.Errorf("rent is not found")
 		}
+		slog.Error(err.Error())
 		return []model.BooksUsers{}, err
 	}
 
@@ -152,9 +156,6 @@ func (repo *RentDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([]model.B
 			return nil, err
 		}
 		books = append(books, book)
-	}
-	if len(books) == 0 {
-		return books, fmt.Errorf("book is not found")
 	}
 	return books, nil
 }

@@ -65,7 +65,6 @@ func (r *Router) Listen(ctx context.Context, countListeners uint) chan<- telego.
 					})
 				}
 			}()
-
 			r.listener(ctx, messages)
 		})
 	}
@@ -77,7 +76,6 @@ func (r *Router) Listen(ctx context.Context, countListeners uint) chan<- telego.
 
 func (r *Router) listener(ctx context.Context, messages <-chan telego.Update) {
 	for msg := range messages {
-		// TODO: Add send to default handler
 		err := r.handleCommand(ctx, msg)
 		if err != nil {
 			continue
@@ -102,7 +100,7 @@ func (r *Router) handleCommand(ctx context.Context, msg telego.Update) error {
 
 		handler, ok := r.handlers[command]
 		if ok {
-			handler.Callback(ctx, msg)
+			go handler.Callback(ctx, msg)
 		}
 		return nil
 	}
@@ -121,7 +119,7 @@ func (r *Router) handleCommand(ctx context.Context, msg telego.Update) error {
 
 	handler, ok := r.handlers[command]
 	if ok {
-		handler.Callback(ctx, msg)
+		go handler.Callback(ctx, msg)
 	}
 	return nil
 }

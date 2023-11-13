@@ -55,12 +55,15 @@ func (h *RegHandler) Register() {
 
 func (h *RegHandler) Registration(ctx context.Context, msg telego.Update) {
 	var checkDTO dto.CheckInput
+	var userID int64
 
 	if msg.CallbackQuery != nil {
 		h.builder.NewCallbackMessage(msg.CallbackQuery, "")
 		checkDTO = dto.NewCheckInput(msg.CallbackQuery.From.ID)
+		userID = msg.CallbackQuery.From.ID
 	} else {
 		checkDTO = dto.NewCheckInput(msg.Message.From.ID)
+		userID = msg.Message.From.ID
 	}
 
 	if checkedUser, err := h.usecase.CheckUser(ctx, checkDTO); checkedUser.Checked {
@@ -89,11 +92,12 @@ func (h *RegHandler) Registration(ctx context.Context, msg telego.Update) {
 		return
 	}
 
-	_, err = h.builder.NewMessage(msg, "Введите своё имя и фамилию (через пробел, с большой буквы)", nil)
+	_, err = h.builder.NewMessageAndDeleteKeyboard(msg, "Введите своё имя и фамилию (через пробел, с большой буквы)", true, nil)
 	if err != nil {
 		slog.Error(err.Error())
 		return
 	}
+
 	username, ok := <-answers
 	if !ok || !utils.IsNameAndSurname(username.Text) {
 		h.builder.NewMessage(msg, "Попробуйте ввести имя и фамилию заново.", h.keyboard.Repeat())
@@ -110,7 +114,7 @@ func (h *RegHandler) Registration(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести класс и параллель заново.", h.keyboard.Repeat())
 		return
 	}
-	dto := dto.NewRegInput(telephone.Contact.PhoneNumber, username.Text, class.Text, msg.Message.From.ID)
+	dto := dto.NewRegInput(telephone.Contact.PhoneNumber, username.Text, class.Text, userID)
 	res, err := h.usecase.Registration(ctx, dto)
 	if err != nil || res.Error != "" {
 		slog.Error(err.Error(), res.Error)

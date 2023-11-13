@@ -55,7 +55,7 @@ func (m *CallbackManager) NewQuestion(message telego.Update) (chan telego.Update
 }
 
 func (m *CallbackManager) clear(ctx context.Context) {
-	interval := time.Second * 30
+	interval := time.Second * 120
 
 	ticker := time.Tick(interval)
 

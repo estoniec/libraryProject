@@ -97,3 +97,17 @@ func NewConfirmReturnOutput(error string, status int64) ConfirmReturnOutput {
 		Status: status,
 	}
 }
+
+type MyRentsOutput struct {
+	Error  string
+	Status int64
+	Rents  []rentService.BooksUsers
+}
+
+func NewMyRentsOutput(error string, status int64, rents []rentService.BooksUsers) MyRentsOutput {
+	return MyRentsOutput{
+		Error:  error,
+		Status: status,
+		Rents:  rents,
+	}
+}

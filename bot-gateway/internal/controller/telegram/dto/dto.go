@@ -144,12 +144,14 @@ func NewConfirmRentInput(id int64) ConfirmRentInput {
 }
 
 type GetDebtInput struct {
-	Time int64
+	Time   int64
+	Offset int64
 }
 
-func NewGetDebtInput(time int64) GetDebtInput {
+func NewGetDebtInput(time int64, offset int64) GetDebtInput {
 	return GetDebtInput{
-		Time: time,
+		Time:   time,
+		Offset: offset,
 	}
 }
 
@@ -172,5 +174,17 @@ type ConfirmReturnInput struct {
 func NewConfirmReturnInput(id int64) ConfirmReturnInput {
 	return ConfirmReturnInput{
 		ID: id,
+	}
+}
+
+type MyRentsInput struct {
+	UserID int64
+	Offset int64
+}
+
+func NewMyRentsInput(userid int64, offset int64) MyRentsInput {
+	return MyRentsInput{
+		UserID: userid,
+		Offset: offset,
 	}
 }

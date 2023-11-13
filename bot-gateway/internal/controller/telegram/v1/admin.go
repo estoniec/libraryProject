@@ -13,7 +13,7 @@ import (
 
 type AdminKeyboard interface {
 	Admin() *telego.ReplyKeyboardMarkup
-	SuccessAdd() *telego.InlineKeyboardMarkup
+	Success() *telego.InlineKeyboardMarkup
 }
 
 type AdminHandler struct {
@@ -50,8 +50,8 @@ func (h *AdminHandler) Register() {
 	regGroup.NewHandler(h.EditCountBook, "Изменить количество книг")
 	regGroup.NewHandler(h.DeleteBook, "Удалить книгу")
 	regGroup.NewHandler(h.ConfirmRent, "Подтвердить аренду книги")
-	keyboard := regGroup.NewHandler(h.GetKeyboard, "/getkeyboard")
-	keyboard.WithCommand("/cancel")
+	regGroup.NewHandler(h.ConfirmReturn, "Подтвердить возврат книги")
+	regGroup.NewHandler(h.GetKeyboard, "/getkeyboard")
 	h.AddGroup(regGroup)
 }
 
@@ -150,7 +150,7 @@ func (h *AdminHandler) AddBook(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести количество книг заново.", nil)
 		return
 	}
-	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы хотите добавить в базу данных следующую книгу:\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество (шт.): %s", isbn.Text, author.Text, name.Text, count.Text), h.keyboard.SuccessAdd())
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы хотите добавить в базу данных следующую книгу:\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество (шт.): %s", isbn.Text, author.Text, name.Text, count.Text), h.keyboard.Success())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -224,7 +224,7 @@ func (h *AdminHandler) EditCountBook(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести количество книг заново.", nil)
 		return
 	}
-	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите изменить количество книг у книги с ISBN: %s на %s (шт.)?", isbn.Text, count.Text), h.keyboard.SuccessAdd())
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите изменить количество книг у книги с ISBN: %s на %s (шт.)?", isbn.Text, count.Text), h.keyboard.Success())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -283,7 +283,7 @@ func (h *AdminHandler) DeleteBook(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести ISBN заново.", nil)
 		return
 	}
-	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите удалить книгу с ISBN: %s?", isbn.Text), h.keyboard.SuccessAdd())
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите удалить книгу с ISBN: %s?", isbn.Text), h.keyboard.Success())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -358,7 +358,7 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
 		return
 	}
-	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить аренду книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Book.GetBook().GetID(), book.Book.GetBook().GetISBN(), book.Book.GetBook().GetAuthor(), book.Book.GetBook().GetName(), book.Book.GetBook().GetCount()), h.keyboard.SuccessAdd())
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить аренду книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Model[0].Books.ID, book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, book.Model[0].Books.Count), h.keyboard.Success())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -383,7 +383,7 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 			slog.Error(err.Error())
 			return
 		}
-		inputEdit := dto.NewEditCountBookInput(book.Book.GetBook().GetISBN(), int(book.Book.GetBook().GetCount())-1)
+		inputEdit := dto.NewEditCountBookInput(book.Model[0].Books.ISBN, int(book.Model[0].Books.Count)-1)
 		resEdit, err := h.bookUsecase.EditCountBook(ctx, inputEdit)
 		if err != nil || resEdit.Status == 404 {
 			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
@@ -391,7 +391,7 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 			return
 		}
 		h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили аренду книги!", h.keyboard.Admin())
-		h.builder.NewMessageByID(book.Book.GetUser().GetID(), fmt.Sprintf("Аренда книги со следующими параметрами успешно подтверждена.\n\nISBN: %s\nАвтор: %s\nНазвание: %s\n\nДля возврата книги продиктуйте библиотекарю номер: %d", book.Book.GetBook().GetISBN(), book.Book.GetBook().GetAuthor(), book.Book.GetBook().GetName(), idInt), nil)
+		h.builder.NewMessageByID(int64(book.Model[0].Users.ID), fmt.Sprintf("Аренда книги со следующими параметрами успешно подтверждена.\n\nISBN: %s\nАвтор: %s\nНазвание: %s\n\nДля возврата книги продиктуйте библиотекарю номер: %d", book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, idInt), nil)
 	} else {
 		h.GetKeyboard(ctx, answer)
 	}
@@ -441,7 +441,7 @@ func (h *AdminHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
 		return
 	}
-	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить возврат книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Book.GetBook().GetID(), book.Book.GetBook().GetISBN(), book.Book.GetBook().GetAuthor(), book.Book.GetBook().GetName(), book.Book.GetBook().GetCount()), h.keyboard.SuccessAdd())
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить возврат книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Model[0].Books.ID, book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, book.Model[0].Books.Count), h.keyboard.Success())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -466,7 +466,7 @@ func (h *AdminHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 			slog.Error(err.Error())
 			return
 		}
-		inputEdit := dto.NewEditCountBookInput(book.Book.GetBook().GetISBN(), int(book.Book.GetBook().GetCount())+1)
+		inputEdit := dto.NewEditCountBookInput(book.Model[0].Books.ISBN, book.Model[0].Books.Count+1)
 		resEdit, err := h.bookUsecase.EditCountBook(ctx, inputEdit)
 		if err != nil || resEdit.Status == 404 {
 			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
@@ -474,7 +474,7 @@ func (h *AdminHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 			return
 		}
 		h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили возврат книги!", h.keyboard.Admin())
-		h.builder.NewMessageByID(book.Book.GetUser().GetID(), fmt.Sprintf("Возврат книги со следующими параметрами успешно подтверждён.\n\nISBN: %s\nАвтор: %s\nНазвание: %s", book.Book.GetBook().GetISBN(), book.Book.GetBook().GetAuthor(), book.Book.GetBook().GetName()), nil)
+		h.builder.NewMessageByID(book.Model[0].Users.ID, fmt.Sprintf("Возврат книги со следующими параметрами успешно подтверждён.\n\nISBN: %s\nАвтор: %s\nНазвание: %s", book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name), nil)
 	} else {
 		h.GetKeyboard(ctx, answer)
 	}

@@ -53,7 +53,6 @@ func (repo *BooksDAO) FindBy(ctx context.Context, dto dto.FindByInput) ([]model.
 	}
 	rows, err := repo.client.Query(ctx, sql, args...)
 	if err != nil {
-		slog.Error(err.Error())
 		if err == pgx.ErrNoRows {
 			return []model.Book{}, fmt.Errorf("book is not found")
 		}
@@ -100,7 +99,6 @@ func (repo *BooksDAO) Create(ctx context.Context, dto dto.CreateBookInput) (mode
 	}
 	err = repo.client.QueryRow(ctx, sql, args...).Scan(&book.ID, &book.ISBN, &book.Count, &book.Name, &book.Author)
 	if err != nil {
-		slog.Error(err.Error())
 		if err == pgx.ErrNoRows {
 			return model.Book{}, fmt.Errorf("book is not found")
 		}

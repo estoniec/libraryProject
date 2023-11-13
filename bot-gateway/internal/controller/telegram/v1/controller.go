@@ -12,6 +12,7 @@ type Builder interface {
 	DeleteMessage(msg telego.Update) error
 	NewCallbackMessage(msg *telego.CallbackQuery, text string) error
 	NewMessageByID(id int64, text string, keyboard *telego.InlineKeyboardMarkup) (*telego.Message, error)
+	NewMessageAndDeleteKeyboard(msg telego.Update, text string, deleteKeyboard bool, keyboard *telego.InlineKeyboardMarkup) (*telego.Message, error)
 }
 
 type Router interface {
@@ -48,14 +49,14 @@ func NewHandler(builder Builder, router Router, question Question, callbackQuest
 func (h *Handler) HandleUpdates(ctx context.Context, updates <-chan telego.Update) {
 	listen := h.router.Listen(ctx, 1)
 	for update := range updates {
-		if update.Message != nil {
-			ok := h.question.Middleware(ctx, update.Message)
+		if update.CallbackQuery != nil {
+			ok := h.callbackQuestion.Middleware(ctx, update)
 			if ok {
 				listen <- update
 			}
 		}
-		if update.CallbackQuery != nil {
-			ok := h.callbackQuestion.Middleware(ctx, update)
+		if update.Message != nil {
+			ok := h.question.Middleware(ctx, update.Message)
 			if ok {
 				listen <- update
 			}

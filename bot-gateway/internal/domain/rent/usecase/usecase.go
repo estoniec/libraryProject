@@ -59,7 +59,8 @@ func (u *Usecase) ConfirmRent(ctx context.Context, input dto2.ConfirmRentInput) 
 
 func (u *Usecase) GetDebt(ctx context.Context, input dto2.GetDebtInput) (dto.GetDebtOutput, error) {
 	res, err := u.client.FindBy(ctx, &pb.FindByRequest{
-		Time: input.Time,
+		Time:   input.Time,
+		Offset: input.Offset,
 	})
 	if err != nil {
 		return dto.NewGetDebtOutput(err.Error(), 404, nil), err
@@ -76,6 +77,9 @@ func (u *Usecase) CheckRent(ctx context.Context, input dto2.CheckRentInput) (dto
 	if err != nil {
 		return dto.NewCheckRentOutput(err.Error(), 404, 0), err
 	}
+	if err == nil && len(res.GetModel()) == 0 {
+		return dto.NewCheckRentOutput(res.GetError(), res.GetStatus(), 0), nil
+	}
 	models := rentService.NewBooksUsers(res.GetModel())
 	return dto.NewCheckRentOutput(res.GetError(), res.GetStatus(), models[0].ID), nil
 }
@@ -88,4 +92,16 @@ func (u *Usecase) ConfirmReturn(ctx context.Context, input dto2.ConfirmReturnInp
 		return dto.NewConfirmReturnOutput(err.Error(), 404), err
 	}
 	return dto.NewConfirmReturnOutput(res.GetError(), res.GetStatus()), nil
+}
+
+func (u *Usecase) MyRents(ctx context.Context, input dto2.MyRentsInput) (dto.MyRentsOutput, error) {
+	res, err := u.client.FindBy(ctx, &pb.FindByRequest{
+		UserID: input.UserID,
+		Offset: input.Offset,
+	})
+	if err != nil {
+		return dto.NewMyRentsOutput(err.Error(), 404, nil), err
+	}
+	models := rentService.NewBooksUsers(res.GetModel())
+	return dto.NewMyRentsOutput(res.GetError(), res.GetStatus(), models), nil
 }

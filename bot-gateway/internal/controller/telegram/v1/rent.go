@@ -22,11 +22,14 @@ type RentUsecase interface {
 	GetDebt(ctx context.Context, input dto.GetDebtInput) (rentService.GetDebtOutput, error)
 	CheckRent(ctx context.Context, input dto.CheckRentInput) (rentService.CheckRentOutput, error)
 	ConfirmReturn(ctx context.Context, input dto.ConfirmReturnInput) (rentService.ConfirmReturnOutput, error)
+	MyRents(ctx context.Context, input dto.MyRentsInput) (rentService.MyRentsOutput, error)
 }
 
 type RentKeyboard interface {
 	FindBook() *telego.InlineKeyboardMarkup
 	Menu() *telego.InlineKeyboardMarkup
+	Switch(offsetNext int, offsetPred int, id ...string) *telego.InlineKeyboardMarkup
+	Success() *telego.InlineKeyboardMarkup
 }
 
 type RentHandler struct {
@@ -59,6 +62,14 @@ func (h *RentHandler) Register() {
 	regGroup := handling.NewHandlersGroup()
 	rentBook := regGroup.NewHandler(h.RentBook)
 	rentBook.WithCommand("/rent")
+	myRents := regGroup.NewHandler(h.MyRents)
+	myRents.WithCommand("/rented")
+	nextBtn := regGroup.NewHandler(h.Next)
+	nextBtn.WithCommand("/nextrents")
+	predBtn := regGroup.NewHandler(h.Pred)
+	predBtn.WithCommand("/predrents")
+	cancelRent := regGroup.NewHandler(h.ConfirmReturn)
+	cancelRent.WithCommand("/returnbook")
 	h.AddGroup(regGroup)
 }
 
@@ -135,20 +146,32 @@ func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 
 func (h *RentHandler) GetDebt(ctx context.Context) {
 	timeNow := time.Now().Unix()
-	input := dto.NewGetDebtInput(timeNow)
-	debts, err := h.usecase.GetDebt(ctx, input)
-	if err != nil {
-		slog.Error(err.Error())
+	i := 0
+	var debters []string
+	var notify map[int64][]string
+	notify = make(map[int64][]string)
+	for i%5 == 0 {
+		input := dto.NewGetDebtInput(timeNow, int64(i))
+		debts, err := h.usecase.GetDebt(ctx, input)
+		if err != nil {
+			slog.Error(err.Error())
+			break
+		}
+		if len(debts.Debt) > 0 {
+			for _, debt := range debts.Debt {
+				debters = append(debters, fmt.Sprintf("ISBN: %s,\nАвтор: %s,\nНазвание: %s,\nСсылка для перехода в диалог с арендатором: t.me/%s (после \"t.me/\" так же идёт его номер телефона),\nУчебный класс арендатора: %s;", debt.Books.ISBN, debt.Books.Author, debt.Books.Name, debt.Users.Phone, debt.Users.Class))
+				notify[debt.Users.ID] = append(notify[debt.Users.ID], fmt.Sprintf("ISBN: %s,\nАвтор: %s,\nНазвание: %s.", debt.Books.ISBN, debt.Books.Author, debt.Books.Name))
+			}
+		}
+		i += len(debts.Debt)
+	}
+	for k, v := range notify {
+		h.builder.NewMessageByID(k, fmt.Sprintf("Ежедневное уведомление: вы должны вернуть книги(-у) со следующими данными в библиотеку, так как срок аренды истёк.\n\n%v", strings.Join(v, "\n\n")), nil)
+	}
+	if len(debters) == 0 {
 		return
 	}
-	if len(debts.Debt) > 0 {
-		var debters []string
-		for _, debt := range debts.Debt {
-			debters = append(debters, fmt.Sprintf("ISBN: %s,\nАвтор: %s,\nНазвание: %s,\nСсылка для перехода в диалог с арендатором: t.me/%s (после \"t.me/\" так же идёт его номер телефона),\nУчебный класс арендатора: %s;", debt.Books.ISBN, debt.Books.Author, debt.Books.Name, debt.Users.Phone, debt.Users.Class))
-			h.builder.NewMessageByID(debt.Users.ID, fmt.Sprintf("Ежедневное уведомление: вы должны вернуть книгу со следующими данными в библиотеку, так как срок аренды истёк.\n\nISBN: %s,\nАвтор: %s,\nНазвание: %s.", debt.Books.ISBN, debt.Books.Author, debt.Books.Name), nil)
-		}
-		h.builder.NewMessageByID(1077777665, fmt.Sprintf("Обнаружены люди, у которых истёк срок аренды книги.\n\n%v", strings.Join(debters, "\n\n")), nil)
-	}
+	h.builder.NewMessageByID(1077777665, fmt.Sprintf("Обнаружены люди, у которых истёк срок аренды книги.\n\n%v", strings.Join(debters, "\n\n")), nil)
 }
 
 func (h *RentHandler) MyRents(ctx context.Context, msg telego.Update) {
@@ -158,6 +181,167 @@ func (h *RentHandler) MyRents(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
+	offset := 0
+	input := dto.NewMyRentsInput(msg.CallbackQuery.From.ID, int64(offset))
+	rents, err := h.usecase.MyRents(ctx, input)
+	if len(rents.Rents) == 0 {
+		h.builder.NewMessage(msg, "Вы не брали книг из библиотеки!", nil)
+		return
+	}
+	var msgs []string
+	var ids []string
+	for _, rent := range rents.Rents {
+		var isGet string
+		if rent.IsGet == false {
+			isGet = "нет"
+		} else {
+			isGet = "да"
+		}
+		normalTime := time.Unix(rent.ReturnAt, 0)
+		msgs = append(msgs, fmt.Sprintf("Номер для подтверждения/отмены аренды: %d,\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nПолучена: %s,\nДата возврата: %v", rent.ID, rent.Books.ISBN, rent.Books.Author, rent.Books.Name, isGet, normalTime))
+		if rent.IsGet == false {
+			ids = append(ids, strconv.Itoa(int(rent.ID)))
+		}
+	}
+	h.builder.NewMessage(msg, fmt.Sprintf("Вот данные о ваших книгах, которые вы арендовали (или создали запрос на их аренду):\n\n%v\n\nЕсли вы хотите отменить запрос на аренду книги, которую вы ещё не получили, то нажмите на кнопку с её ID.", strings.Join(msgs, "\n\n")), h.keyboard.Switch(offset+5, offset, ids...))
+	return
+}
+
+func (h *RentHandler) Next(ctx context.Context, msg telego.Update) {
+	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+
+	offset, err := jsonparser.GetInt([]byte(msg.CallbackQuery.Data), "offset")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+
+	input := dto.NewMyRentsInput(msg.CallbackQuery.From.ID, offset)
+	rents, err := h.usecase.MyRents(ctx, input)
+	var msgs []string
+	var ids []string
+	for _, rent := range rents.Rents {
+		var isGet string
+		if rent.IsGet == false {
+			isGet = "нет"
+		} else {
+			isGet = "да"
+		}
+		normalTime := time.Unix(rent.ReturnAt, 0)
+		msgs = append(msgs, fmt.Sprintf("Номер для подтверждения/отмены аренды: %d,\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nПолучена: %s,\nДата возврата: %v", rent.ID, rent.Books.ISBN, rent.Books.Author, rent.Books.Name, isGet, normalTime))
+		if rent.IsGet == false {
+			ids = append(ids, strconv.Itoa(int(rent.ID)))
+		}
+	}
+	h.builder.NewMessage(msg, fmt.Sprintf("Вот данные о ваших книгах, которые вы арендовали (или создали запрос на их аренду):\n\n%v\n\nЕсли вы хотите отменить запрос на аренду книги, которую вы ещё не получили, то нажмите на кнопку с её ID.", strings.Join(msgs, "\n\n")), h.keyboard.Switch(int(offset+5), int(offset-5), ids...))
+	return
+}
+
+func (h *RentHandler) Pred(ctx context.Context, msg telego.Update) {
+	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+
+	offset, err := jsonparser.GetInt([]byte(msg.CallbackQuery.Data), "offset")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+
+	input := dto.NewMyRentsInput(msg.CallbackQuery.From.ID, offset)
+	rents, err := h.usecase.MyRents(ctx, input)
+	var msgs []string
+	var ids []string
+	for _, rent := range rents.Rents {
+		var isGet string
+		if rent.IsGet == false {
+			isGet = "нет"
+		} else {
+			isGet = "да"
+		}
+		normalTime := time.Unix(rent.ReturnAt, 0)
+		msgs = append(msgs, fmt.Sprintf("Номер для подтверждения/отмены аренды: %d,\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nПолучена: %s,\nДата возврата: %v", rent.ID, rent.Books.ISBN, rent.Books.Author, rent.Books.Name, isGet, normalTime))
+		if rent.IsGet == false {
+			ids = append(ids, strconv.Itoa(int(rent.ID)))
+		}
+	}
+	var predOffset int64
+	if offset > 0 {
+		predOffset = offset - 5
+	} else {
+		predOffset = 0
+	}
+	h.builder.NewMessage(msg, fmt.Sprintf("Вот данные о ваших книгах, которые вы арендовали (или создали запрос на их аренду):\n\n%v\n\nЕсли вы хотите отменить запрос на аренду книги, которую вы ещё не получили, то нажмите на кнопку с её ID.", strings.Join(msgs, "\n\n")), h.keyboard.Switch(int(offset+5), int(predOffset), ids...))
+	return
+}
+
+func (h *RentHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
+	err := h.builder.NewCallbackMessage(msg.CallbackQuery, "")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+
+	id, err := jsonparser.GetString([]byte(msg.CallbackQuery.Data), "id")
+	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		slog.Error(err.Error())
+		return
+	}
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		slog.Error(err.Error())
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		return
+	}
+	input := dto.NewFindBookInput(int64(idInt))
+	book, err := h.usecase.FindBook(ctx, input)
+	if err != nil {
+		slog.Error(err.Error())
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		return
+	}
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить отмену запроса на аренду книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Model[0].Books.ID, book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, book.Model[0].Books.Count), h.keyboard.Success())
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+	defer cl()
+	answer, ok := <-callbackAnswers
+	if !ok {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		return
+	}
+	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
+		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		input := dto.NewConfirmReturnInput(int64(idInt))
+		res, err := h.usecase.ConfirmReturn(ctx, input)
+		if err != nil || res.Status == 404 {
+			h.builder.NewMessage(msg, "Попробуйте заново позже.", h.keyboard.FindBook())
+			slog.Error(err.Error())
+			return
+		}
+		h.builder.NewMessage(msg, "Вы успешно подтвердили отмену запроса на аренду книги!", h.keyboard.Menu())
+	} else {
+		h.builder.NewMessage(msg, "Вот ваш функционал:", h.keyboard.Menu())
+	}
+	return
 }
 
 // TODO сделать отмену запроса аренды книги
