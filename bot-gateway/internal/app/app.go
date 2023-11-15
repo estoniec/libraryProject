@@ -59,7 +59,7 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 
 	client := redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
-		Password: "my-password",
+		Password: "",
 		DB:       0,
 	})
 	// TODO адрес редис в конфиг

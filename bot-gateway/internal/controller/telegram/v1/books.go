@@ -308,7 +308,7 @@ func (h *BooksHandler) FindAll(ctx context.Context, msg telego.Update) {
 	book, err := h.usecase.FindBy(ctx, dtoBy)
 	if err != nil || book.Status != 200 {
 		if err.Error() == "rpc error: code = Unknown desc = book is not found" {
-			h.builder.NewMessage(msg, "Такой книги в библиотеке не существует.", h.keyboard.FindBook())
+			h.builder.NewMessage(msg, "В библиотеке на данный момент нет книг :(", h.keyboard.FindBook())
 			return
 		}
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())

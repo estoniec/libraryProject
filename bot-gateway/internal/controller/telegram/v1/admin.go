@@ -358,6 +358,14 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
 		return
 	}
+	if len(book.Model) == 0 {
+		h.builder.NewMessage(msg, "Запроса на аренду с таким ID не существует.", nil)
+		return
+	}
+	if book.Model[0].Books.Count < 1 {
+		h.builder.NewMessage(msg, "Количество таких книг в библиотеке равно нулю, из-за чего её аренда невозможна.", nil)
+		return
+	}
 	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить аренду книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Model[0].Books.ID, book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, book.Model[0].Books.Count), h.keyboard.Success())
 	if err != nil {
 		slog.Error(err.Error())
@@ -439,6 +447,14 @@ func (h *AdminHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 	if err != nil {
 		slog.Error(err.Error())
 		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
+		return
+	}
+	if len(book.Model) == 0 {
+		h.builder.NewMessage(msg, "Такую книгу ещё никто не брал в библиотеке.", nil)
+		return
+	}
+	if book.Model[0].IsGet == false {
+		h.builder.NewMessage(msg, "Книга по этому запросу ещё не была получена пользователем.", nil)
 		return
 	}
 	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить возврат книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Model[0].Books.ID, book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, book.Model[0].Books.Count), h.keyboard.Success())

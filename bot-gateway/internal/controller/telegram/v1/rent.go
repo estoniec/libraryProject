@@ -197,7 +197,7 @@ func (h *RentHandler) MyRents(ctx context.Context, msg telego.Update) {
 		} else {
 			isGet = "да"
 		}
-		normalTime := time.Unix(rent.ReturnAt, 0)
+		normalTime := time.Unix(rent.ReturnAt, 0).UTC()
 		msgs = append(msgs, fmt.Sprintf("Номер для подтверждения/отмены аренды: %d,\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nПолучена: %s,\nДата возврата: %v", rent.ID, rent.Books.ISBN, rent.Books.Author, rent.Books.Name, isGet, normalTime))
 		if rent.IsGet == false {
 			ids = append(ids, strconv.Itoa(int(rent.ID)))
@@ -233,7 +233,7 @@ func (h *RentHandler) Next(ctx context.Context, msg telego.Update) {
 		} else {
 			isGet = "да"
 		}
-		normalTime := time.Unix(rent.ReturnAt, 0)
+		normalTime := time.Unix(rent.ReturnAt, 0).UTC()
 		msgs = append(msgs, fmt.Sprintf("Номер для подтверждения/отмены аренды: %d,\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nПолучена: %s,\nДата возврата: %v", rent.ID, rent.Books.ISBN, rent.Books.Author, rent.Books.Name, isGet, normalTime))
 		if rent.IsGet == false {
 			ids = append(ids, strconv.Itoa(int(rent.ID)))
@@ -269,7 +269,7 @@ func (h *RentHandler) Pred(ctx context.Context, msg telego.Update) {
 		} else {
 			isGet = "да"
 		}
-		normalTime := time.Unix(rent.ReturnAt, 0)
+		normalTime := time.Unix(rent.ReturnAt, 0).UTC()
 		msgs = append(msgs, fmt.Sprintf("Номер для подтверждения/отмены аренды: %d,\nISBN: %s,\nАвтор: %s,\nНазвание: %s,\nПолучена: %s,\nДата возврата: %v", rent.ID, rent.Books.ISBN, rent.Books.Author, rent.Books.Name, isGet, normalTime))
 		if rent.IsGet == false {
 			ids = append(ids, strconv.Itoa(int(rent.ID)))
@@ -343,5 +343,3 @@ func (h *RentHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 	}
 	return
 }
-
-// TODO сделать отмену запроса аренды книги

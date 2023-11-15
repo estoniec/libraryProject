@@ -8,6 +8,9 @@ services:
     depends_on:
       - books-srvc
       - users-svc
+      - rent-srvc
+      - redis
+      - postgres
 
 
   books-srvc:
@@ -34,7 +37,6 @@ services:
       - /path/to/local/dаta:/root/redis
       - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
     environment:
-      - REDIS_PASSWORD=my-password
       - REDIS_PORT=6379
       - REDIS_DATABASES=16
 
