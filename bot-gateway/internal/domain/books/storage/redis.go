@@ -22,21 +22,41 @@ func (r *Storage) Create(ctx context.Context, dto books_dto.CreateSearchDTO) err
 	jsonData, err := json.Marshal(dto)
 	if err != nil {
 		slog.Error(err.Error())
+		return err
 	}
 
 	err = r.redis.SAdd(dto.ID, jsonData).Err()
 	if err != nil {
 		slog.Error(err.Error())
+		return err
 	}
 	return nil
 }
 
 func (r *Storage) Find(ctx context.Context, dto books_dto.FindSearchDTO) (books_dto.FindSearchOutput, error) {
+	var output books_dto.FindSearchOutput
+	isExists, err := r.redis.Exists(dto.ID).Result()
+	if err != nil {
+		slog.Error(err.Error())
+		return output, err
+	}
+	if isExists == 0 {
+		return output, nil
+	}
 	jsonData, err := r.redis.SMembers(dto.ID).Result()
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		return output, err
 	}
-	var output books_dto.FindSearchOutput
 	err = json.Unmarshal([]byte(jsonData[0]), &output)
+	if err != nil {
+		slog.Error(err.Error())
+		return output, err
+	}
+	err = r.redis.Del(dto.ID).Err()
+	if err != nil {
+		slog.Error(err.Error())
+		return output, err
+	}
 	return output, nil
 }

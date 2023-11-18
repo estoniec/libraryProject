@@ -7,16 +7,18 @@ import (
 	"github.com/mymmrac/telego"
 	"github.com/sourcegraph/conc/pool"
 	"log/slog"
+	"slices"
 	"strings"
 )
 
 type Middleware func(ctx context.Context) error
 
 type Router struct {
-	client        *telego.Bot
-	handlersNames []string
-	handlers      map[string]*handling.Handler
-	wg            *pool.Pool
+	client           *telego.Bot
+	handlersNames    []string
+	questionHandlers []string
+	handlers         map[string]*handling.Handler
+	wg               *pool.Pool
 }
 
 const (
@@ -25,9 +27,10 @@ const (
 
 func NewRouter(bot *telego.Bot) *Router {
 	return &Router{
-		client:   bot,
-		wg:       pool.New(),
-		handlers: make(map[string]*handling.Handler, 20),
+		client:           bot,
+		wg:               pool.New(),
+		questionHandlers: make([]string, 10),
+		handlers:         make(map[string]*handling.Handler, 20),
 	}
 }
 
@@ -36,6 +39,10 @@ func (r *Router) AddGroup(group handling.HandlersGroup) {
 		if handler.Command != "" {
 			r.handlers[handler.Command] = handler
 			r.handlersNames = append(r.handlersNames, handler.Command)
+		}
+
+		if handler.IsQuestion == true {
+			r.questionHandlers = append(r.questionHandlers, handler.Command)
 		}
 
 		for _, alias := range handler.Aliases {
@@ -100,7 +107,11 @@ func (r *Router) handleCommand(ctx context.Context, msg telego.Update) error {
 
 		handler, ok := r.handlers[command]
 		if ok {
-			go handler.Callback(ctx, msg)
+			if ok := slices.Contains(r.questionHandlers, command); ok {
+				go handler.Callback(ctx, msg)
+				return nil
+			}
+			handler.Callback(ctx, msg)
 		}
 		return nil
 	}
@@ -119,7 +130,11 @@ func (r *Router) handleCommand(ctx context.Context, msg telego.Update) error {
 
 	handler, ok := r.handlers[command]
 	if ok {
-		go handler.Callback(ctx, msg)
+		if ok := slices.Contains(r.questionHandlers, command); ok {
+			go handler.Callback(ctx, msg)
+			return nil
+		}
+		handler.Callback(ctx, msg)
 	}
 	return nil
 }

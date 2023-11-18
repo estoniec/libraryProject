@@ -46,11 +46,11 @@ func (h *AdminHandler) AddGroup(handlerGroup handling.HandlersGroup) {
 
 func (h *AdminHandler) Register() {
 	regGroup := handling.NewHandlersGroup()
-	regGroup.NewHandler(h.AddBook, "Добавить книгу")
-	regGroup.NewHandler(h.EditCountBook, "Изменить количество книг")
-	regGroup.NewHandler(h.DeleteBook, "Удалить книгу")
-	regGroup.NewHandler(h.ConfirmRent, "Подтвердить аренду книги")
-	regGroup.NewHandler(h.ConfirmReturn, "Подтвердить возврат книги")
+	regGroup.NewHandler(h.AddBook, "Добавить книгу").Question()
+	regGroup.NewHandler(h.EditCountBook, "Изменить количество книг").Question()
+	regGroup.NewHandler(h.DeleteBook, "Удалить книгу").Question()
+	regGroup.NewHandler(h.ConfirmRent, "Подтвердить аренду книги").Question()
+	regGroup.NewHandler(h.ConfirmReturn, "Подтвердить возврат книги").Question()
 	regGroup.NewHandler(h.GetKeyboard, "/getkeyboard")
 	h.AddGroup(regGroup)
 }

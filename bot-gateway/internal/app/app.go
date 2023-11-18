@@ -58,7 +58,7 @@ func NewApp(ctx context.Context, c *config.Config) *App {
 	}
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
+		Addr:     c.Redis,
 		Password: "",
 		DB:       0,
 	})

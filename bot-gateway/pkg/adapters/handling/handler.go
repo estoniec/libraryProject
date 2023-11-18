@@ -8,9 +8,10 @@ import (
 type Callback func(ctx context.Context, msg telego.Update)
 
 type Handler struct {
-	Aliases  []string
-	Command  string
-	Callback Callback
+	Aliases    []string
+	Command    string
+	Callback   Callback
+	IsQuestion bool
 }
 
 type HandlersGroup struct {
@@ -44,4 +45,8 @@ func (h *HandlersGroup) Add(handlers ...*Handler) {
 
 func (h *Handler) WithCommand(command string) {
 	h.Command = command
+}
+
+func (h *Handler) Question() {
+	h.IsQuestion = true
 }

@@ -61,12 +61,16 @@ func (h *BooksHandler) Register() {
 	av.WithCommand("/available")
 	findByISBN := regGroup.NewHandler(h.FindByISBN)
 	findByISBN.WithCommand("/findbyisbn")
+	findByISBN.Question()
 	findByAuthor := regGroup.NewHandler(h.FindByAuthor)
 	findByAuthor.WithCommand("/findbyauthor")
+	findByAuthor.Question()
 	findByName := regGroup.NewHandler(h.FindByName)
 	findByName.WithCommand("/findbyname")
+	findByName.Question()
 	findByNameAndAuthor := regGroup.NewHandler(h.FindByNameAndAuthor)
 	findByNameAndAuthor.WithCommand("/findbynameandauthor")
+	findByNameAndAuthor.Question()
 	findAll := regGroup.NewHandler(h.FindAll)
 	findAll.WithCommand("/findall")
 	nextBtn := regGroup.NewHandler(h.Next)
@@ -363,6 +367,10 @@ func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 		return
 	}
 
+	if find.Searched == nil {
+		return
+	}
+
 	switch find.Searched[0] {
 	case "author":
 		dtoBy := dto.NewByInput(offset, model.NewFindBook("", "", find.Searched[1], 0))
@@ -484,6 +492,10 @@ func (h *BooksHandler) Pred(ctx context.Context, msg telego.Update) {
 	if err != nil {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		slog.Error(find.Error)
+		return
+	}
+
+	if find.Searched == nil {
 		return
 	}
 

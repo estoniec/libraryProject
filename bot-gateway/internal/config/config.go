@@ -11,6 +11,7 @@ type Config struct {
 	RegSvcUrl   string `yaml:"reg_svc_url" mapstructure:"REG_SVC_URL"`
 	BooksSvcUrl string `yaml:"books_svc_url" mapstructure:"BOOKS_SVC_URL"`
 	RentSvcUrl  string `yaml:"rent_svc_url" mapstructure:"RENT_SVC_URL"`
+	Redis       string `yaml:"redis" mapstructure:"REDIS"`
 	BotToken    string `yaml:"bot_token" mapstructure:"BOT_TOKEN"`
 }
 

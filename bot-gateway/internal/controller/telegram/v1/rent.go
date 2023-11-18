@@ -62,6 +62,7 @@ func (h *RentHandler) Register() {
 	regGroup := handling.NewHandlersGroup()
 	rentBook := regGroup.NewHandler(h.RentBook)
 	rentBook.WithCommand("/rent")
+	rentBook.Question()
 	myRents := regGroup.NewHandler(h.MyRents)
 	myRents.WithCommand("/rented")
 	nextBtn := regGroup.NewHandler(h.Next)
@@ -70,6 +71,7 @@ func (h *RentHandler) Register() {
 	predBtn.WithCommand("/predrents")
 	cancelRent := regGroup.NewHandler(h.ConfirmReturn)
 	cancelRent.WithCommand("/returnbook")
+	cancelRent.Question()
 	h.AddGroup(regGroup)
 }
 

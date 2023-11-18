@@ -50,6 +50,7 @@ func (h *RegHandler) Register() {
 	regGroup := handling.NewHandlersGroup()
 	reg := regGroup.NewHandler(h.Registration)
 	reg.WithCommand("/start")
+	reg.Question()
 	h.AddGroup(regGroup)
 }
 
