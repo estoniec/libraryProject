@@ -109,7 +109,6 @@ func (h *AdminHandler) AddBook(ctx context.Context, msg telego.Update) {
 		return
 	}
 	answers, c := h.question.NewQuestion(msg)
-	defer c()
 	isbn, ok := <-answers
 	if !ok || isbn.Text == "" {
 		h.builder.NewMessage(msg, "Попробуйте ввести ISBN заново.", nil)
@@ -145,6 +144,7 @@ func (h *AdminHandler) AddBook(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести количество книг заново.", nil)
 		return
 	}
+	c()
 	countInt, err := strconv.Atoi(count.Text)
 	if err != nil {
 		h.builder.NewMessage(msg, "Попробуйте ввести количество книг заново.", nil)
@@ -155,30 +155,34 @@ func (h *AdminHandler) AddBook(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
-	defer cl()
-	answer, ok := <-callbackAnswers
-	if !ok {
-		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
-		return
-	}
-	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
-		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
-		if err != nil {
-			slog.Error(err.Error())
+	go func() {
+		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+		defer cl()
+		answer, ok := <-callbackAnswers
+		if !ok {
+			h.builder.NewMessage(msg, "Попробуйте заново.", nil)
 			return
 		}
-		input := dto.NewAddBookInput(model.NewBook(isbn.Text, countInt, name.Text, author.Text))
-		res, err := h.bookUsecase.AddBook(ctx, input)
-		if err != nil || res.Status == 404 {
-			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
-			slog.Error(err.Error())
+		if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
+			err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+			if err != nil {
+				slog.Error(err.Error())
+				return
+			}
+			input := dto.NewAddBookInput(model.NewBook(isbn.Text, countInt, name.Text, author.Text))
+			res, err := h.bookUsecase.AddBook(ctx, input)
+			if err != nil || res.Status == 404 {
+				h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+				slog.Error(err.Error())
+				return
+			}
+			h.builder.NewMessageWithKeyboard(msg, "Вы успешно добавили книгу в базу данных!", h.keyboard.Admin())
+			return
+		} else {
+			h.GetKeyboard(ctx, answer)
 			return
 		}
-		h.builder.NewMessageWithKeyboard(msg, "Вы успешно добавили книгу в базу данных!", h.keyboard.Admin())
-	} else {
-		h.GetKeyboard(ctx, answer)
-	}
+	}()
 	return
 }
 
@@ -229,30 +233,34 @@ func (h *AdminHandler) EditCountBook(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
-	defer cl()
-	answer, ok := <-callbackAnswers
-	if !ok {
-		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
-		return
-	}
-	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
-		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
-		if err != nil {
-			slog.Error(err.Error())
+	go func() {
+		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+		defer cl()
+		answer, ok := <-callbackAnswers
+		if !ok {
+			h.builder.NewMessage(msg, "Попробуйте заново.", nil)
 			return
 		}
-		input := dto.NewEditCountBookInput(isbn.Text, countInt)
-		res, err := h.bookUsecase.EditCountBook(ctx, input)
-		if err != nil || res.Status == 404 {
-			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
-			slog.Error(err.Error())
+		if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
+			err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+			if err != nil {
+				slog.Error(err.Error())
+				return
+			}
+			input := dto.NewEditCountBookInput(isbn.Text, countInt)
+			res, err := h.bookUsecase.EditCountBook(ctx, input)
+			if err != nil || res.Status == 404 {
+				h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+				slog.Error(err.Error())
+				return
+			}
+			h.builder.NewMessageWithKeyboard(msg, "Вы успешно изменили количество книг!", h.keyboard.Admin())
+			return
+		} else {
+			h.GetKeyboard(ctx, answer)
 			return
 		}
-		h.builder.NewMessageWithKeyboard(msg, "Вы успешно изменили количество книг!", h.keyboard.Admin())
-	} else {
-		h.GetKeyboard(ctx, answer)
-	}
+	}()
 	return
 }
 
@@ -288,30 +296,34 @@ func (h *AdminHandler) DeleteBook(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
-	defer cl()
-	answer, ok := <-callbackAnswers
-	if !ok {
-		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
-		return
-	}
-	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
-		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
-		if err != nil {
-			slog.Error(err.Error())
+	go func() {
+		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+		defer cl()
+		answer, ok := <-callbackAnswers
+		if !ok {
+			h.builder.NewMessage(msg, "Попробуйте заново.", nil)
 			return
 		}
-		input := dto.NewDeleteBookInput(isbn.Text)
-		res, err := h.bookUsecase.DeleteBook(ctx, input)
-		if err != nil || res.Status == 404 {
-			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
-			slog.Error(err.Error())
+		if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
+			err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+			if err != nil {
+				slog.Error(err.Error())
+				return
+			}
+			input := dto.NewDeleteBookInput(isbn.Text)
+			res, err := h.bookUsecase.DeleteBook(ctx, input)
+			if err != nil || res.Status == 404 {
+				h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+				slog.Error(err.Error())
+				return
+			}
+			h.builder.NewMessageWithKeyboard(msg, "Вы успешно удалили книгу!", h.keyboard.Admin())
+			return
+		} else {
+			h.GetKeyboard(ctx, answer)
 			return
 		}
-		h.builder.NewMessageWithKeyboard(msg, "Вы успешно изменили количество книг!", h.keyboard.Admin())
-	} else {
-		h.GetKeyboard(ctx, answer)
-	}
+	}()
 	return
 }
 
@@ -371,38 +383,42 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
-	defer cl()
-	answer, ok := <-callbackAnswers
-	if !ok {
-		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
-		return
-	}
-	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
-		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
-		if err != nil {
-			slog.Error(err.Error())
+	go func() {
+		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+		defer cl()
+		answer, ok := <-callbackAnswers
+		if !ok {
+			h.builder.NewMessage(msg, "Попробуйте заново.", nil)
 			return
 		}
-		input := dto.NewConfirmRentInput(int64(idInt))
-		res, err := h.rentUsecase.ConfirmRent(ctx, input)
-		if err != nil || res.Status == 404 {
-			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
-			slog.Error(err.Error())
+		if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
+			err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+			if err != nil {
+				slog.Error(err.Error())
+				return
+			}
+			input := dto.NewConfirmRentInput(int64(idInt))
+			res, err := h.rentUsecase.ConfirmRent(ctx, input)
+			if err != nil || res.Status == 404 {
+				h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+				slog.Error(err.Error())
+				return
+			}
+			inputEdit := dto.NewEditCountBookInput(book.Model[0].Books.ISBN, int(book.Model[0].Books.Count)-1)
+			resEdit, err := h.bookUsecase.EditCountBook(ctx, inputEdit)
+			if err != nil || resEdit.Status == 404 {
+				h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+				slog.Error(err.Error())
+				return
+			}
+			h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили аренду книги!", h.keyboard.Admin())
+			h.builder.NewMessageByID(int64(book.Model[0].Users.ID), fmt.Sprintf("Аренда книги со следующими параметрами успешно подтверждена.\n\nISBN: %s\nАвтор: %s\nНазвание: %s\n\nДля возврата книги продиктуйте библиотекарю номер: %d", book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, idInt), nil)
+			return
+		} else {
+			h.GetKeyboard(ctx, answer)
 			return
 		}
-		inputEdit := dto.NewEditCountBookInput(book.Model[0].Books.ISBN, int(book.Model[0].Books.Count)-1)
-		resEdit, err := h.bookUsecase.EditCountBook(ctx, inputEdit)
-		if err != nil || resEdit.Status == 404 {
-			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
-			slog.Error(err.Error())
-			return
-		}
-		h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили аренду книги!", h.keyboard.Admin())
-		h.builder.NewMessageByID(int64(book.Model[0].Users.ID), fmt.Sprintf("Аренда книги со следующими параметрами успешно подтверждена.\n\nISBN: %s\nАвтор: %s\nНазвание: %s\n\nДля возврата книги продиктуйте библиотекарю номер: %d", book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, idInt), nil)
-	} else {
-		h.GetKeyboard(ctx, answer)
-	}
+	}()
 	return
 }
 
@@ -462,37 +478,41 @@ func (h *AdminHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
-	defer cl()
-	answer, ok := <-callbackAnswers
-	if !ok {
-		h.builder.NewMessage(msg, "Попробуйте заново.", nil)
-		return
-	}
-	if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
-		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
-		if err != nil {
-			slog.Error(err.Error())
+	go func() {
+		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+		defer cl()
+		answer, ok := <-callbackAnswers
+		if !ok {
+			h.builder.NewMessage(msg, "Попробуйте заново.", nil)
 			return
 		}
-		input := dto.NewConfirmReturnInput(int64(idInt))
-		res, err := h.rentUsecase.ConfirmReturn(ctx, input)
-		if err != nil || res.Status == 404 {
-			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
-			slog.Error(err.Error())
+		if answer.CallbackQuery.Data == "{\"command\":\"/accept\"}" {
+			err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
+			if err != nil {
+				slog.Error(err.Error())
+				return
+			}
+			input := dto.NewConfirmReturnInput(int64(idInt))
+			res, err := h.rentUsecase.ConfirmReturn(ctx, input)
+			if err != nil || res.Status == 404 {
+				h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+				slog.Error(err.Error())
+				return
+			}
+			inputEdit := dto.NewEditCountBookInput(book.Model[0].Books.ISBN, book.Model[0].Books.Count+1)
+			resEdit, err := h.bookUsecase.EditCountBook(ctx, inputEdit)
+			if err != nil || resEdit.Status == 404 {
+				h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
+				slog.Error(err.Error())
+				return
+			}
+			h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили возврат книги!", h.keyboard.Admin())
+			h.builder.NewMessageByID(book.Model[0].Users.ID, fmt.Sprintf("Возврат книги со следующими параметрами успешно подтверждён.\n\nISBN: %s\nАвтор: %s\nНазвание: %s", book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name), nil)
+			return
+		} else {
+			h.GetKeyboard(ctx, answer)
 			return
 		}
-		inputEdit := dto.NewEditCountBookInput(book.Model[0].Books.ISBN, book.Model[0].Books.Count+1)
-		resEdit, err := h.bookUsecase.EditCountBook(ctx, inputEdit)
-		if err != nil || resEdit.Status == 404 {
-			h.builder.NewMessage(msg, "Попробуйте заново позже.", nil)
-			slog.Error(err.Error())
-			return
-		}
-		h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили возврат книги!", h.keyboard.Admin())
-		h.builder.NewMessageByID(book.Model[0].Users.ID, fmt.Sprintf("Возврат книги со следующими параметрами успешно подтверждён.\n\nISBN: %s\nАвтор: %s\nНазвание: %s", book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name), nil)
-	} else {
-		h.GetKeyboard(ctx, answer)
-	}
+	}()
 	return
 }

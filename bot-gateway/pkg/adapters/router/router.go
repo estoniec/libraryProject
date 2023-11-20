@@ -42,7 +42,12 @@ func (r *Router) AddGroup(group handling.HandlersGroup) {
 		}
 
 		if handler.IsQuestion == true {
-			r.questionHandlers = append(r.questionHandlers, handler.Command)
+			if handler.Command != "" {
+				r.questionHandlers = append(r.questionHandlers, handler.Command)
+			} else {
+				lowerAlias := strings.ToLower(handler.Aliases[0])
+				r.questionHandlers = append(r.questionHandlers, lowerAlias)
+			}
 		}
 
 		for _, alias := range handler.Aliases {
@@ -109,9 +114,9 @@ func (r *Router) handleCommand(ctx context.Context, msg telego.Update) error {
 		if ok {
 			if ok := slices.Contains(r.questionHandlers, command); ok {
 				go handler.Callback(ctx, msg)
-				return nil
+			} else {
+				handler.Callback(ctx, msg)
 			}
-			handler.Callback(ctx, msg)
 		}
 		return nil
 	}
@@ -132,9 +137,9 @@ func (r *Router) handleCommand(ctx context.Context, msg telego.Update) error {
 	if ok {
 		if ok := slices.Contains(r.questionHandlers, command); ok {
 			go handler.Callback(ctx, msg)
-			return nil
+		} else {
+			handler.Callback(ctx, msg)
 		}
-		handler.Callback(ctx, msg)
 	}
 	return nil
 }

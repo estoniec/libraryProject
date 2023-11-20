@@ -294,7 +294,6 @@ func (h *RentHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-
 	id, err := jsonparser.GetString([]byte(msg.CallbackQuery.Data), "id")
 	if err != nil {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
@@ -311,6 +310,10 @@ func (h *RentHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 	book, err := h.usecase.FindBook(ctx, input)
 	if err != nil {
 		slog.Error(err.Error())
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+		return
+	}
+	if len(book.Model) == 0 {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		return
 	}
