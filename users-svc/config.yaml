@@ -1,7 +1,0 @@
-grpc_port: :50051
-database:
-  psql_username: postgres
-  psql_password: postgres
-  psql_host: postgres
-  psql_port: 5432
-  psql_database: postgres
