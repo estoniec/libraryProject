@@ -108,7 +108,8 @@ func (h *AdminHandler) AddBook(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	answers, c := h.question.NewQuestion(msg)
+	answers, c := h.question.NewQuestion(msg, 4)
+	defer c()
 	isbn, ok := <-answers
 	if !ok || isbn.Text == "" {
 		h.builder.NewMessage(msg, "Попробуйте ввести ISBN заново.", nil)
@@ -144,7 +145,6 @@ func (h *AdminHandler) AddBook(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте ввести количество книг заново.", nil)
 		return
 	}
-	c()
 	countInt, err := strconv.Atoi(count.Text)
 	if err != nil {
 		h.builder.NewMessage(msg, "Попробуйте ввести количество книг заново.", nil)
@@ -156,7 +156,7 @@ func (h *AdminHandler) AddBook(ctx context.Context, msg telego.Update) {
 		return
 	}
 	go func() {
-		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg, 1)
 		defer cl()
 		answer, ok := <-callbackAnswers
 		if !ok {
@@ -206,7 +206,7 @@ func (h *AdminHandler) EditCountBook(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	answers, c := h.question.NewQuestion(msg)
+	answers, c := h.question.NewQuestion(msg, 2)
 	defer c()
 	isbn, ok := <-answers
 	if !ok || isbn.Text == "" {
@@ -234,7 +234,7 @@ func (h *AdminHandler) EditCountBook(ctx context.Context, msg telego.Update) {
 		return
 	}
 	go func() {
-		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg, 1)
 		defer cl()
 		answer, ok := <-callbackAnswers
 		if !ok {
@@ -284,7 +284,7 @@ func (h *AdminHandler) DeleteBook(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	answers, c := h.question.NewQuestion(msg)
+	answers, c := h.question.NewQuestion(msg, 1)
 	defer c()
 	isbn, ok := <-answers
 	if !ok || isbn.Text == "" {
@@ -297,7 +297,7 @@ func (h *AdminHandler) DeleteBook(ctx context.Context, msg telego.Update) {
 		return
 	}
 	go func() {
-		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg, 1)
 		defer cl()
 		answer, ok := <-callbackAnswers
 		if !ok {
@@ -347,7 +347,7 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	answers, c := h.question.NewQuestion(msg)
+	answers, c := h.question.NewQuestion(msg, 1)
 	defer c()
 	id, ok := <-answers
 	if !ok || id.Text == "" {
@@ -384,7 +384,7 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 		return
 	}
 	go func() {
-		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg, 1)
 		defer cl()
 		answer, ok := <-callbackAnswers
 		if !ok {
@@ -442,7 +442,7 @@ func (h *AdminHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	answers, c := h.question.NewQuestion(msg)
+	answers, c := h.question.NewQuestion(msg, 1)
 	defer c()
 	id, ok := <-answers
 	if !ok || id.Text == "" {
@@ -479,7 +479,7 @@ func (h *AdminHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 		return
 	}
 	go func() {
-		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+		callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg, 1)
 		defer cl()
 		answer, ok := <-callbackAnswers
 		if !ok {

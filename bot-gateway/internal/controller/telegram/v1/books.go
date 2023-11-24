@@ -123,7 +123,7 @@ func (h *BooksHandler) FindByISBN(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	answer, c := h.question.NewQuestion(msg)
+	answer, c := h.question.NewQuestion(msg, 1)
 	defer c()
 	isbn, ok := <-answer
 	if !ok || isbn.Text == "" {
@@ -164,7 +164,7 @@ func (h *BooksHandler) FindByAuthor(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	answer, c := h.question.NewQuestion(msg)
+	answer, c := h.question.NewQuestion(msg, 1)
 	defer c()
 	author, ok := <-answer
 	if !ok || author.Text == "" {
@@ -213,7 +213,7 @@ func (h *BooksHandler) FindByName(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	answer, c := h.question.NewQuestion(msg)
+	answer, c := h.question.NewQuestion(msg, 1)
 	defer c()
 	name, ok := <-answer
 	if !ok || name.Text == "" {
@@ -262,7 +262,7 @@ func (h *BooksHandler) FindByNameAndAuthor(ctx context.Context, msg telego.Updat
 		slog.Error(err.Error())
 		return
 	}
-	answer, c := h.question.NewQuestion(msg)
+	answer, c := h.question.NewQuestion(msg, 2)
 	defer c()
 	author, ok := <-answer
 	if !ok || author.Text == "" {

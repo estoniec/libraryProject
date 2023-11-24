@@ -85,7 +85,7 @@ func (h *RegHandler) Registration(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	answers, c := h.question.NewQuestion(msg)
+	answers, c := h.question.NewQuestion(msg, 3)
 	defer c()
 	telephone, ok := <-answers
 	if !ok || telephone.Contact == nil {

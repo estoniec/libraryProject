@@ -112,7 +112,7 @@ func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	answer, c := h.question.NewQuestion(msg)
+	answer, c := h.question.NewQuestion(msg, 1)
 	defer c()
 	days, ok := <-answer
 	if !ok || days.Text == "" {
@@ -121,6 +121,10 @@ func (h *RentHandler) RentBook(ctx context.Context, msg telego.Update) {
 	}
 	daysInt, err := strconv.Atoi(days.Text)
 	if err != nil {
+		h.builder.NewMessage(msg, "Попробуйте ввести количество дней заново.", h.keyboard.FindBook())
+		return
+	}
+	if daysInt < 1 || daysInt > 30 {
 		h.builder.NewMessage(msg, "Попробуйте ввести количество дней заново.", h.keyboard.FindBook())
 		return
 	}
@@ -322,7 +326,7 @@ func (h *RentHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 		slog.Error(err.Error())
 		return
 	}
-	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg)
+	callbackAnswers, cl := h.callbackQuestion.NewQuestion(msg, 1)
 	defer cl()
 	answer, ok := <-callbackAnswers
 	if !ok {

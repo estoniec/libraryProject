@@ -7,16 +7,21 @@ import (
 	"time"
 )
 
+type Question struct {
+	Size int64
+	C    chan *telego.Message
+}
+
 type Manager struct {
 	mx               sync.RWMutex
-	questions        map[int64]map[int64]chan *telego.Message
+	questions        map[int64]Question
 	questionsCreated map[int64]map[int64]time.Time
 	middlewareCh     chan *telego.Message
 }
 
 func NewManager(ctx context.Context) *Manager {
 	manager := &Manager{
-		questions:        make(map[int64]map[int64]chan *telego.Message),
+		questions:        make(map[int64]Question),
 		questionsCreated: make(map[int64]map[int64]time.Time),
 		middlewareCh:     make(chan *telego.Message),
 	}
@@ -26,7 +31,7 @@ func NewManager(ctx context.Context) *Manager {
 	return manager
 }
 
-func (m *Manager) NewQuestion(message telego.Update) (chan *telego.Message, func()) {
+func (m *Manager) NewQuestion(message telego.Update, size int64) (chan *telego.Message, func()) {
 	m.mx.Lock()
 	defer m.mx.Unlock()
 
@@ -39,18 +44,18 @@ func (m *Manager) NewQuestion(message telego.Update) (chan *telego.Message, func
 	}
 
 	if _, ok := m.questions[msg.Chat.ID]; !ok {
-		m.questions[msg.Chat.ID] = make(map[int64]chan *telego.Message)
 		m.questionsCreated[msg.Chat.ID] = make(map[int64]time.Time)
-	}
-
-	if _, ok := m.questions[msg.Chat.ID][msg.Chat.ID]; !ok {
 		res := make(chan *telego.Message)
-		m.questions[msg.Chat.ID][msg.Chat.ID] = res
+		m.questions[msg.Chat.ID] = Question{
+			Size: size,
+			C:    res,
+		}
 		m.questionsCreated[msg.Chat.ID][msg.Chat.ID] = time.Now()
 		return res, func() {
-			m.close(msg.Chat.ID, msg.Chat.ID)
+			m.close(msg.Chat.ID)
 		}
 	}
+
 	return nil, nil
 }
 
@@ -65,28 +70,22 @@ func (m *Manager) clear(ctx context.Context) {
 			break
 		case <-ticker:
 			for chatID, chatQuestions := range m.questionsCreated {
-				for userID, question := range chatQuestions {
+				for _, question := range chatQuestions {
 					if time.Since(question).Seconds()-interval.Seconds() < 0 {
 						continue
 					}
 
-					m.close(chatID, userID)
+					m.close(chatID)
 				}
 			}
 		}
 	}
 }
 
-func (m *Manager) close(chatID, userID int64) {
-	_, ok := m.questions[chatID][userID]
+func (m *Manager) close(chatID int64) {
+	_, ok := m.questions[chatID]
 	if ok {
-		close(m.questions[chatID][userID])
-
-		delete(m.questions[chatID], userID)
-
-		if len(m.questions[chatID]) != 0 {
-			return
-		}
+		close(m.questions[chatID].C)
 
 		delete(m.questions, chatID)
 
@@ -101,17 +100,19 @@ func (m *Manager) close(chatID, userID int64) {
 func (m *Manager) SendMsgToQuestion(message *telego.Message) bool {
 	m.mx.RLock()
 	defer m.mx.RUnlock()
+
 	questions, ok := m.questions[message.Chat.ID]
 	if !ok {
 		return true
 	}
-	question, ok := questions[message.Chat.ID]
-	if !ok {
+
+	if questions.Size == 0 {
 		return true
 	}
 
+	questions.Size -= 1
 	// Если канал вопроса открыт, отправляем сообщение в канал
-	question <- message
+	questions.C <- message
 
 	return false
 }

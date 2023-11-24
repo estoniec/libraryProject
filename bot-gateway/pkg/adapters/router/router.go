@@ -117,6 +117,7 @@ func (r *Router) handleCommand(ctx context.Context, msg telego.Update) error {
 			} else {
 				handler.Callback(ctx, msg)
 			}
+			//handler.Callback(ctx, msg)
 		}
 		return nil
 	}
@@ -140,6 +141,7 @@ func (r *Router) handleCommand(ctx context.Context, msg telego.Update) error {
 		} else {
 			handler.Callback(ctx, msg)
 		}
+		//handler.Callback(ctx, msg)
 	}
 	return nil
 }
