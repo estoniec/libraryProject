@@ -368,6 +368,7 @@ func (h *BooksHandler) Next(ctx context.Context, msg telego.Update) {
 	}
 
 	if find.Searched == nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		return
 	}
 
@@ -496,6 +497,7 @@ func (h *BooksHandler) Pred(ctx context.Context, msg telego.Update) {
 	}
 
 	if find.Searched == nil {
+		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		return
 	}
 

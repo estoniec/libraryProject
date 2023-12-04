@@ -231,7 +231,7 @@ func (h *RentHandler) Next(ctx context.Context, msg telego.Update) {
 	input := dto.NewMyRentsInput(msg.CallbackQuery.From.ID, offset)
 	rents, err := h.usecase.MyRents(ctx, input)
 	if len(rents.Rents) == 0 {
-		h.builder.NewMessage(msg, "Больше арендованных книг у вас нет.", h.keyboard.FindBook())
+		h.builder.NewMessage(msg, "Больше арендованных книг у вас нет.", h.keyboard.Menu())
 		return
 	}
 	var msgs []string
