@@ -230,6 +230,10 @@ func (h *RentHandler) Next(ctx context.Context, msg telego.Update) {
 
 	input := dto.NewMyRentsInput(msg.CallbackQuery.From.ID, offset)
 	rents, err := h.usecase.MyRents(ctx, input)
+	if len(rents.Rents) == 0 {
+		h.builder.NewMessage(msg, "Больше арендованных книг у вас нет.", h.keyboard.FindBook())
+		return
+	}
 	var msgs []string
 	var ids []string
 	for _, rent := range rents.Rents {
@@ -321,6 +325,10 @@ func (h *RentHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
 		return
 	}
+	if book.Model[0].IsGet == true {
+		h.builder.NewMessage(msg, "Вы уже подтвердили аренду книги, для возврата подойдите к библиотекарю.", h.keyboard.FindBook())
+		return
+	}
 	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить отмену запроса на аренду книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Model[0].Books.ID, book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, book.Model[0].Books.Count), h.keyboard.Success())
 	if err != nil {
 		slog.Error(err.Error())
@@ -337,6 +345,20 @@ func (h *RentHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 		err = h.builder.NewCallbackMessage(answer.CallbackQuery, "")
 		if err != nil {
 			slog.Error(err.Error())
+			return
+		}
+		book, err = h.usecase.FindBook(ctx, input)
+		if err != nil {
+			slog.Error(err.Error())
+			h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+			return
+		}
+		if len(book.Model) == 0 {
+			h.builder.NewMessage(msg, "Попробуйте заново.", h.keyboard.FindBook())
+			return
+		}
+		if book.Model[0].IsGet == true {
+			h.builder.NewMessage(msg, "Вы уже подтвердили аренду книги, для возврата подойдите к библиотекарю.", h.keyboard.FindBook())
 			return
 		}
 		input := dto.NewConfirmReturnInput(int64(idInt))

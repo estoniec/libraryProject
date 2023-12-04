@@ -378,7 +378,7 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Количество таких книг в библиотеке равно нулю, из-за чего её аренда невозможна.", nil)
 		return
 	}
-	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить аренду книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Model[0].Books.ID, book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, book.Model[0].Books.Count), h.keyboard.Success())
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить аренду книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d\n\nИмя арендатора: %s\nСсылка для перехода в диалог с ним: t.me/%s", book.Model[0].Books.ID, book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, book.Model[0].Books.Count, book.Model[0].Users.Username, book.Model[0].Users.Phone), h.keyboard.Success())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -412,7 +412,7 @@ func (h *AdminHandler) ConfirmRent(ctx context.Context, msg telego.Update) {
 				return
 			}
 			h.builder.NewMessageWithKeyboard(msg, "Вы успешно подтвердили аренду книги!", h.keyboard.Admin())
-			h.builder.NewMessageByID(int64(book.Model[0].Users.ID), fmt.Sprintf("Аренда книги со следующими параметрами успешно подтверждена.\n\nISBN: %s\nАвтор: %s\nНазвание: %s\n\nДля возврата книги продиктуйте библиотекарю номер: %d", book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, idInt), nil)
+			h.builder.NewMessageByID(book.Model[0].Users.ID, fmt.Sprintf("Аренда книги со следующими параметрами успешно подтверждена.\n\nISBN: %s\nАвтор: %s\nНазвание: %s\n\nДля возврата книги продиктуйте библиотекарю номер: %d", book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, idInt), nil)
 			return
 		} else {
 			h.GetKeyboard(ctx, answer)
@@ -473,7 +473,7 @@ func (h *AdminHandler) ConfirmReturn(ctx context.Context, msg telego.Update) {
 		h.builder.NewMessage(msg, "Книга по этому запросу ещё не была получена пользователем.", nil)
 		return
 	}
-	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить возврат книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d", book.Model[0].Books.ID, book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, book.Model[0].Books.Count), h.keyboard.Success())
+	_, err = h.builder.NewMessage(msg, fmt.Sprintf("Вы точно хотите подтвердить возврат книги? Вот информация о ней:\n\nID: %d\nISBN: %s\nАвтор: %s\nНазвание: %s\nКоличество в библиотеке (шт): %d\n\nИмя арендатора: %s\nСсылка для перехода в диалог с ним: t.me/%s", book.Model[0].Books.ID, book.Model[0].Books.ISBN, book.Model[0].Books.Author, book.Model[0].Books.Name, book.Model[0].Books.Count, book.Model[0].Users.Username, book.Model[0].Users.Phone), h.keyboard.Success())
 	if err != nil {
 		slog.Error(err.Error())
 		return

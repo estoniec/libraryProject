@@ -6,6 +6,7 @@ import (
 	books_dto "gateway/internal/domain/books/dto"
 	"github.com/go-redis/redis"
 	"log/slog"
+	"time"
 )
 
 type Storage struct {
@@ -30,6 +31,9 @@ func (r *Storage) Create(ctx context.Context, dto books_dto.CreateSearchDTO) err
 		slog.Error(err.Error())
 		return err
 	}
+
+	go r.clear(ctx, dto.ID)
+
 	return nil
 }
 
@@ -59,4 +63,22 @@ func (r *Storage) Find(ctx context.Context, dto books_dto.FindSearchDTO) (books_
 		return output, err
 	}
 	return output, nil
+}
+
+func (r *Storage) clear(ctx context.Context, id string) {
+	interval := time.Second * 120
+
+	ticker := time.Tick(interval)
+
+	for {
+		select {
+		case <-ctx.Done():
+			break
+		case <-ticker:
+			err := r.redis.Del(id).Err()
+			if err != nil {
+				slog.Error(err.Error())
+			}
+		}
+	}
 }
