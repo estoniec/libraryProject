@@ -11,6 +11,7 @@ type Repository interface {
 	UpdateGet(ctx context.Context, dto dto.ConfirmRentInput) error
 	UpdateReturn(ctx context.Context, dto dto.ConfirmReturnInput) error
 	FindBy(ctx context.Context, dto dto.FindByInput) ([]model.BooksUsers, error)
+	EditCount(ctx context.Context, dto dto.EditCountBookInput) error
 }
 
 type Service struct {
@@ -54,4 +55,12 @@ func (s *Service) FindBy(ctx context.Context, input dto.FindByInput) (dto.FindBy
 		return dto.NewFindByOutput(err.Error(), 404, model), err
 	}
 	return dto.NewFindByOutput("", 200, model), nil
+}
+
+func (s *Service) EditCountBook(ctx context.Context, input dto.EditCountBookInput) (dto.EditCountBookOutput, error) {
+	err := s.repository.EditCount(ctx, input)
+	if err != nil {
+		return dto.NewEditCountOutput(err.Error(), 404), err
+	}
+	return dto.NewEditCountOutput("", 200), nil
 }

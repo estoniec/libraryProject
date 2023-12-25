@@ -59,6 +59,7 @@ message ConfirmRentResponse {
 
 message ConfirmReturnRequest {
   int64 ID = 1;
+  bool isGet = 2;
 }
 
 message ConfirmReturnResponse {

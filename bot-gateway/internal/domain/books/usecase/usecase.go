@@ -6,20 +6,30 @@ import (
 	books_dto "gateway/internal/domain/books/dto"
 	"gateway/internal/domain/books/model"
 	pb "github.com/estoniec/libraryProject/contracts/gen/go/books"
+	"google.golang.org/grpc"
 	"strconv"
 )
 
+//go:generate go run github.com/vektra/mockery/v3 --name=Service
 type Service interface {
 	Create(ctx context.Context, dto books_dto.CreateSearchDTO) error
 	Find(ctx context.Context, dto books_dto.FindSearchDTO) (books_dto.FindSearchOutput, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v3 --name=BooksServiceClient
+type BooksServiceClient interface {
+	FindBy(ctx context.Context, in *pb.FindByRequest, opts ...grpc.CallOption) (*pb.FindByResponse, error)
+	CreateBook(ctx context.Context, in *pb.CreateBookRequest, opts ...grpc.CallOption) (*pb.CreateBookResponse, error)
+	EditCountBook(ctx context.Context, in *pb.EditCountBookRequest, opts ...grpc.CallOption) (*pb.EditCountBookResponse, error)
+	DeleteBook(ctx context.Context, in *pb.DeleteBookRequest, opts ...grpc.CallOption) (*pb.DeleteBookResponse, error)
+}
+
 type Usecase struct {
-	client      pb.BooksServiceClient
+	client      BooksServiceClient
 	bookService Service
 }
 
-func NewUsecase(client pb.BooksServiceClient, booksService Service) *Usecase {
+func NewUsecase(client BooksServiceClient, booksService Service) *Usecase {
 	return &Usecase{
 		client:      client,
 		bookService: booksService,

@@ -89,3 +89,20 @@ func NewFindByOutput(error string, status int64, model []model.BooksUsers) FindB
 		Model:  model,
 	}
 }
+
+type EditCountBookInput struct {
+	ID int64
+}
+
+type EditCountBookOutput struct {
+	Error  string
+	Status int64
+}
+
+func NewEditCountOutput(error string,
+	status int64) EditCountBookOutput {
+	return EditCountBookOutput{
+		Error:  error,
+		Status: status,
+	}
+}
